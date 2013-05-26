@@ -1,0 +1,21 @@
+#!/bin/sh
+exec scala -savecompiled $0 $@
+!#
+
+import scala.io.Source
+import scala.util.Random
+
+val rawData = Source.fromFile("README.md").getLines.dropWhile(
+  l => !l.startsWith("  *")).takeWhile(_ != "").toList
+
+def merge (forms :List[String], lines :List[String]) :List[String] = lines match {
+  case Nil => forms
+  case h :: t =>
+    if (h startsWith "  *") merge(h.trim :: forms, t)
+    else merge((forms.head + "\n" + h.substring(2)) :: forms.tail, t)
+}
+
+val forms = merge(List(), rawData)
+val pair = Random.shuffle(forms) take(2)
+println("Survey says:")
+pair foreach println
