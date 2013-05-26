@@ -58,7 +58,7 @@ mechanics, but the occasional other kind of element may sneak in.
 
 ## The Prototypes
 
-TBD
+  * [Grid Poker](gridpoker)
 
 ## License
 
