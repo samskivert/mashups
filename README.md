@@ -59,3 +59,9 @@ mechanics, but the occasional other kind of element may sneak in.
 ## The Prototypes
 
 TBD
+
+## License
+
+All the code herein is released under a [BSD License]. Do what you will.
+
+[BSD License]: https://github.com/samskivert/mashups/blob/master/LICENSE
