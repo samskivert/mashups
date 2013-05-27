@@ -4,7 +4,6 @@
 
 package gridpoker.core;
 
-import java.util.List;
 import pythagoras.f.FloatMath;
 import pythagoras.f.Point;
 import react.*;
@@ -166,10 +165,8 @@ public class GameScreen extends UIAnimScreen {
   }
 
   protected void scorePlacement (Coord coord) {
-    List<Hand> hands = grid.bestHands(coord, true);
-    hands.addAll(grid.bestHands(coord, false));
     int delay = 0;
-    for (final Hand hand : hands) {
+    for (final Hand hand : grid.bestHands(grid.cards.get(coord), coord)) {
       if (hand.score == 0) continue;
       System.err.println(hand);
       final IntValue score = scores[turnHolder.get()];
