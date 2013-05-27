@@ -112,16 +112,19 @@ public class GameScreen extends UIAnimScreen {
         // position the last played sprite over this card
         position(_lastPlayed, coord);
         _lastPlayed.setVisible(true);
-        // score any valid hands made by this card
-        scorePlacement(coord);
-        anim.addBarrier();
-        // wait for any animations to finish, then move to the next turn or end the game
-        anim.action(new Runnable() {
-          public void run () {
-            if (deck.cards.isEmpty()) endGame();
-            else turnHolder.update((turnHolder.get() + 1) % scores.length);
-          }
-        });
+        // we're notified once before the game starts, so ignore that one
+        if (turnHolder.get() >= 0) {
+          // score any valid hands made by this card
+          scorePlacement(coord);
+          anim.addBarrier();
+          // wait for any animations to finish, then move to the next turn or end the game
+          anim.action(new Runnable() {
+            public void run () {
+              if (deck.cards.isEmpty() || !grid.haveLegalMove()) endGame();
+              else turnHolder.update((turnHolder.get() + 1) % scores.length);
+            }
+          });
+        }
       }
       // TODO: track sprites by Coord, and remove in onRemove?
     });
@@ -133,10 +136,17 @@ public class GameScreen extends UIAnimScreen {
         if (thIdx >= 0 && // the game is not over
             players[thIdx] == Player.HUMAN && // it's a human's turn
             !deck.cards.isEmpty() && // there are cards left to play
-            !grid.cards.containsKey(coord) && // there's not already a card here
-            grid.hasNeighbor(coord)) { // there's a card neighboring this spot
+            grid.isLegalMove(coord)) { // there's a card neighboring this spot
           grid.cards.put(coord, deck.cards.remove(0));
         }
+      }
+    });
+
+    // wire up AI opponents
+    turnHolder.connect(new Slot<Integer>() {
+      public void onEmit (Integer thIdx) {
+        if (thIdx < 0 || players[thIdx] == Player.HUMAN) return;
+        grid.cards.put(grid.computeMove(players[thIdx], deck.cards.get(0)), deck.cards.remove(0));
       }
     });
 

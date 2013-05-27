@@ -5,9 +5,14 @@
 package gridpoker.core;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import react.RMap;
+
+import tripleplay.util.Randoms;
 
 /** Models the card grid; contains some logics. */
 public class Grid {
@@ -19,6 +24,12 @@ public class Grid {
   public boolean hasNeighbor (Coord coord) {
     return (cards.containsKey(coord.left())  || cards.containsKey(coord.right()) ||
             cards.containsKey(coord.above()) || cards.containsKey(coord.below()));
+  }
+
+  /** Returns true if placing a card at {@code coord} is a legal move. */
+  public boolean isLegalMove (Coord coord) {
+    // TODO: disallow extending rows/cols of five cards
+    return !cards.containsKey(coord) && hasNeighbor(coord);
   }
 
   /** Returns the best hand or hands in the horizontal or vertical direction. The method computes
@@ -95,7 +106,49 @@ public class Grid {
     return best;
   }
 
+  public boolean haveLegalMove () {
+    for (Coord coord : cards.keySet()) {
+      if (isLegalMove(coord.above()) ||
+          isLegalMove(coord.below()) ||
+          isLegalMove(coord.left()) ||
+          isLegalMove(coord.right())) return true;
+    }
+    return false;
+  }
+
+  public Set<Coord> legalMoves () {
+    Set<Coord> moves = new HashSet<Coord>();
+    for (Coord coord : cards.keySet()) {
+      Coord up = coord.above(), down = coord.below();
+      Coord left = coord.left(), right = coord.right();
+      if (isLegalMove(up)) moves.add(up);
+      if (isLegalMove(down)) moves.add(down);
+      if (isLegalMove(left)) moves.add(left);
+      if (isLegalMove(right)) moves.add(right);
+    }
+    return moves;
+  }
+
+  public Coord computeMove (Player player, Card card) {
+    // score all possible moves and pick the best one; brute force!
+    Coord bestCoord = null;
+    int bestScore = 0;
+    for (Coord coord : legalMoves()) {
+      int score = 0;
+      for (Hand hand : bestHands(coord, true)) score += hand.score;
+      for (Hand hand : bestHands(coord, false)) score += hand.score;
+      if (score > bestScore) {
+        bestCoord = coord;
+        bestScore = score;
+      }
+    }
+    // this is only called if there's at least one legal move, so bestCoord will != null
+    return bestCoord;
+  }
+
   public Cons<Card> cards (Cons<Coord> coords) {
     return (coords == null) ? null : Cons.cons(cards.get(coords.head), cards(coords.tail));
   }
+
+  protected final Randoms _rando = Randoms.with(new Random());
 }
