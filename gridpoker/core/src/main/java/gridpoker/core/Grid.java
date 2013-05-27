@@ -5,8 +5,10 @@
 package gridpoker.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import react.RMap;
@@ -17,16 +19,22 @@ public class Grid {
   /** The grid of cards. */
   public final RMap<Coord,Card> cards = RMap.create();
 
-  /** Returns true if {@code coord} has a non-empty neighbor. */
-  public boolean hasNeighbor (Coord coord) {
-    return (cards.containsKey(coord.left())  || cards.containsKey(coord.right()) ||
-            cards.containsKey(coord.above()) || cards.containsKey(coord.below()));
+  public Grid () {
+    cards.connect(new RMap.Listener<Coord,Card>() {
+      public void onPut (Coord coord, Card card) {
+        updateCaches(coord);
+      }
+    });
   }
 
   /** Returns true if placing a card at {@code coord} is a legal move. */
   public boolean isLegalMove (Coord coord) {
-    // TODO: disallow extending rows/cols of five cards
-    return !cards.containsKey(coord) && hasNeighbor(coord);
+    if (cards.containsKey(coord)) return false;
+    Integer left = _hneighbors.get(coord.left()), right = _hneighbors.get(coord.right());
+    if (left != null && left >= Hand.MAX-1 || right != null && right >= Hand.MAX-1) return false;
+    Integer up = _vneighbors.get(coord.above()), down = _vneighbors.get(coord.below());
+    if (up != null && up >= Hand.MAX-1 || down != null && down >= Hand.MAX-1) return false;
+    return (left != null || right != null || up != null || down != null);
   }
 
   public List<Hand> bestHands (Card card, Coord coord) {
@@ -36,13 +44,39 @@ public class Grid {
     return hands;
   }
 
+  public boolean haveLegalMove () {
+    for (Coord coord : cards.keySet()) {
+      if (isLegalMove(coord.above()) ||
+          isLegalMove(coord.below()) ||
+          isLegalMove(coord.left()) ||
+          isLegalMove(coord.right())) return true;
+    }
+    return false;
+  }
+
   /** Returns the best hand or hands in the horizontal or vertical direction. The method computes
    * the best hand starting at {@code coord} and extending "backwards", as well as starting at
    * {@code coord} and extending "forwards", and the best hand that overlaps {@code coord}. If the
    * score of the overlapping hand exceeds the sum of the non-overlapping hands, it is returned,
    * otherwise the non-overlapping hands are returned. Only non-zero scoring hands will be
    * returned. */
-  public void bestHands (Card card, Coord coord, boolean horiz, List<Hand> into) {
+  public Coord computeMove (Player player, Card card) {
+    // score all possible moves and pick the best one; brute force!
+    Coord bestCoord = null;
+    int bestScore = 0;
+    for (Coord coord : legalMoves()) {
+      int score = 0;
+      for (Hand hand : bestHands(card, coord)) score += hand.score;
+      if (score >= bestScore) {
+        bestCoord = coord;
+        bestScore = score;
+      }
+    }
+    // this is only called if there's at least one legal move, so bestCoord will != null
+    return bestCoord;
+  }
+
+  protected void bestHands (Card card, Coord coord, boolean horiz, List<Hand> into) {
     Hand bestBack = horiz ? bestHandFrom(card, coord, -1, 0) : bestHandFrom(card, coord, 0, -1);
     Hand bestFwd = horiz ? bestHandFrom(card, coord, 1, 0) : bestHandFrom(card, coord, 0, 1);
     Hand bestLap = bestHandOver(card, coord, horiz);
@@ -54,9 +88,9 @@ public class Grid {
     }
   }
 
-  /** Returns the best scoring hand starting at {@code coord} and extending into the grid in the
-   * direction defined by {@code dx,dy}. */
-  public Hand bestHandFrom (Card card, Coord coord, int dx, int dy) {
+  // Returns the best scoring hand starting at {@code coord} and extending into the grid in the
+  // direction defined by {@code dx,dy}.
+  protected Hand bestHandFrom (Card card, Coord coord, int dx, int dy) {
     Cons<Card> cards = Cons.root(card);
     Cons<Coord> coords = Cons.root(coord);
     Hand best = new Hand(coords, cards, Rules.scoreHand(cards));
@@ -72,10 +106,10 @@ public class Grid {
     return best;
   }
 
-  /** Creates and scores all hands from length two to five, extending either horizontally or
-   * vertically (per {@code horiz}), which extend beyond {@code coord} by at least one card in both
-   * directions. Returns the best scoring hand. */
-  public Hand bestHandOver (Card card, Coord coord, boolean horiz) {
+  // Creates and scores all hands from length two to five, extending either horizontally or
+  // vertically (per {@code horiz}), which extend beyond {@code coord} by at least one card in both
+  // directions. Returns the best scoring hand.
+  protected Hand bestHandOver (Card card, Coord coord, boolean horiz) {
     // determine the minimum and maximum card in the run and its length
     int dx = horiz ? 1 : 0, dy = horiz ? 0 : 1;
     Coord min = coord, max = coord;
@@ -108,17 +142,7 @@ public class Grid {
     return best;
   }
 
-  public boolean haveLegalMove () {
-    for (Coord coord : cards.keySet()) {
-      if (isLegalMove(coord.above()) ||
-          isLegalMove(coord.below()) ||
-          isLegalMove(coord.left()) ||
-          isLegalMove(coord.right())) return true;
-    }
-    return false;
-  }
-
-  public Set<Coord> legalMoves () {
+  protected Set<Coord> legalMoves () {
     Set<Coord> moves = new HashSet<Coord>();
     for (Coord coord : cards.keySet()) {
       Coord up = coord.above(), down = coord.below();
@@ -131,25 +155,42 @@ public class Grid {
     return moves;
   }
 
-  public Coord computeMove (Player player, Card card) {
-    // score all possible moves and pick the best one; brute force!
-    Coord bestCoord = null;
-    int bestScore = 0;
-    for (Coord coord : legalMoves()) {
-      int score = 0;
-      for (Hand hand : bestHands(card, coord)) score += hand.score;
-      if (score >= bestScore) {
-        bestCoord = coord;
-        bestScore = score;
-      }
-    }
-    // this is only called if there's at least one legal move, so bestCoord will != null
-    return bestCoord;
-  }
-
   protected Cons<Card> cards (Cons<Coord> coords, Card card, Coord coord) {
     if (coords == null) return null;
     return Cons.cons(coords.head == coord ? card : cards.get(coords.head),
                      cards(coords.tail, card, coord));
   }
+
+  protected void updateCaches (Coord coord) {
+    // track our maximum extent
+    _minx = Math.min(coord.x, _minx);
+    _maxx = Math.max(coord.x, _maxx);
+    _miny = Math.min(coord.y, _miny);
+    _maxy = Math.max(coord.y, _maxy);
+
+    // update the neighbor counts that changed as a result of this placement
+    updateNeighbors(_hneighbors, coord, 1, 0);
+    updateNeighbors(_vneighbors, coord, 0, 1);
+  }
+
+  protected void updateNeighbors (Map<Coord,Integer> ns, Coord coord, int dx, int dy) {
+    int fore = incrNeighbors(ns, coord, -dx, -dy, 1);
+    int aft = incrNeighbors(ns, coord, dx, dy, fore+1);
+    // propagate any aft neighbors back to our fore neighbors
+    incrNeighbors(ns, coord, -dx, -dy, aft);
+    ns.put(coord, fore + aft);
+  }
+
+  protected int incrNeighbors (Map<Coord,Integer> ns, Coord coord, int dx, int dy, int dn) {
+    int ncount = 0;
+    for (Coord next = coord.near(dx, dy); cards.containsKey(next); next = next.near(dx, dy)) {
+      ns.put(next, ns.get(next)+dn);
+      ncount += 1;
+    }
+    return ncount;
+  }
+
+  protected int _minx, _maxx, _miny, _maxy; // all start at zero
+  protected Map<Coord,Integer> _hneighbors = new HashMap<Coord,Integer>();
+  protected Map<Coord,Integer> _vneighbors = new HashMap<Coord,Integer>();
 }
