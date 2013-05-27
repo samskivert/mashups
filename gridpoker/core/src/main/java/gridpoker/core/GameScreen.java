@@ -15,6 +15,7 @@ import static playn.core.PlayN.*;
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.TableLayout;
+import tripleplay.util.TextConfig;
 
 public class GameScreen extends UIAnimScreen {
 
@@ -22,6 +23,7 @@ public class GameScreen extends UIAnimScreen {
   public final Grid grid = new Grid();
   public final Deck deck = new Deck();
   public final Value<Integer> turnHolder = Value.create(-1);
+  public final Player[] players;
   public final IntValue[] scores;
 
   // interaction
@@ -30,9 +32,10 @@ public class GameScreen extends UIAnimScreen {
   // rendering
   public final GroupLayer cardsL = graphics().createGroupLayer();
 
-  public GameScreen (int numPlayers) {
-    this.scores = new IntValue[numPlayers];
-    for (int ii = 0; ii < numPlayers; ii++) scores[ii] = new IntValue(0);
+  public GameScreen (Player[] players) {
+    this.players = players;
+    this.scores = new IntValue[players.length];
+    for (int ii = 0; ii < scores.length; ii++) scores[ii] = new IntValue(0);
   }
 
   @Override public void wasAdded () {
@@ -111,22 +114,27 @@ public class GameScreen extends UIAnimScreen {
         _lastPlayed.setVisible(true);
         // score any valid hands made by this card
         scorePlacement(coord);
-        // switch turns or end the game
-        if (deck.cards.isEmpty()) {
-          turnHolder.update(-1);
-          System.err.println("GAME OVER"); // TODO
-        } else {
-          turnHolder.update((turnHolder.get() + 1) % scores.length);
-        }
+        anim.addBarrier();
+        // wait for any animations to finish, then move to the next turn or end the game
+        anim.action(new Runnable() {
+          public void run () {
+            if (deck.cards.isEmpty()) endGame();
+            else turnHolder.update((turnHolder.get() + 1) % scores.length);
+          }
+        });
       }
       // TODO: track sprites by Coord, and remove in onRemove?
     });
 
-    // TEMP: just slap the next card down wherever we click
+    // wire up some behavior when we click
     click.connect(new Slot<Coord>() {
       public void onEmit (Coord coord) {
-        if (turnHolder.get() >= 0 && !deck.cards.isEmpty() && !grid.cards.containsKey(coord) &&
-            grid.hasNeighbor(coord)) {
+        int thIdx = turnHolder.get();
+        if (thIdx >= 0 && // the game is not over
+            players[thIdx] == Player.HUMAN && // it's a human's turn
+            !deck.cards.isEmpty() && // there are cards left to play
+            !grid.cards.containsKey(coord) && // there's not already a card here
+            grid.hasNeighbor(coord)) { // there's a card neighboring this spot
           grid.cards.put(coord, deck.cards.remove(0));
         }
       }
@@ -171,6 +179,23 @@ public class GameScreen extends UIAnimScreen {
     }
   }
 
+  protected void endGame () {
+    turnHolder.update(-1);
+
+    int maxScore = 0, winIdx = -1;
+    for (int ii = 0; ii < scores.length; ii++) {
+      int score = scores[ii].get();
+      if (score < maxScore) continue;
+      else if (score == maxScore) winIdx = -1;
+      else { maxScore = score; winIdx = ii; }
+    }
+
+    String msg = (winIdx < 0) ? "Tie game!" : ("Player " + (winIdx+1) + " wins!");
+    ImageLayer winLayer = GAME_OVER_CFG.toLayer(msg);
+    layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
+                (graphics().height() - winLayer.height())/2);
+  }
+
   protected final ImmediateLayer _lastPlayed =
     graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
       public void render (Surface surf) {
@@ -180,4 +205,8 @@ public class GameScreen extends UIAnimScreen {
 
   protected final int GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
   protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
+
+  protected final TextConfig GAME_OVER_CFG = new TextConfig(0xFFFFFFFF).
+    withOutline(0xFF000000, 3f).
+    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
 }
