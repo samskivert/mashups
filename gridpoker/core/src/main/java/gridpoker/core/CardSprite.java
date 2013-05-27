@@ -12,8 +12,8 @@ public class CardSprite {
   public final GroupLayer layer = graphics().createGroupLayer();
   public final Card card;
 
-  public CardSprite (Card card) {
+  public CardSprite (Media media, Card card) {
     this.card = card;
-    layer.add(graphics().createImageLayer(Media.card(card)));
+    layer.add(graphics().createImageLayer(media.card(card)));
   }
 }

@@ -54,6 +54,19 @@ public class Grid {
     return false;
   }
 
+  public Set<Coord> legalMoves () {
+    Set<Coord> moves = new HashSet<Coord>();
+    for (Coord coord : cards.keySet()) {
+      Coord up = coord.above(), down = coord.below();
+      Coord left = coord.left(), right = coord.right();
+      if (isLegalMove(up)) moves.add(up);
+      if (isLegalMove(down)) moves.add(down);
+      if (isLegalMove(left)) moves.add(left);
+      if (isLegalMove(right)) moves.add(right);
+    }
+    return moves;
+  }
+
   /** Returns the best hand or hands in the horizontal or vertical direction. The method computes
    * the best hand starting at {@code coord} and extending "backwards", as well as starting at
    * {@code coord} and extending "forwards", and the best hand that overlaps {@code coord}. If the
@@ -140,19 +153,6 @@ public class Grid {
       }
     }
     return best;
-  }
-
-  protected Set<Coord> legalMoves () {
-    Set<Coord> moves = new HashSet<Coord>();
-    for (Coord coord : cards.keySet()) {
-      Coord up = coord.above(), down = coord.below();
-      Coord left = coord.left(), right = coord.right();
-      if (isLegalMove(up)) moves.add(up);
-      if (isLegalMove(down)) moves.add(down);
-      if (isLegalMove(left)) moves.add(left);
-      if (isLegalMove(right)) moves.add(right);
-    }
-    return moves;
   }
 
   protected Cons<Card> cards (Cons<Coord> coords, Card card, Coord coord) {

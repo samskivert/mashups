@@ -29,7 +29,9 @@ public class GameScreen extends UIAnimScreen {
   public final Signal<Coord> click = Signal.create();
 
   // rendering
+  public final Media media = new Media();
   public final GroupLayer cardsL = graphics().createGroupLayer();
+  public final GroupLayer movesL = graphics().createGroupLayer();
 
   public GameScreen (Player[] players) {
     this.players = players;
@@ -52,13 +54,14 @@ public class GameScreen extends UIAnimScreen {
     cardsL.setTranslation((graphics().width()-GRID_X)/2, (graphics().height()-GRID_Y)/2);
     // add our last played card indicator
     cardsL.add(_lastPlayed);
-    _lastPlayed.setVisible(false);
+    // add our legal moves indicator layer
+    cardsL.add(movesL);
 
-    // TEMP: scale cards layer down by half
+    // TEMP: scale cards layer down
     cardsL.setScale(0.5f);
 
     // render the deck sprite in the upper left
-    layer.addAt(new DeckSprite(deck).layer, 10, 10);
+    layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
 
     // display the scores in the upper right
     Root root = iface.createRoot(new TableLayout(2).gaps(5, 15), SimpleStyles.newSheet(), layer);
@@ -106,11 +109,10 @@ public class GameScreen extends UIAnimScreen {
     grid.cards.connect(new RMap.Listener<Coord,Card>() {
       @Override public void onPut (Coord coord, Card card) {
         // add a new sprite to display the placed card
-        CardSprite sprite = new CardSprite(card);
+        CardSprite sprite = new CardSprite(media, card);
         cardsL.add(position(sprite.layer, coord));
         // position the last played sprite over this card
         position(_lastPlayed, coord);
-        _lastPlayed.setVisible(true);
         // we're notified once before the game starts, so ignore that one
         if (turnHolder.get() >= 0) {
           // score any valid hands made by this card
@@ -149,6 +151,31 @@ public class GameScreen extends UIAnimScreen {
       }
     });
 
+    // add a display of legal moves
+    turnHolder.connect(new Slot<Integer>() {
+      public void onEmit (Integer thIdx) {
+        if (thIdx < 0 || players[thIdx] != Player.HUMAN) {
+          movesL.setVisible(false);
+          return;
+        }
+        movesL.setVisible(true);
+        int ii = 0, ll = movesL.size();
+        java.util.Set<Coord> moves = grid.legalMoves();
+        for (Coord coord : moves) {
+          Layer move;
+          if (ii < ll) move = movesL.get(ii).setVisible(true);
+          else {
+            move = graphics().createImageLayer(media.move);
+            move.setOrigin(media.move.width()/2, media.move.height()/2);
+            movesL.add(move);
+          }
+          move.setTranslation(coord.x * GRID_X + GRID_X/2, coord.y * GRID_Y + GRID_Y/2);
+          ii++;
+        }
+        for (; ii < ll; ii++) movesL.get(ii).setVisible(false);
+      }
+    });
+
     // take the top card off the deck and place it at 0, 0; tell player 0 it's their turn
     grid.cards.put(Coord.get(0, 0), deck.cards.remove(0));
     turnHolder.update(0);
@@ -173,7 +200,7 @@ public class GameScreen extends UIAnimScreen {
       // glow the scoring hand, and then increment the player's score
       GroupLayer group = graphics().createGroupLayer();
       for (Cons<Coord> cs = hand.coords; cs != null; cs = cs.tail) {
-        group.add(position(graphics().createImageLayer(Media.glow), cs.head));
+        group.add(position(graphics().createImageLayer(media.glow), cs.head));
       }
       anim.delay(delay).then().
         add(cardsL, group).then().
