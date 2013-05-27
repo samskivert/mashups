@@ -13,6 +13,8 @@ public class GridPokerJava {
 
   public static void main(String[] args) {
     JavaPlatform.Config config = new JavaPlatform.Config();
+    config.width = 1024;
+    config.height = 768;
     // use config to customize the Java platform, if needed
     JavaPlatform.register(config);
     PlayN.run(new GridPoker());
