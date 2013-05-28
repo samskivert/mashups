@@ -18,13 +18,13 @@ public class GridPoker extends Game.Default {
 
   @Override
   public void init () {
-    _screens.push(new GameScreen(new Player[] { Player.HUMAN, Player.AI }));
+    _screens.push(new GameScreen(Player.human(), Player.computer()));
 
     keyboard().setListener(new Keyboard.Adapter() {
       @Override public void onKeyDown (Keyboard.Event event) {
         if (event.key() == Key.R) {
           _screens.remove(_screens.top());
-          _screens.push(new GameScreen(new Player[] { Player.HUMAN, Player.AI }));
+          _screens.push(new GameScreen(Player.human(), Player.computer()));
         }
       }
     });

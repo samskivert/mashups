@@ -4,14 +4,25 @@
 
 package gridpoker.core;
 
-/** Identifies player as human or AI. Could also expand to include AI variants. */
-public enum Player {
-  HUMAN {
-    public String name (int index) { return "Human " + (index+1); }
-  },
-  AI {
-    public String name (int index) { return "Computer " + (index+1); }
-  };
+import react.IntValue;
+import react.RList;
 
+/** Identifies player as human or AI. Could also expand to include AI variants. */
+public abstract class Player {
+
+  public static Player human () { return new Player() {
+    public boolean isHuman () { return true; }
+    public String name (int index) { return "Human " + (index+1); }
+  };}
+
+  public static Player computer () { return new Player() {
+    public boolean isHuman () { return false; }
+    public String name (int index) { return "Computer " + (index+1); }
+  };}
+
+  public final RList<Card> stash = RList.create();
+  public final IntValue score = new IntValue(0);
+
+  public abstract boolean isHuman ();
   public abstract String name (int index);
 }

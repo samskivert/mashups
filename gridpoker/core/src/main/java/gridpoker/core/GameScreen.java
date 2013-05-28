@@ -25,7 +25,6 @@ public class GameScreen extends UIAnimScreen {
   public final Deck deck = new Deck();
   public final Value<Integer> turnHolder = Value.create(-1);
   public final Player[] players;
-  public final IntValue[] scores;
 
   // interaction
   public final Signal<Coord> click = Signal.create();
@@ -35,10 +34,8 @@ public class GameScreen extends UIAnimScreen {
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
 
-  public GameScreen (Player[] players) {
+  public GameScreen (Player... players) {
     this.players = players;
-    this.scores = new IntValue[players.length];
-    for (int ii = 0; ii < scores.length; ii++) scores[ii] = new IntValue(0);
   }
 
   @Override public void wasAdded () {
@@ -75,7 +72,7 @@ public class GameScreen extends UIAnimScreen {
       });
       sgroup.add(new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
                  new Label(players[ii].name(ii)).addStyles(Style.HALIGN.left),
-                 new ValueLabel(scores[ii]).setConstraint(Constraints.minSize("000")));
+                 new ValueLabel(players[ii].score).setConstraint(Constraints.minSize("000")));
     }
 
     CanvasImage bar = graphics().createImage(150, 1);
@@ -137,7 +134,7 @@ public class GameScreen extends UIAnimScreen {
           anim.action(new Runnable() {
             public void run () {
               if (deck.cards.isEmpty() || !grid.haveLegalMove()) endGame();
-              else turnHolder.update((turnHolder.get() + 1) % scores.length);
+              else turnHolder.update((turnHolder.get() + 1) % players.length);
             }
           });
         }
@@ -150,7 +147,7 @@ public class GameScreen extends UIAnimScreen {
       public void onEmit (Coord coord) {
         int thIdx = turnHolder.get();
         if (thIdx >= 0 && // the game is not over
-            players[thIdx] == Player.HUMAN && // it's a human's turn
+            players[thIdx].isHuman() && // it's a human's turn
             !deck.cards.isEmpty() && // there are cards left to play
             grid.isLegalMove(coord)) { // there's a card neighboring this spot
           grid.cards.put(coord, deck.cards.remove(0));
@@ -161,7 +158,7 @@ public class GameScreen extends UIAnimScreen {
     // wire up AI opponents
     turnHolder.connect(new Slot<Integer>() {
       public void onEmit (Integer thIdx) {
-        if (thIdx < 0 || players[thIdx] == Player.HUMAN) return;
+        if (thIdx < 0 || players[thIdx].isHuman()) return;
         grid.cards.put(grid.computeMove(players[thIdx], deck.cards.get(0)), deck.cards.remove(0));
       }
     });
@@ -207,7 +204,7 @@ public class GameScreen extends UIAnimScreen {
     for (final Hand hand : grid.bestHands(Hand.byScore, grid.cards.get(coord), coord)) {
       if (hand.score == 0) continue;
       // System.err.println(hand);
-      final IntValue score = scores[turnHolder.get()];
+      final IntValue score = players[turnHolder.get()].score;
       // glow the scoring hand, and then increment the player's score
       GroupLayer group = graphics().createGroupLayer();
       Rectangle rect = null;
@@ -238,8 +235,8 @@ public class GameScreen extends UIAnimScreen {
     turnHolder.update(-1);
 
     int maxScore = 0, winIdx = -1;
-    for (int ii = 0; ii < scores.length; ii++) {
-      int score = scores[ii].get();
+    for (int ii = 0; ii < players.length; ii++) {
+      int score = players[ii].score.get();
       if (score < maxScore) continue;
       else if (score == maxScore) winIdx = -1;
       else { maxScore = score; winIdx = ii; }
