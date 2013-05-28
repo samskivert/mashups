@@ -78,9 +78,9 @@ public class Hand {
     default:
     case      NONE: return "Nothin'"; // not used
     case  NOFAKIND: return (cards.size() == 2) ? "Pair" : (cards.size() + " of a kind");
-    case  STRAIGHT: return "Straight " + cards.size();
-    case     FLUSH: return "Flush " + cards.size();
-    case  STRFLUSH: return "Straight Flush " + cards.size();
+    case  STRAIGHT: return cards.size() + " card straight";
+    case     FLUSH: return cards.size() + " card flush";
+    case  STRFLUSH: return cards.size() + " card straight Flush";
     case   TWOPAIR: return "Two pair";
     case FULLHOUSE: return "Full house";
     case     ROYAL: return "Royal Flush!";

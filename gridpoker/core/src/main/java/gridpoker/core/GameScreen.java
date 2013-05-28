@@ -192,7 +192,7 @@ public class GameScreen extends UIAnimScreen {
     int delay = 0;
     for (final Hand hand : grid.bestHands(Hand.byScore, grid.cards.get(coord), coord)) {
       if (hand.score == 0) continue;
-      System.err.println(hand);
+      // System.err.println(hand);
       final IntValue score = scores[turnHolder.get()];
       // glow the scoring hand, and then increment the player's score
       GroupLayer group = graphics().createGroupLayer();
@@ -207,19 +207,15 @@ public class GameScreen extends UIAnimScreen {
           rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
         }
       }
-      ImageLayer label = SCORE_CFG.toLayer(hand.descrip());
-      label.setTranslation(rect.x + (rect.width - label.width())/2,
-                           rect.y + (rect.height - label.height())/2);
+      ImageLayer label = MARQUEE_CFG.toLayer(hand.descrip() + " - " + hand.score);
       anim.delay(delay).then().
         add(cardsL, group).then().
-        add(cardsL, label).then().
+        addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
         tweenAlpha(group).to(0).in(500).easeIn().then().
         tweenAlpha(label).to(0).in(500).easeIn().then().
         destroy(group).then().
         destroy(label).then().
-        action(new Runnable() {
-          public void run () { score.increment(hand.score); }
-        });
+        action(new Runnable() { public void run () { score.increment(hand.score); }});
       delay += 750;
     }
   }
@@ -236,7 +232,7 @@ public class GameScreen extends UIAnimScreen {
     }
 
     String msg = (winIdx < 0) ? "Tie game!" : ("Player " + (winIdx+1) + " wins!");
-    ImageLayer winLayer = GAME_OVER_CFG.toLayer(msg);
+    ImageLayer winLayer = MARQUEE_CFG.toLayer(msg);
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
   }
@@ -251,9 +247,6 @@ public class GameScreen extends UIAnimScreen {
   protected final int GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
   protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
 
-  protected final TextConfig SCORE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 1f).
-    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 24));
-
-  protected final TextConfig GAME_OVER_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
+  protected final TextConfig MARQUEE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
     withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
 }
