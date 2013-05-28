@@ -58,7 +58,7 @@ public class GameScreen extends UIAnimScreen {
     cardsL.add(movesL);
 
     // TEMP: scale cards layer down
-    cardsL.setScale(0.5f);
+    // cardsL.setScale(0.5f);
 
     // render the deck sprite in the upper left
     layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
@@ -154,11 +154,7 @@ public class GameScreen extends UIAnimScreen {
     // add a display of legal moves
     turnHolder.connect(new Slot<Integer>() {
       public void onEmit (Integer thIdx) {
-        if (thIdx < 0 || players[thIdx] != Player.HUMAN) {
-          movesL.setVisible(false);
-          return;
-        }
-        movesL.setVisible(true);
+        movesL.setVisible(thIdx >= 0);
         int ii = 0, ll = movesL.size();
         java.util.Set<Coord> moves = grid.legalMoves();
         for (Coord coord : moves) {

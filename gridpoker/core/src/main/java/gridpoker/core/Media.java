@@ -10,7 +10,7 @@ import static playn.core.PlayN.*;
 
 public class Media {
 
-  public static final int CARD_WID = 79, CARD_HEI = 123;
+  public static final int CARD_WID = 60, CARD_HEI = 80;
   public final Image cards = assets().getImage("images/cards.png");
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();
@@ -32,7 +32,7 @@ public class Media {
   }
 
   public Image cardBack () {
-    return cards.subImage(CARD_WID*2, CARD_HEI*4, CARD_WID, CARD_HEI);
+    return cards.subImage(13*CARD_WID, 0, CARD_WID, CARD_HEI);
   }
 
   protected Image createMoveIndicator () {

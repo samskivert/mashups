@@ -7,6 +7,8 @@ package gridpoker.core;
 /** Enumerates our card suits. */
 public enum Suit {
 
-  CLUBS, DIAMONDS, HEARTS, SPADES;
-  // this matches the order of the cards in the sprite sheet, for simplicity
+  SPADES, HEARTS, CLUBS, DIAMONGS;
+  // note: this matches the order of the cards in the sprite sheet
+
+  public static final String ABBREV = "SHCD";
 }

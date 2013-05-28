@@ -7,24 +7,12 @@ package gridpoker.core;
 /** Enumerates our card ranks. */
 public enum Rank {
 
-  // this matches the order of the cards in the sprite sheet, for simplicity
-  ACE { public int delta (Rank other) { return (other == KING) ? -1 : super.delta(other); }},
-  TWO,
-  THREE,
-  FOUR,
-  FIVE,
-  SIX,
-  SEVEN,
-  EIGHT,
-  NINE,
-  TEN,
-  JACK,
-  QUEEN,
-  KING { public int delta (Rank other) { return (other == ACE) ? 1 : super.delta(other); }};
+  TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE;
+  // note: this matches the order of the cards in the sprite sheet
 
-  /** Returns the difference in ranks (i.e. {@code other - this}). Handles aces high/low by
-   * returning 1/-1 as appropriate when an ACE is compared to a TWO or KING. */
-  public int delta (Rank other) {
-    return other.ordinal() - ordinal();
+  public static final String ABBREV = "23456789TJQKA";
+
+  public int flag () {
+    return 1 << (ordinal()+1); // make space for the ace
   }
 }

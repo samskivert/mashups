@@ -9,12 +9,6 @@ import static org.junit.Assert.*;
 
 public class RulesTest {
 
-  @Test public void testRankDelta () {
-    assertEquals(-1, Rank.ACE.delta(Rank.KING));
-    assertEquals(-1, Rank.TWO.delta(Rank.ACE));
-    assertEquals(-1, Rank.THREE.delta(Rank.TWO));
-  }
-
   @Test public void testCountRank2s () {
     assertEquals(1, Rules.countRank2s(cards("AC", "KC", "TC", "TS")));
     assertEquals(1, Rules.countRank2s(cards("AC", "AD", "AH", "AS")));
@@ -27,6 +21,10 @@ public class RulesTest {
     // up and down
     assertIsStraight(cards("2C", "3C", "4H", "5D"));
     assertIsStraight(cards("KH", "QD", "JH", "TS"));
+
+    // out of order
+    assertIsStraight(cards("2C", "4H", "3C", "5D"));
+    assertIsStraight(cards("QD", "JH", "TS", "KH"));
 
     // ace up, up to ace, ace down, and down to ace
     assertIsStraight(cards("AH", "2D", "3H"));
@@ -69,9 +67,7 @@ public class RulesTest {
 
   // turns strings like AH 4H 5C KD JS into Card instances
   protected static Card card (String desc) {
-    int rank = RANKS.indexOf(desc.charAt(0)), suit = SUITS.indexOf(desc.charAt(1));
+    int rank = Rank.ABBREV.indexOf(desc.charAt(0)), suit = Suit.ABBREV.indexOf(desc.charAt(1));
     return new Card(Suit.values()[suit], Rank.values()[rank]);
   }
-
-  protected static final String RANKS = "A23456789TJQK", SUITS = "CDHS";
 }
