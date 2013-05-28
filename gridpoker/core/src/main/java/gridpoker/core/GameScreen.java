@@ -33,9 +33,16 @@ public class GameScreen extends UIAnimScreen {
   public final Media media = new Media();
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
+  public final StashView[] sviews;
 
   public GameScreen (Player... players) {
     this.players = players;
+    this.sviews = new StashView[players.length];
+    for (int ii = 0; ii < sviews.length; ii++) {
+      if (players[ii].isHuman()) {
+        sviews[ii] = new StashView(media, players[ii].stash);
+      }
+    }
   }
 
   @Override public void wasAdded () {
@@ -55,6 +62,12 @@ public class GameScreen extends UIAnimScreen {
     cardsL.add(_lastPlayed);
     // add our legal moves indicator layer
     cardsL.add(movesL);
+    // add our stash views
+    for (int ii = 0; ii < sviews.length; ii++) {
+      if (sviews[ii] == null) continue;
+      layer.add(sviews[ii].layer);
+      sviews[ii].layer.setVisible(false);
+    }
 
     // TEMP: scale cards layer down
     // cardsL.setScale(0.5f);
@@ -133,8 +146,10 @@ public class GameScreen extends UIAnimScreen {
           // wait for any animations to finish, then move to the next turn or end the game
           anim.action(new Runnable() {
             public void run () {
-              if (deck.cards.isEmpty() || !grid.haveLegalMove()) endGame();
-              else turnHolder.update((turnHolder.get() + 1) % players.length);
+              int nextTH = (turnHolder.get() + 1) % players.length;
+              boolean outOfCards = deck.cards.isEmpty() && players[nextTH].stash.isEmpty();
+              if (outOfCards || !grid.haveLegalMove()) endGame();
+              else turnHolder.update(nextTH);
             }
           });
         }
@@ -148,18 +163,13 @@ public class GameScreen extends UIAnimScreen {
         int thIdx = turnHolder.get();
         if (thIdx >= 0 && // the game is not over
             players[thIdx].isHuman() && // it's a human's turn
-            !deck.cards.isEmpty() && // there are cards left to play
-            grid.isLegalMove(coord)) { // there's a card neighboring this spot
-          grid.cards.put(coord, deck.cards.remove(0));
+            grid.isLegalMove(coord) && // there's a card neighboring this spot
+            sviews[thIdx].selection.get() != null) { // they have a card selected in their stash
+          Card card = sviews[thIdx].selection.get().card;
+          if (players[thIdx].stash.remove(card)) {
+            grid.cards.put(coord, card);
+          } else throw new AssertionError("Player lacks card " + card + " " + players[thIdx]);
         }
-      }
-    });
-
-    // wire up AI opponents
-    turnHolder.connect(new Slot<Integer>() {
-      public void onEmit (Integer thIdx) {
-        if (thIdx < 0 || players[thIdx].isHuman()) return;
-        grid.cards.put(grid.computeMove(players[thIdx], deck.cards.get(0)), deck.cards.remove(0));
       }
     });
 
@@ -181,6 +191,22 @@ public class GameScreen extends UIAnimScreen {
           ii++;
         }
         for (; ii < ll; ii++) movesL.get(ii).setVisible(false);
+      }
+    });
+
+    // update the current player's stash, run AI opponents, etc.
+    turnHolder.connect(new Slot<Integer>() {
+      public void onEmit (Integer thIdx) {
+        // don't hide a human's cards while the AI is playing because it just flashes annoyingly
+        if (thIdx < 0 || players[thIdx].isHuman()) {
+          for (int ii = 0; ii < sviews.length; ii++) {
+            if (sviews[ii] != null) sviews[ii].layer.setVisible(ii == thIdx);
+          }
+        }
+        if (thIdx >= 0) {
+          players[thIdx].upStash(deck);
+          if (!players[thIdx].isHuman()) grid.makeMove(players[thIdx]);
+        }
       }
     });
 

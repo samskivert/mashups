@@ -68,26 +68,27 @@ public class Grid {
     return moves;
   }
 
-  /** Returns the best hand or hands in the horizontal or vertical direction. The method computes
-   * the best hand starting at {@code coord} and extending "backwards", as well as starting at
-   * {@code coord} and extending "forwards", and the best hand that overlaps {@code coord}. If the
-   * score of the overlapping hand exceeds the sum of the non-overlapping hands, it is returned,
-   * otherwise the non-overlapping hands are returned. Only non-zero scoring hands will be
-   * returned. */
-  public Coord computeMove (Player player, Card card) {
+  /** Computes the best move for the supplied (AI) player, and makes it. */
+  public void makeMove (Player player) {
     // score all possible moves and pick the best one; brute force!
+    Card bestCard = null;
     Coord bestCoord = null;
     int bestScore = 0;
     for (Coord coord : legalMoves()) {
-      int score = 0;
-      for (Hand hand : bestHands(Hand.byScore, card, coord)) score += hand.score;
-      if (score >= bestScore) {
-        bestCoord = coord;
-        bestScore = score;
+      for (Card card : player.stash) {
+        int score = 0;
+        for (Hand hand : bestHands(Hand.byScore, card, coord)) score += hand.score;
+        if (score >= bestScore) {
+          bestCard = card;
+          bestCoord = coord;
+          bestScore = score;
+        }
       }
     }
-    // this is only called if there's at least one legal move, so bestCoord will != null
-    return bestCoord;
+    if (bestCard != null) {
+      player.stash.remove(bestCard);
+      cards.put(bestCoord, bestCard);
+    }
   }
 
   protected void bestHands (Comparator<Hand> comp, Card card, Coord coord, boolean horiz,
