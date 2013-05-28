@@ -56,7 +56,17 @@ public class Hand {
   }
 
   public String descrip () {
-    return kind.toString(); // TODO
+    switch (kind) {
+    default:
+    case      NONE: return "Nothin'"; // not used
+    case  NOFAKIND: return (cards.size() == 2) ? "Pair" : (cards.size() + " of a kind");
+    case  STRAIGHT: return "Straight " + cards.size();
+    case     FLUSH: return "Flush " + cards.size();
+    case  STRFLUSH: return "Straight Flush " + cards.size();
+    case   TWOPAIR: return "Two pair";
+    case FULLHOUSE: return "Full house";
+    case     ROYAL: return "Royal Flush!";
+    }
   }
 
   @Override public String toString () {
