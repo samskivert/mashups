@@ -14,6 +14,7 @@ import static playn.core.PlayN.*;
 
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
+import tripleplay.ui.layout.AxisLayout;
 import tripleplay.ui.layout.TableLayout;
 import tripleplay.util.TextConfig;
 
@@ -65,14 +66,27 @@ public class GameScreen extends UIAnimScreen {
     layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
 
     // display the scores in the upper right
-    Root root = iface.createRoot(new TableLayout(2).gaps(5, 15), SimpleStyles.newSheet(), layer);
-    root.addStyles(Style.BACKGROUND.is(Background.solid(0xFF99CCFF).inset(5)));
-    root.add(TableLayout.colspan(new Label("Scores").addStyles(Style.FONT.is(HEADER_FONT)), 2));
-    Layout.Constraint sizer = Constraints.minSize("000");
-    for (int ii = 0; ii < scores.length; ii++) {
-      root.add(new Label("Player " + (ii+1)),
-               new ValueLabel(scores[ii]).setConstraint(sizer).addStyles(Style.HALIGN.right));
+    Group sgroup = new Group(new TableLayout(TableLayout.COL, TableLayout.COL.stretch(),
+                                             TableLayout.COL.alignRight()).gaps(5, 10));
+    for (int ii = 0; ii < players.length; ii++) {
+      final int idx = ii;
+      ValueView<String> turnInd = turnHolder.map(new Function<Integer,String>() {
+        public String apply (Integer turnIdx) { return (idx == turnIdx) ? "★" : ""; }
+      });
+      sgroup.add(new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
+                 new Label(players[ii].name(ii)).addStyles(Style.HALIGN.left),
+                 new ValueLabel(scores[ii]).setConstraint(Constraints.minSize("000")));
     }
+
+    CanvasImage bar = graphics().createImage(150, 1);
+    bar.canvas().setFillColor(0xFF000000).fillRect(0, 0, bar.width(), bar.height());
+
+    Root root = iface.createRoot(AxisLayout.vertical(), SimpleStyles.newSheet(), layer);
+    root.addStyles(Style.BACKGROUND.is(Background.solid(0xFF99CCFF).inset(5)));
+    root.add(new Label("Scores").addStyles(Style.FONT.is(HEADER_FONT)),
+             new Label(Icons.image(bar)), sgroup, new Label(Icons.image(bar)),
+             new Group(AxisLayout.horizontal()).add(
+               new Label("Cards left:"), new ValueLabel(deck.cards.sizeView())));
     root.pack();
     root.layer.setTranslation(graphics().width()-root.size().width()-5, 5);
 
@@ -231,7 +245,7 @@ public class GameScreen extends UIAnimScreen {
       else { maxScore = score; winIdx = ii; }
     }
 
-    String msg = (winIdx < 0) ? "Tie game!" : ("Player " + (winIdx+1) + " wins!");
+    String msg = (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!");
     ImageLayer winLayer = MARQUEE_CFG.toLayer(msg);
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
