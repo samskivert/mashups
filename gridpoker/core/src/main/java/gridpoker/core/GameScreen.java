@@ -6,6 +6,7 @@ package gridpoker.core;
 
 import pythagoras.f.FloatMath;
 import pythagoras.f.Point;
+import pythagoras.f.Rectangle;
 import react.*;
 
 import playn.core.*;
@@ -195,13 +196,27 @@ public class GameScreen extends UIAnimScreen {
       final IntValue score = scores[turnHolder.get()];
       // glow the scoring hand, and then increment the player's score
       GroupLayer group = graphics().createGroupLayer();
+      Rectangle rect = null;
       for (Cons<Coord> cs = hand.coords; cs != null; cs = cs.tail) {
-        group.add(position(graphics().createImageLayer(media.glow), cs.head));
+        Layer glow = position(graphics().createImageLayer(media.glow), cs.head);
+        group.add(glow);
+        if (rect == null) {
+          rect = new Rectangle(glow.tx(), glow.ty(), Media.CARD_WID, Media.CARD_HEI);
+        } else {
+          rect.add(glow.tx(), glow.ty());
+          rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
+        }
       }
+      ImageLayer label = SCORE_CFG.toLayer(hand.descrip());
+      label.setTranslation(rect.x + (rect.width - label.width())/2,
+                           rect.y + (rect.height - label.height())/2);
       anim.delay(delay).then().
         add(cardsL, group).then().
+        add(cardsL, label).then().
         tweenAlpha(group).to(0).in(500).easeIn().then().
+        tweenAlpha(label).to(0).in(500).easeIn().then().
         destroy(group).then().
+        destroy(label).then().
         action(new Runnable() {
           public void run () { score.increment(hand.score); }
         });
@@ -236,7 +251,9 @@ public class GameScreen extends UIAnimScreen {
   protected final int GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
   protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
 
-  protected final TextConfig GAME_OVER_CFG = new TextConfig(0xFFFFFFFF).
-    withOutline(0xFF000000, 3f).
+  protected final TextConfig SCORE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 1f).
+    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 16));
+
+  protected final TextConfig GAME_OVER_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
     withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
 }

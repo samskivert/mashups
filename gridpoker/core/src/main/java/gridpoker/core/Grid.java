@@ -106,15 +106,15 @@ public class Grid {
   protected Hand bestHandFrom (Card card, Coord coord, int dx, int dy) {
     Cons<Card> cards = Cons.root(card);
     Cons<Coord> coords = Cons.root(coord);
-    Hand best = new Hand(coords, cards, Rules.scoreHand(cards));
+    Hand best = new Hand(coords, cards);
     for (int ii = 1; ii < Hand.MAX; ii++) {
       coord = coord.near(dx, dy);
       Card cd = this.cards.get(coord);
       if (cd == null) return best;
       coords = coords.prepend(coord);
       cards = cards.prepend(cd);
-      int score = Rules.scoreHand(cards);
-      if (score > best.score) best = new Hand(coords, cards, score);
+      Hand pend = new Hand(coords, cards);
+      if (pend.score > best.score) best = pend;
     }
     return best;
   }
@@ -148,8 +148,8 @@ public class Grid {
         if (vv + span - 1 > maxv) continue;
         Cons<Coord> coords = Coord.span(vv, span, coord.x, coord.y, dx, dy);
         Cons<Card> cards = cards(coords, card, coord);
-        int score = Rules.scoreHand(cards);
-        if (score > best.score) best = new Hand(coords, cards, score);
+        Hand pend = new Hand(coords, cards);
+        if (pend.score > best.score) best = pend;
       }
     }
     return best;
