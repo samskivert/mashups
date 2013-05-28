@@ -5,6 +5,7 @@
 package gridpoker.core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,10 +38,10 @@ public class Grid {
     return (left != null || right != null || up != null || down != null);
   }
 
-  public List<Hand> bestHands (Card card, Coord coord) {
+  public List<Hand> bestHands (Comparator<Hand> comp, Card card, Coord coord) {
     List<Hand> hands = new ArrayList<Hand>();
-    bestHands(card, coord, true, hands);
-    bestHands(card, coord, false, hands);
+    bestHands(comp, card, coord, true, hands);
+    bestHands(comp, card, coord, false, hands);
     return hands;
   }
 
@@ -79,7 +80,7 @@ public class Grid {
     int bestScore = 0;
     for (Coord coord : legalMoves()) {
       int score = 0;
-      for (Hand hand : bestHands(card, coord)) score += hand.score;
+      for (Hand hand : bestHands(Hand.byScore, card, coord)) score += hand.score;
       if (score >= bestScore) {
         bestCoord = coord;
         bestScore = score;
@@ -89,10 +90,12 @@ public class Grid {
     return bestCoord;
   }
 
-  protected void bestHands (Card card, Coord coord, boolean horiz, List<Hand> into) {
-    Hand bestBack = horiz ? bestHandFrom(card, coord, -1, 0) : bestHandFrom(card, coord, 0, -1);
-    Hand bestFwd = horiz ? bestHandFrom(card, coord, 1, 0) : bestHandFrom(card, coord, 0, 1);
-    Hand bestLap = bestHandOver(card, coord, horiz);
+  protected void bestHands (Comparator<Hand> comp, Card card, Coord coord, boolean horiz,
+                            List<Hand> into) {
+    int dx = horiz ? 1 : 0, dy = horiz ? 0 : 1;
+    Hand bestBack = bestHandFrom(comp, card, coord, -dx, -dy);
+    Hand bestFwd = bestHandFrom(comp, card, coord, dx, dy);
+    Hand bestLap = bestHandOver(comp, card, coord, horiz);
 
     if (bestLap.score > bestFwd.score + bestBack.score) into.add(bestLap);
     else {
@@ -103,7 +106,7 @@ public class Grid {
 
   // Returns the best scoring hand starting at {@code coord} and extending into the grid in the
   // direction defined by {@code dx,dy}.
-  protected Hand bestHandFrom (Card card, Coord coord, int dx, int dy) {
+  protected Hand bestHandFrom (Comparator<Hand> comp, Card card, Coord coord, int dx, int dy) {
     Cons<Card> cards = Cons.root(card);
     Cons<Coord> coords = Cons.root(coord);
     Hand best = new Hand(coords, cards);
@@ -114,7 +117,7 @@ public class Grid {
       coords = coords.prepend(coord);
       cards = cards.prepend(cd);
       Hand pend = new Hand(coords, cards);
-      if (pend.score > best.score) best = pend;
+      if (comp.compare(best, pend) > 0) best = pend;
     }
     return best;
   }
@@ -122,7 +125,7 @@ public class Grid {
   // Creates and scores all hands from length two to five, extending either horizontally or
   // vertically (per {@code horiz}), which extend beyond {@code coord} by at least one card in both
   // directions. Returns the best scoring hand.
-  protected Hand bestHandOver (Card card, Coord coord, boolean horiz) {
+  protected Hand bestHandOver (Comparator<Hand> comp, Card card, Coord coord, boolean horiz) {
     // determine the minimum and maximum card in the run and its length
     int dx = horiz ? 1 : 0, dy = horiz ? 0 : 1;
     Coord min = coord, max = coord;
@@ -149,7 +152,7 @@ public class Grid {
         Cons<Coord> coords = Coord.span(vv, span, coord.x, coord.y, dx, dy);
         Cons<Card> cards = cards(coords, card, coord);
         Hand pend = new Hand(coords, cards);
-        if (pend.score > best.score) best = pend;
+        if (comp.compare(best, pend) > 0) best = pend;
       }
     }
     return best;

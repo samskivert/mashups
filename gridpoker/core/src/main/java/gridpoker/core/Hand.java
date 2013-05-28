@@ -4,13 +4,29 @@
 
 package gridpoker.core;
 
+import java.util.Comparator;
+
 public class Hand {
 
   /** Identifies the different kinds of hands. */
   public static enum Kind { NONE, NOFAKIND, STRAIGHT, FLUSH, STRFLUSH, TWOPAIR, FULLHOUSE, ROYAL };
 
-  // a hand with zero score, used in lieu of null
+  /** A hand with zero score, used in lieu of null. */
   public static final Hand ZERO = new Hand();
+
+  /** Compares two hands by score. */
+  public static final Comparator<Hand> byScore = new Comparator<Hand>() {
+    public int compare (Hand a, Hand b) {
+      return b.score - a.score;
+    }
+  };
+
+  /** Compares two hands by size (number of cards). */
+  public static final Comparator<Hand> bySize = new Comparator<Hand>() {
+    public int compare (Hand a, Hand b) {
+      return b.size - a.size;
+    }
+  };
 
   // the minimum and maximum hand size (in cards)
   public static final int MIN = 2, MAX = 5;
@@ -19,10 +35,12 @@ public class Hand {
   public final Cons<Card> cards;
   public final Kind kind;
   public final int score;
+  public final int size;
 
   public Hand (Cons<Coord> coords, Cons<Card> cards) {
     this.coords = coords;
     this.cards = cards;
+    this.size = cards.size();
 
     // we enumerate all possible hands for scoring, so we don't have to worry about scoring
     // subsets of the hand in question; i.e. it's either entirely a straight (or flush) or not
@@ -136,6 +154,7 @@ public class Hand {
     this.coords = null;
     this.kind = null;
     this.score = 0;
+    this.size = 0;
   }
 
   protected static final int[] NKIND_SCORES =    { 0, 0, 1, 5, 16,  0 };

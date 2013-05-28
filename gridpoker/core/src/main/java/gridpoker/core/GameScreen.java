@@ -190,7 +190,7 @@ public class GameScreen extends UIAnimScreen {
 
   protected void scorePlacement (Coord coord) {
     int delay = 0;
-    for (final Hand hand : grid.bestHands(grid.cards.get(coord), coord)) {
+    for (final Hand hand : grid.bestHands(Hand.byScore, grid.cards.get(coord), coord)) {
       if (hand.score == 0) continue;
       System.err.println(hand);
       final IntValue score = scores[turnHolder.get()];
@@ -252,7 +252,7 @@ public class GameScreen extends UIAnimScreen {
   protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
 
   protected final TextConfig SCORE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 1f).
-    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 16));
+    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 24));
 
   protected final TextConfig GAME_OVER_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
     withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
