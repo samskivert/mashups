@@ -4,6 +4,8 @@
 
 package gridpoker.core;
 
+import java.util.List;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -50,6 +52,66 @@ public class RulesTest {
   //   assertEquals(Hand.ROYAL_FLUSH_SCORE, Hand.scoreHand(cards("AD", "KD", "QD", "JD", "TD")));
   //   assertEquals(Hand.ROYAL_FLUSH_SCORE, Hand.scoreHand(cards("TC", "JC", "QC", "KC", "AC")));
   // }
+
+  /*@Test*/ public void testHandFreq () {
+
+    int[][] counts = new int[Hand.Kind.values().length][Hand.MAX+1];
+
+    for (int ii = 0; ii < 1000; ii++) {
+      Grid grid = new Grid();
+      Deck deck = new Deck();
+
+      grid.cards.put(Coord.get(0, 0), deck.cards.remove(0));
+
+      while (!deck.cards.isEmpty()) {
+        Card card = deck.cards.get(0);
+        Coord bestCoord = null;
+        List<Hand> bestHands = null;
+        int bestScore = 0;
+        for (Coord coord : grid.legalMoves()) {
+          int score = 0;
+          List<Hand> hands = grid.bestHands(Hand.byScore, card, coord);
+          for (Hand hand : hands) score += hand.score;
+          if (score >= bestScore) {
+            bestCoord = coord;
+            bestHands = hands;
+            bestScore = score;
+          }
+        }
+        if (bestHands == null) {
+          System.out.println("No legal moves, ending game.");
+          break;
+        }
+        for (Hand hand : bestHands) {
+          counts[hand.kind.ordinal()][hand.cards.size()]++;
+        }
+        grid.cards.put(bestCoord, deck.cards.remove(0));
+      }
+    }
+
+    String bars = "-----", fmt = "%10s %6s %5s %5s %5s\n";
+    System.out.println("Raw counts:");
+    System.out.printf(fmt, "Kind", "2", "3", "4", "5");
+    System.out.printf(fmt, "----------", bars, bars, bars, bars);
+    for (int ii = 0; ii < counts.length; ii++) {
+      System.out.printf("%10s %6s %5s %5s %5s\n", Hand.Kind.values()[ii],
+                        counts[ii][2], counts[ii][3], counts[ii][4], counts[ii][5]);
+    }
+
+    System.out.println("\nHand H as pairs/H (number of pairs played for every H):");
+    System.out.printf(fmt, "Kind", "2", "3", "4", "5");
+    System.out.printf(fmt, "----------", bars, bars, bars, bars);
+    float pairs = counts[Hand.Kind.NOFAKIND.ordinal()][2];
+    for (int ii = 0; ii < counts.length; ii++) {
+      System.out.printf("%10s %6.1f %5.1f %5.1f %5.1f\n", Hand.Kind.values()[ii],
+                        fmt(pairs, counts[ii][2]), fmt(pairs, counts[ii][3]),
+                        fmt(pairs, counts[ii][4]), fmt(pairs, counts[ii][5]));
+    }
+  }
+
+  protected static float fmt (float pairs, int count) {
+    return count == 0 ? 0 : pairs/count;
+  }
 
   protected static void assertIsStraight (Cons<Card> cards) {
     if (!Hand.isStraight(cards)) fail(cards + " should be classified as a straight");

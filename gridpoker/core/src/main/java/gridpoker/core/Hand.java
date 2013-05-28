@@ -157,12 +157,12 @@ public class Hand {
     this.size = 0;
   }
 
-  protected static final int[] NKIND_SCORES =    { 0, 0, 1, 5, 16,  0 };
-  protected static final int[] FLUSH_SCORES =    { 0, 0, 0, 4, 12, 25 };
-  protected static final int[] STRAIGHT_SCORES = { 0, 0, 0, 3, 10, 20 };
-  protected static final int[] STRFLUSH_SCORES = { 0, 0, 0, 7, 14, 40 };
+  protected static final int[] NKIND_SCORES =    { 0, 0, 1,  4, 10,  0 };
+  protected static final int[] STRAIGHT_SCORES = { 0, 0, 0,  2,  5, 10 };
+  protected static final int[] FLUSH_SCORES =    { 0, 0, 0,  2,  4,  8 };
+  protected static final int[] STRFLUSH_SCORES = { 0, 0, 0, 10, 20, 40 };
 
-  protected static final int TWO_PAIR_SCORE = 2;
-  protected static final int FULL_HOUSE_SCORE = 30;
+  protected static final int TWO_PAIR_SCORE = 3;
+  protected static final int FULL_HOUSE_SCORE = 5;
   protected static final int ROYAL_FLUSH_SCORE = 100;
 }
