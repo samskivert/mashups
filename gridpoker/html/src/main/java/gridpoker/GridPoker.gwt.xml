@@ -1,5 +1,5 @@
 <module rename-to='gridpoker'>
-  <inherits name='playn.PlayN'/>
+  <inherits name="tripleplay.TriplePlay"/>
   <inherits name='GridPokerAssets'/>
 
   <source path='core'/>
