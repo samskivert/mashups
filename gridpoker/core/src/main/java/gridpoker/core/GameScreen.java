@@ -73,7 +73,7 @@ public class GameScreen extends UIAnimScreen {
     // cardsL.setScale(0.5f);
 
     // render the deck sprite in the upper left
-    layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
+    // layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
 
     // display the scores in the upper right
     Group sgroup = new Group(new TableLayout(TableLayout.COL, TableLayout.COL.stretch(),
