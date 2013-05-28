@@ -10,7 +10,7 @@ public class Rules {
   public static int scoreHand (Cons<Card> hand) {
     // we enumerate all possible hands for scoring, so we don't have to worry about scoring subsets
     // of the hand in question; i.e. it's either entirely a straight (or flush) or not
-    int hsize = hand.size(), ranks = countRanks(hand);
+    int hsize = hand.size(), ranks = countRank2s(hand);
     boolean isFlush = isSameSuit(hand), isStraight = isStraight(hand);
     if (isStraight && isFlush && hsize == 5 &&
         (hand.head.rank == Rank.ACE || hand.last().rank == Rank.ACE)) return ROYAL_FLUSH_SCORE;
@@ -18,7 +18,6 @@ public class Rules {
     else if (isFlush)                  return FLUSH_SCORES[hsize];
     else if (isStraight)               return STRAIGHT_SCORES[hsize];
     else if (ranks == 1)               return NKIND_SCORES[hsize];
-    // TODO: this is wrong as it matches 4+1 and 3+1
     else if (ranks == 2 && hsize == 5) return FULL_HOUSE_SCORE;
     else if (ranks == 2 && hsize == 4) return TWO_PAIR_SCORE;
     return 0;
@@ -49,12 +48,14 @@ public class Rules {
     return true;
   }
 
-  public static int countRanks (Cons<Card> cards) {
-    int rankMask = 0;
+  public static int countRank2s (Cons<Card> cards) {
+    int rankMask1 = 0, rankMask2 = 0;
     for (; cards != null; cards = cards.tail) {
-      rankMask |= (1 << cards.head.rank.ordinal());
+      int flag = (1 << cards.head.rank.ordinal());
+      if ((rankMask1 & flag) != 0) rankMask2 |= flag;
+      else rankMask1 |= flag;
     }
-    return Integer.bitCount(rankMask);
+    return Integer.bitCount(rankMask2);
   }
 
   protected static final int[] NKIND_SCORES =    { 0, 0, 1, 5, 16,  0 };

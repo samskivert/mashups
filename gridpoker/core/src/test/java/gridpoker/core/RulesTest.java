@@ -15,11 +15,12 @@ public class RulesTest {
     assertEquals(-1, Rank.THREE.delta(Rank.TWO));
   }
 
-  @Test public void testCountRanks () {
-    assertEquals(3, Rules.countRanks(cards("AC", "KD", "TS", "TC")));
-    assertEquals(1, Rules.countRanks(cards("AC", "AD", "AH", "AS")));
-    assertEquals(2, Rules.countRanks(cards("AC", "AD", "AS", "TC", "TD")));
-    assertEquals(5, Rules.countRanks(cards("AC", "5D", "2S", "JC", "TD")));
+  @Test public void testCountRank2s () {
+    assertEquals(1, Rules.countRank2s(cards("AC", "KC", "TC", "TS")));
+    assertEquals(1, Rules.countRank2s(cards("AC", "AD", "AH", "AS")));
+    assertEquals(1, Rules.countRank2s(cards("AC", "AD", "AH", "AS", "2C")));
+    assertEquals(2, Rules.countRank2s(cards("AC", "AD", "TC", "TD")));
+    assertEquals(2, Rules.countRank2s(cards("AC", "AD", "2S", "2D", "2C")));
   }
 
   @Test public void testIsStraight () {
