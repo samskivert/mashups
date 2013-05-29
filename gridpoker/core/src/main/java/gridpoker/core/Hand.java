@@ -164,5 +164,5 @@ public class Hand {
 
   protected static final int TWO_PAIR_SCORE = 3;
   protected static final int FULL_HOUSE_SCORE = 5;
-  protected static final int ROYAL_FLUSH_SCORE = 100;
+  protected static final int ROYAL_FLUSH_SCORE = 60;
 }
