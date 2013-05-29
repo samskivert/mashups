@@ -15,7 +15,7 @@ NxN pairings based on my perception of their "quality".
 
 ## The Elements
 
-Since I am primarily interested in the mechanics of games, most of these "concepts" are game
+Since I am primarily interested in the mechanics of games, most of these elements are game
 mechanics, but the occasional other kind of element may sneak in.
 
   * Top-down 2D dungeon exploration (ala older Zeldas)
@@ -55,6 +55,8 @@ mechanics, but the occasional other kind of element may sneak in.
   * Player and enemies each move one square per turn (ala Nethack)
   * Lob soldiers at opponent, counter-lob, further action if they arrive (ala Rocket Slime)
   * Peggle?
+
+This list may grow as I think of other things.
 
 ## The Prototypes
 
