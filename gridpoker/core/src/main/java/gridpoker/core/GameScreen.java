@@ -158,20 +158,18 @@ public class GameScreen extends UIAnimScreen {
     });
 
     // wire up some behavior when we click
-    click.connect(new Slot<Coord>() {
-      public void onEmit (Coord coord) {
-        int thIdx = turnHolder.get();
-        if (thIdx >= 0 && // the game is not over
-            players[thIdx].isHuman() && // it's a human's turn
-            grid.isLegalMove(coord) && // there's a card neighboring this spot
-            sviews[thIdx].selection.get() != null) { // they have a card selected in their stash
-          Card card = sviews[thIdx].selection.get().card;
-          if (players[thIdx].stash.remove(card)) {
-            grid.cards.put(coord, card);
-          } else throw new AssertionError("Player lacks card " + card + " " + players[thIdx]);
-        }
+    click.connect(new Slot<Coord>() { public void onEmit (Coord coord) {
+      int thIdx = turnHolder.get();
+      if (thIdx >= 0 && // the game is not over
+          players[thIdx].isHuman() && // it's a human's turn
+          grid.isLegalMove(coord) && // there's a card neighboring this spot
+          sviews[thIdx].selection.get() != null) { // they have a card selected in their stash
+        Card card = sviews[thIdx].selection.get().card;
+        if (players[thIdx].stash.remove(card)) {
+          grid.cards.put(coord, card);
+        } else throw new AssertionError("Player lacks card " + card + " " + players[thIdx]);
       }
-    });
+    }});
 
     // add a display of legal moves
     turnHolder.connect(new Slot<Integer>() {
@@ -195,24 +193,37 @@ public class GameScreen extends UIAnimScreen {
     });
 
     // update the current player's stash, run AI opponents, etc.
-    turnHolder.connect(new Slot<Integer>() {
-      public void onEmit (Integer thIdx) {
-        // don't hide a human's cards while the AI is playing because it just flashes annoyingly
-        if (thIdx < 0 || players[thIdx].isHuman()) {
-          for (int ii = 0; ii < sviews.length; ii++) {
-            if (sviews[ii] != null) sviews[ii].layer.setVisible(ii == thIdx);
-          }
-        }
-        if (thIdx >= 0) {
-          players[thIdx].upStash(deck);
-          if (!players[thIdx].isHuman()) grid.makeMove(players[thIdx]);
+    turnHolder.connect(new Slot<Integer>() { public void onEmit (Integer thIdx) {
+      // don't hide a human's cards while the AI is playing because it just flashes annoyingly
+      if (thIdx < 0 || players[thIdx].isHuman()) {
+        for (int ii = 0; ii < sviews.length; ii++) {
+          if (sviews[ii] != null) sviews[ii].layer.setVisible(ii == thIdx);
         }
       }
-    });
+      if (thIdx >= 0) {
+        players[thIdx].upStash(deck);
+        if (!players[thIdx].isHuman()) grid.makeMove(players[thIdx]);
+      }
+    }});
 
     // take the top card off the deck and place it at 0, 0; tell player 0 it's their turn
     grid.cards.put(Coord.get(0, 0), deck.cards.remove(0));
     turnHolder.update(0);
+
+    // display some tips before the first turn and make them disappear once the first move is made
+    final ImageLayer step1 = TIP_CFG.toLayer("1. Click a card to select it");
+    final ImageLayer step2 = TIP_CFG.toLayer("2. Click a white square to play the card.");
+    final ImageLayer step3 = TIP_CFG.toLayer("3. Try to make, pairs, 3 of a kind, straights, etc.");
+    layer.addAt(step1, (graphics().width() - step1.width())/2,
+                graphics().height() - Media.CARD_HEI - step1.height() - 20);
+    layer.addAt(step2, (graphics().width() - step2.width())/2,
+                graphics().height()/2 - 3*Media.CARD_HEI/2 - step2.height());
+    layer.addAt(step3, (graphics().width() - step2.width())/2, Media.CARD_HEI + 50);
+    turnHolder.connect(new UnitSlot() { public void onEmit () {
+      step1.destroy();
+      step2.destroy();
+      step3.destroy();
+    }}).once();
   }
 
   @Override public void wasRemoved () {
@@ -286,4 +297,8 @@ public class GameScreen extends UIAnimScreen {
 
   protected final TextConfig MARQUEE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
     withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
+
+  protected final TextConfig TIP_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 2f).
+    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 24)).
+    withWrapping(300, TextFormat.Alignment.CENTER);
 }
