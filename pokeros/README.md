@@ -73,7 +73,8 @@ essentially guarantee a win anyway; straight flushes are also pretty rare).
 
 ## Play It
 
-TBD
+If you have one of them new fangled HTML5 browsers, you can play the prototype
+[right here](http://samskivert.github.io/mashups/pokeros/). Good luck!
 
 ## Variations
 
