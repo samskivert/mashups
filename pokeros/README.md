@@ -40,6 +40,9 @@ planning and strategy, because you could see that you had two or three cards tha
 together and aim to make something good out of them. Of course, the opponent then sometimes thwarts
 your plans, but that's to be expected.
 
+I also ended up limiting the number of consecutive cards allowed on the board to five. Otherwise
+things degenerated into ultra long straights and flushes and other uninterestingness.
+
 ## Scoring
 
 The scoring for each poker hand is as follows:
