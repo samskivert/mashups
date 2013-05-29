@@ -36,7 +36,8 @@ public class GameScreen extends UIAnimScreen {
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
 
-  public GameScreen (Player... players) {
+  public GameScreen (UnitSlot onRestart, Player... players) {
+    _onRestart = onRestart;
     this.players = players;
     this.sviews = new StashView[players.length];
     for (int ii = 0; ii < sviews.length; ii++) {
@@ -94,10 +95,13 @@ public class GameScreen extends UIAnimScreen {
 
     Root root = iface.createRoot(AxisLayout.vertical(), SimpleStyles.newSheet(), layer);
     root.addStyles(Style.BACKGROUND.is(Background.solid(0xFF99CCFF).inset(5)));
+    Button restart;
     root.add(new Label("Scores").addStyles(Style.FONT.is(HEADER_FONT)),
              new Label(Icons.image(bar)), sgroup, new Label(Icons.image(bar)),
              new Group(AxisLayout.horizontal()).add(
-               new Label("Cards left:"), new ValueLabel(deck.cards.sizeView())));
+               new Label("Cards left:"), new ValueLabel(deck.cards.sizeView())),
+             restart = new Button("RESTART"));
+    restart.clicked().connect(_onRestart).once();
     root.pack();
     root.layer.setTranslation(graphics().width()-root.size().width()-5, 5);
 
@@ -219,7 +223,7 @@ public class GameScreen extends UIAnimScreen {
                 graphics().height() - Media.CARD_HEI - step1.height() - 20);
     layer.addAt(step2, (graphics().width() - step2.width())/2,
                 graphics().height()/2 - 3*Media.CARD_HEI/2 - step2.height());
-    layer.addAt(step3, (graphics().width() - step2.width())/2, Media.CARD_HEI + 50);
+    layer.addAt(step3, (graphics().width() - step2.width())/2, Media.CARD_HEI + 30);
     turnHolder.connect(new UnitSlot() { public void onEmit () {
       step1.destroy();
       step2.destroy();
@@ -286,8 +290,8 @@ public class GameScreen extends UIAnimScreen {
       else { maxScore = score; winIdx = ii; }
     }
 
-    String msg = (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!");
-    ImageLayer winLayer = MARQUEE_CFG.toLayer(msg + "\nPress 'r' to restart.");
+    ImageLayer winLayer = MARQUEE_CFG.toLayer(
+      (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!"));
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
   }
@@ -299,6 +303,8 @@ public class GameScreen extends UIAnimScreen {
       }
     });
 
+  protected final UnitSlot _onRestart;
+
   protected final int GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
   protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
 
@@ -307,5 +313,5 @@ public class GameScreen extends UIAnimScreen {
 
   protected final TextConfig TIP_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 2f).
     withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 24)).
-    withWrapping(300, TextFormat.Alignment.CENTER);
+    withWrapping(280, TextFormat.Alignment.CENTER);
 }

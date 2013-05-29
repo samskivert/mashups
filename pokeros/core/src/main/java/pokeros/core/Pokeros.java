@@ -4,6 +4,8 @@
 
 package pokeros.core;
 
+import react.UnitSlot;
+
 import playn.core.*;
 import playn.core.util.Clock;
 import static playn.core.PlayN.*;
@@ -18,16 +20,13 @@ public class Pokeros extends Game.Default {
 
   @Override
   public void init () {
-    _screens.push(new GameScreen(Player.human(), Player.computer()));
-
     keyboard().setListener(new Keyboard.Adapter() {
       @Override public void onKeyDown (Keyboard.Event event) {
-        if (event.key() == Key.R) {
-          _screens.remove(_screens.top());
-          _screens.push(new GameScreen(Player.human(), Player.computer()));
-        }
+        if (event.key() == Key.R) _restart.onEmit();
       }
     });
+
+    _restart.onEmit();
   }
 
   @Override
@@ -44,4 +43,8 @@ public class Pokeros extends Game.Default {
 
   protected final Clock.Source _clock = new Clock.Source(33);
   protected final ScreenStack _screens = new ScreenStack();
+  protected final UnitSlot _restart = new UnitSlot() { public void onEmit () {
+    if (_screens.size() > 0) _screens.remove(_screens.top());
+    _screens.push(new GameScreen(_restart, Player.human(), Player.computer()));
+  }};
 }
