@@ -1,0 +1,11 @@
+<module rename-to='pokeros'>
+  <inherits name="tripleplay.TriplePlay"/>
+  <inherits name='PokerosAssets'/>
+
+  <source path='core'/>
+  <source path='html'/>
+
+  <public path="resources" />
+
+  <entry-point class='pokeros.html.PokerosHtml'/>
+</module>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.samskivert.mashups</groupId>
+    <artifactId>pokeros</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>pokeros-html</artifactId>
+  <packaging>war</packaging>
+  <name>Grid Poker HTML</name>
+
+  <properties>
+    <gwt.module>pokeros.Pokeros</gwt.module>
+    <gwt.name>pokeros</gwt.name>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.samskivert.mashups</groupId>
+      <artifactId>pokeros-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.samskivert.mashups</groupId>
+      <artifactId>pokeros-core</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>com.samskivert.mashups</groupId>
+      <artifactId>pokeros-assets</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.threerings</groupId>
+      <artifactId>tripleplay</artifactId>
+      <version>${playn.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.playn</groupId>
+      <artifactId>playn-html</artifactId>
+      <version>${playn.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.playn</groupId>
+      <artifactId>playn-html</artifactId>
+      <version>${playn.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <!-- we need class metadata, override PlayN's disabling of such -->
+        <configuration>
+          <disableClassMetadata>false</disableClassMetadata>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- allows testing of HTML backend via: mvn integration-test -Phtml -->
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>8.0.0.v20110901</version>
+        <configuration>
+          <webApp>
+            ${project.basedir}/target/${project.artifactId}-${project.version}
+          </webApp>
+        </configuration>
+        <executions>
+          <execution>
+            <id>test-html</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>run-exploded</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

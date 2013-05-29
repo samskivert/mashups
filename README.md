@@ -58,7 +58,7 @@ mechanics, but the occasional other kind of element may sneak in.
 
 ## The Prototypes
 
-  * [Grid Poker](gridpoker) - 2013 May 26 to ???
+  * [Pokeros](pokeros) - 2013 May 26 to 29
 
 ## License
 
