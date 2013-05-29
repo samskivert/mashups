@@ -245,7 +245,8 @@ public class GameScreen extends UIAnimScreen {
     for (final Hand hand : hands) {
       if (hand.score == 0) continue;
       // System.err.println(hand);
-      final IntValue score = players[turnHolder.get()].score;
+      int thIdx = turnHolder.get();
+      final IntValue score = players[thIdx].score;
       // glow the scoring hand, and then increment the player's score
       GroupLayer group = graphics().createGroupLayer();
       Rectangle rect = null;
@@ -259,7 +260,9 @@ public class GameScreen extends UIAnimScreen {
           rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
         }
       }
-      ImageLayer label = MARQUEE_CFG.toLayer(hand.descrip() + " - " + hand.score + multSuff);
+      String info = hand.descrip() + " - " + hand.score + multSuff;
+      log().info(players[thIdx].name(thIdx) + ": " + info);
+      ImageLayer label = MARQUEE_CFG.toLayer(info);
       anim.delay(delay).then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
