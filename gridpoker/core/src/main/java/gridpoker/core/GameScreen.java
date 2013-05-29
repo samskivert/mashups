@@ -4,6 +4,7 @@
 
 package gridpoker.core;
 
+import java.util.List;
 import pythagoras.f.FloatMath;
 import pythagoras.f.Point;
 import pythagoras.f.Rectangle;
@@ -238,7 +239,10 @@ public class GameScreen extends UIAnimScreen {
 
   protected void scorePlacement (Coord coord) {
     int delay = 0;
-    for (final Hand hand : grid.bestHands(Hand.byScore, grid.cards.get(coord), coord)) {
+    List<Hand> hands = grid.bestHands(Hand.byScore, grid.cards.get(coord), coord);
+    final int mult = hands.size();
+    String multSuff = (mult > 1) ? (" x " + mult) : "";
+    for (final Hand hand : hands) {
       if (hand.score == 0) continue;
       // System.err.println(hand);
       final IntValue score = players[turnHolder.get()].score;
@@ -255,7 +259,7 @@ public class GameScreen extends UIAnimScreen {
           rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
         }
       }
-      ImageLayer label = MARQUEE_CFG.toLayer(hand.descrip() + " - " + hand.score);
+      ImageLayer label = MARQUEE_CFG.toLayer(hand.descrip() + " - " + hand.score + multSuff);
       anim.delay(delay).then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
@@ -263,7 +267,7 @@ public class GameScreen extends UIAnimScreen {
         tweenAlpha(label).to(0).in(500).easeIn().then().
         destroy(group).then().
         destroy(label).then().
-        action(new Runnable() { public void run () { score.increment(hand.score); }});
+        action(new Runnable() { public void run () { score.increment(hand.score*mult); }});
       delay += 750;
     }
   }
@@ -280,7 +284,7 @@ public class GameScreen extends UIAnimScreen {
     }
 
     String msg = (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!");
-    ImageLayer winLayer = MARQUEE_CFG.toLayer(msg);
+    ImageLayer winLayer = MARQUEE_CFG.toLayer(msg + "\nPress 'r' to restart.");
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
   }
