@@ -4,27 +4,28 @@
 
 package samsara
 
-import playn.core.Game
+import playn.core.PlayN._
+import playn.core._
 import playn.core.util.Clock
-
 import tripleplay.game.ScreenStack
 
 class Samsara extends Game.Default(33) {
 
+  val screens = new ScreenStack
+
   override def init ()  {
-    _screens.push(new MainMenuScreen)
+    screens.push(new MainMenuScreen(this))
   }
 
   override def update (delta :Int) {
     _clock.update(delta)
-    _screens.update(delta)
+    screens.update(delta)
   }
 
   override def paint (alpha :Float) {
     _clock.paint(alpha)
-    _screens.paint(_clock)
+    screens.paint(_clock)
   }
 
   private val _clock = new Clock.Source(33)
-  private val _screens = new ScreenStack
 }
