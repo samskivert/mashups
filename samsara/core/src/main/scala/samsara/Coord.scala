@@ -33,6 +33,10 @@ object Coord {
     else _coords(y * Level.width + x)
   }
 
+  /** Returns all coords in the specified rectangular region. */
+  def region (x :Int, y :Int, width :Int, height :Int) :Seq[Coord] =
+    for (xx <- 0 until width; yy <- 0 until height) yield Coord(x+xx, y+yy)
+
   private val _coords = Array.tabulate(Level.width * Level.height) { c =>
     new Coord(c % Level.width, c / Level.width)
   }

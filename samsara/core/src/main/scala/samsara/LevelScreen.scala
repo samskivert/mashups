@@ -7,27 +7,17 @@ package samsara
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
-import react.Signal
 import tripleplay.game.UIScreen
 
 class LevelScreen (game :Samsara, level :Level) extends UIScreen {
 
-  val keyDown = Signal.create[Key]()
-  val onMove  = Signal.create[Player]()
-  val onPaint = Signal.create[Clock]()
-
-  val metrics = new Metrics(width, height)
-
-  val world  = new World
-  val render = new RenderSystem(this)
-  val pass   = new PassabilitySystem(this, level.terrain)
-  val move   = new MovementSystem(this)
+  val jiva = new Jivaloka(this, level, new Metrics(width, height))
 
   override def wasAdded () {
     super.wasAdded()
 
     // reload the screen on 'r' for debugging
-    keyDown.connect(slot[Key] {
+    jiva.keyDown.connect(slot[Key] {
       case key if (key == Key.R) =>
         game.screens.replace(new LevelScreen(game, level))
     })
@@ -37,7 +27,7 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
     // add a renderer for our board
     layer.add(graphics.createImmediateLayer(new ImmediateLayer.Renderer {
       def render (surf :Surface) {
-        val size = metrics.size
+        val size = jiva.metrics.size
         var idx = 0 ; while (idx < level.terrain.length) {
           val x = idx % Level.width
           val y = idx / Level.width
@@ -55,18 +45,20 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
       }
     }))
 
-    // create our entities and kick things off
-    level.createEntities(world)
+    // create our entities
+    level.createEntities(jiva)
+    // hatch a fly from the nest
+    jiva.systems.hatcher.hatch()
   }
 
   override def paint (clock :Clock) {
-    onPaint.emit(clock)
+    jiva.onPaint.emit(clock)
   }
 
   override def showTransitionCompleted () {
     super.showTransitionCompleted()
     keyboard.setListener(new Keyboard.Adapter {
-      override def onKeyDown (event :Keyboard.Event) = keyDown.emit(event.key)
+      override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
     })
   }
 

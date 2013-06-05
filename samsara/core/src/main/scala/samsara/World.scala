@@ -48,7 +48,7 @@ abstract class System[A] (world :World) {
 
 class World {
 
-  /** Adds an entity to the world. */
+  /** Adds `entity` to the world. */
   def add (entity :Entity) {
     // stick this entity into a slot we know to be available
     entity.index = _nextIndex
@@ -72,15 +72,8 @@ class World {
     }
   }
 
-  private[samsara] def addSystem (sys :System[_]) {
-    _syss = sys :: _syss
-  }
-
-  private[samsara] def maxIndex :Int = _ents.size
-
-  private[samsara] def entity (index :Int) = _ents(index)
-
-  private[samsara] def remove (entity :Entity) {
+  /** Removes `entity` from the world. */
+  def remove (entity :Entity) {
     _ents(entity.index) = null
     // insert the next added entity here if this index is lower than our current target
     if (entity.index < _nextIndex) _nextIndex = entity.index
@@ -89,6 +82,14 @@ class World {
       sys.head.entityRemoved(entity) ; sys = sys.tail
     }
   }
+
+  private[samsara] def addSystem (sys :System[_]) {
+    _syss = sys :: _syss
+  }
+
+  private[samsara] def maxIndex :Int = _ents.size
+
+  private[samsara] def entity (index :Int) = _ents(index)
 
   private[this] var _ents = new Array[Entity](256)
   private[this] var _nextIndex = 0

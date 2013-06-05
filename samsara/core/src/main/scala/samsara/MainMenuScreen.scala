@@ -14,7 +14,7 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
     val root = iface.createRoot(AxisLayout.vertical, SimpleStyles.newSheet, layer)
     root.addStyles(Style.BACKGROUND.is(Background.solid(0xFFFFFFFF)))
     root.add(UI.stretchShim,
-             new Label("Samsara").addStyles(Style.FONT.is(UI.titleFont)),
+             new Label("Sa\u1E43s\u0101ra").addStyles(Style.FONT.is(UI.titleFont)),
              UI.stretchShim,
              new Button("New Game").addStyles(Style.FONT.is(UI.menuFont)).onClick(newGame),
              UI.stretchShim)
