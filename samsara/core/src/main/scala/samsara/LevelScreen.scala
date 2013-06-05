@@ -4,7 +4,6 @@
 
 package samsara
 
-import com.artemis.{Entity, World}
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
@@ -14,18 +13,18 @@ import tripleplay.game.UIScreen
 class LevelScreen (game :Samsara, level :Level) extends UIScreen {
 
   val keyDown = Signal.create[Key]()
-  val metrics = new Metrics(width, height)
-  val world = new World
+  val onMove  = Signal.create[Player]()
+  val onPaint = Signal.create[Clock]()
 
+  val metrics = new Metrics(width, height)
+
+  val world  = new World
   val render = new RenderSystem(this)
-  val pass = new PassabilitySystem(this, level.terrain)
-  val move = new MovementSystem(this)
+  val pass   = new PassabilitySystem(this, level.terrain)
+  val move   = new MovementSystem(this)
 
   override def wasAdded () {
     super.wasAdded()
-
-    // create our entities and kick things off
-    level.createEntities(world)
 
     // reload the screen on 'r' for debugging
     keyDown.connect(slot[Key] {
@@ -56,13 +55,12 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
       }
     }))
 
-    // initialize things
-    world.initialize()
+    // create our entities and kick things off
+    level.createEntities(world)
   }
 
   override def paint (clock :Clock) {
-    world.setDelta(clock.dt())
-    world.process()
+    onPaint.emit(clock)
   }
 
   override def showTransitionCompleted () {

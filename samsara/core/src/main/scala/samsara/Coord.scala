@@ -16,6 +16,7 @@ class Coord (val x :Int, val y :Int) {
   /** Returns {@code this} plus {@code dx, dy}. */
   def add (dx :Int, dy :Int) = Coord(x + dx, y + dy)
 
+  override def toString = s"+$x+$y"
   override def hashCode = x ^ y
   override def equals (other :Any) = other match {
     case oc :Coord => oc.x == x && oc.y == y

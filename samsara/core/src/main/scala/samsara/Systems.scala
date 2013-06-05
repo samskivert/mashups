@@ -4,72 +4,51 @@
 
 package samsara
 
-import com.artemis.systems.EntityProcessingSystem
-import com.artemis.utils.ImmutableBag
-import com.artemis.{Aspect, Entity, EntitySystem, World}
 import playn.core._
-import playn.core.util.Clock
-import scala.collection.mutable.ArrayBuffer
-import tripleplay.util.DestroyableBag
 
-class RenderSystem (screen :LevelScreen) extends EntitySystem(
-  Aspect.getAspectForAll(classOf[Body])) {
+class RenderSystem (screen :LevelScreen) extends System[Bodied](screen.world) {
 
-  screen.world.setSystem(this)
-  val _bm = screen.world.getMapper(classOf[Body])
-
-  override def inserted (e :Entity) {
-    val body = _bm.get(e)
-    body.layer = body.viz.create(screen.metrics)
-    body.move(body.coord, screen.metrics) // update layer position
-    screen.layer.add(body.layer)
+  override def onAdded (entity :Bodied) {
+    entity.layer = entity.viz.create(screen.metrics)
+    entity.move(entity.start, screen.metrics) // update layer position
+    screen.layer.add(entity.layer)
   }
 
-  override def removed (e :Entity) {
-    val body = _bm.get(e)
-    body.layer.destroy()
-    body.layer = null
+  override def onRemoved (entity :Bodied) {
+    entity.layer.destroy()
+    entity.layer = null
   }
 
-  override def processEntities (entities :ImmutableBag[Entity]) {} // unused
-  override def checkProcessing = false
+  override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
 }
 
-class PassabilitySystem (screen :LevelScreen, terrain :Array[Terrain]) extends EntitySystem(
-  Aspect.getAspectForAll(classOf[Body], classOf[Footprint])) {
+class PassabilitySystem (screen :LevelScreen,
+                         terrain :Array[Terrain]) extends System[Footed](screen.world) {
 
   /** Returns true if `coord` is passable, false otherwise. */
   def isPassable (coord :Coord) = coord != null && _pass(coord.index)
 
-  screen.world.setSystem(this)
-  val _bm = screen.world.getMapper(classOf[Body])
-  val _fm = screen.world.getMapper(classOf[Footprint])
   val _pass = terrain.map(_.passable)
 
-  override def inserted (e :Entity) {
-    apply(e) { c => _pass(c.index) = false }
+  override def onAdded (entity :Footed) {
+    apply(entity) { c => _pass(c.index) = false }
   }
 
-  override def removed (e :Entity) {
-    apply(e) { c => _pass(c.index) = terrain(c.index).passable }
+  override def onRemoved (entity :Footed) {
+    apply(entity) { c => _pass(c.index) = terrain(c.index).passable }
   }
 
-  private def apply (e :Entity)(f :(Coord => Unit)) {
-    val origin = _bm.get(e).coord
-    _fm.get(e).coords map(_.add(origin)) filter(_ != null) foreach(f)
-  }
+  override protected def handles (entity :Entity) = entity.isInstanceOf[Footed]
 
-  override def processEntities (entities :ImmutableBag[Entity]) {} // unused
-  override def checkProcessing = false
+  private def apply (entity :Footed)(f :(Coord => Unit)) {
+    val origin = entity.start
+    entity.footprint map(_.add(origin)) filter(_ != null) foreach(f)
+  }
 }
 
-class MovementSystem (screen :LevelScreen) extends EntitySystem(
-  Aspect.getAspectForAll(classOf[Player])) {
+class MovementSystem (screen :LevelScreen) extends System[Player](screen.world) {
 
-  screen.world.setSystem(this)
-  val _pm = screen.world.getMapper(classOf[Player])
-  val _bm = screen.world.getMapper(classOf[Body])
-  var _player :Entity = _
+  var player :Player = _
 
   screen.keyDown.connect((_ :Key) match {
     case Key.UP    => move(0, -1)
@@ -80,21 +59,29 @@ class MovementSystem (screen :LevelScreen) extends EntitySystem(
   })
 
   def move (dx :Int, dy :Int) {
-    val body = _bm.get(_player)
-    val coord = body.coord.add(dx, dy)
-    if (screen.pass.isPassable(coord)) body.move(coord, screen.metrics)
+    val coord = player.coord.add(dx, dy)
+    if (screen.pass.isPassable(coord)) {
+      player.move(coord, screen.metrics)
+      screen.onMove.emit(player)
+    }
   }
 
-  override def inserted (e :Entity) {
-    if (_player != null) throw new IllegalStateException("What? Two players?")
-    _player = e
+  override def onAdded (entity :Player) {
+    if (player != null) throw new IllegalStateException("What? Two players?")
+    player = entity
   }
 
-  override def removed (e :Entity) {
-    if (_player != e) throw new IllegalStateException("Who was that man?")
-    _player = null
+  override def onRemoved (entity :Player) {
+    if (player != entity) throw new IllegalStateException("Who was that man?")
+    player = null
   }
 
-  override def processEntities (entities :ImmutableBag[Entity]) {} // unused
-  override def checkProcessing = false
+  override protected def handles (entity :Entity) = entity.isInstanceOf[Player]
+}
+
+class BehaviorSystem (screen :LevelScreen) extends System[MOB](screen.world) {
+
+  screen.onMove.connect { p :Player => foreach(_.behave(p)) }
+
+  override protected def handles (entity :Entity) = entity.isInstanceOf[MOB]
 }
