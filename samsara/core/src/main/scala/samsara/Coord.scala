@@ -16,6 +16,15 @@ class Coord (val x :Int, val y :Int) {
   /** Returns {@code this} plus {@code dx, dy}. */
   def add (dx :Int, dy :Int) = Coord(x + dx, y + dy)
 
+  /** Returns the Manhattan distance between `this` and `coord`. */
+  def dist (coord :Coord) = math.abs(x - coord.x) + math.abs(y - coord.y)
+
+  /** Returns all coords with Manhattan distance from `this` <= `range`. OOB coords are omitted. */
+  def within (range :Int) :Seq[Coord] = for {
+    yy <- -range to range ; remain = range-math.abs(yy) ; xx <- -remain to remain ;
+    c = Coord(x+xx, y+yy) ; if (c != null)
+  } yield c
+
   override def toString = s"+$x+$y"
   override def hashCode = x ^ y
   override def equals (other :Any) = other match {
@@ -32,6 +41,9 @@ object Coord {
     if (x < 0 || x >= Level.width || y < 0 || y >= Level.height) null
     else _coords(y * Level.width + x)
   }
+
+  /** Returns all coordinates in the square from `[0, 0]` to `[size, size]`. */
+  def square (size :Int) = region(0, 0, size, size)
 
   /** Returns all coords in the specified rectangular region. */
   def region (x :Int, y :Int, width :Int, height :Int) :Seq[Coord] =

@@ -9,22 +9,26 @@ import pythagoras.f.FloatMath
 
 /** Something that exists on screen with a viz, dimensions and coords. */
 trait Bodied {
-  val start  :Coord
-  val width  :Int
-  val height :Int
-  val viz    :Viz
+  val start :Coord
+  val foot  :Seq[Coord]
+  val viz   :Viz
 
   /** This body's current coordinates. */
   var coord :Coord = _
+
+  /** This body's previous coordinates. */
+  var ocoord :Coord = _
 
   /** This body's visualization. Initialized by the render system. */
   var layer :Layer = _
 
   /** Updates this body's coordinates, and moves its layer. (TODO: animate) */
-  def move (coord :Coord, metrics :Metrics) {
+  def move (jiva :Jivaloka, coord :Coord) {
+    ocoord = this.coord
     this.coord = coord
-    layer.setTranslation(coord.x * metrics.size + layer.originX,
-                         coord.y * metrics.size + layer.originY)
+    layer.setTranslation(coord.x * jiva.metrics.size + layer.originX,
+                         coord.y * jiva.metrics.size + layer.originY)
+    jiva.onMove.emit(this)
   }
 }
 
@@ -37,8 +41,7 @@ class FruitFly (val start :Coord) extends Entity with Bodied {
   /** The item currently being carried by the fly (or null). */
   var item :Entity = _
 
-  val width = 1
-  val height = 1
+  val foot = Coord.square(1)
   val viz = Viz(1, 1).circleSF(1/2f, 1/2f, 1/2f)
 }
 
@@ -50,8 +53,7 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
     jiva.add(new FruitFly(coord))
   }
 
-  val width = 1
-  val height = 1
+  val foot = Coord.square(1)
   val viz = eggs match {
     case 4 => Viz(1, 1).
         circleF(1/4f, 1/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 1/4f, 1/4f, 0xFFFFCC99).
@@ -65,10 +67,9 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
 }
 
 class Splat (val start :Coord) extends Entity with Bodied {
-  val width = 1
-  val height = 1
-  val rando = new java.util.Random
+  val foot = Coord.square(1)
   val viz = {
+    val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))
     (Viz(1, 1) /: angcs) {
       case (v, (r, a)) =>

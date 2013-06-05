@@ -11,7 +11,7 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
   val render = new System[Bodied](jiva) {
     override def onAdded (entity :Bodied) {
       entity.layer = entity.viz.create(jiva.metrics)
-      entity.move(entity.start, jiva.metrics) // update layer position
+      entity.move(jiva, entity.start) // update layer position
       screen.layer.add(entity.layer)
     }
     override def onRemoved (entity :Bodied) {
@@ -21,27 +21,20 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
     override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
   }
 
-  trait Pass {
-    /** Returns true if `coord` is passable, false otherwise. */
-    def isPassable (coord :Coord) :Boolean
-  }
-  val pass = new System[Footed](jiva) with Pass {
-    def isPassable (coord :Coord) = coord != null && _pass(coord.index)
-
-    override def onAdded (entity :Footed) {
-      apply(entity) { c => _pass(c.index) = false }
+  val pass = new System[Bodied](jiva) {
+    override def onRemoved (entity :Bodied) {
+      apply(entity.foot, entity.coord)(jiva.resetPass)
     }
-    override def onRemoved (entity :Footed) {
-      apply(entity) { c => _pass(c.index) = level.terrain(c.index).passable }
-    }
-    override protected def handles (entity :Entity) = entity.isInstanceOf[Footed]
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
 
-    private def apply (entity :Footed)(f :(Coord => Unit)) {
-      val origin = entity.start
-      entity.footprint map(_.add(origin)) filter(_ != null) foreach(f)
+    jiva.onMove.connect { b :Bodied =>
+      if (b.ocoord != null) apply(b.foot, b.ocoord)(jiva.resetPass)
+      apply(b.foot, b.coord)(jiva.makeImpass)
     }
 
-    private val _pass = level.terrain.map(_.passable)
+    private def apply (foot :Seq[Coord], origin :Coord)(f :(Coord => Unit)) {
+      foot map(_.add(origin)) filter(_ != null) foreach(f)
+    }
   }
 
   val move = new System[FruitFly](jiva) {
@@ -50,9 +43,9 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
     def move (dx :Int, dy :Int) {
       if (protag != null) {
         val coord = protag.coord.add(dx, dy)
-        if (pass.isPassable(coord)) {
-          protag.move(coord, jiva.metrics)
-          jiva.onMove.emit(protag)
+        if (jiva.isPassable(coord)) {
+          protag.move(jiva, coord)
+          jiva.flyMove.emit(protag)
         }
       }
     }
@@ -78,7 +71,7 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
 
   val behave = new System[MOB](jiva) {
     override protected def handles (entity :Entity) = entity.isInstanceOf[MOB]
-    jiva.onMove.connect { f :FruitFly => foreach(_.behave(jiva, f)) }
+    jiva.flyMove.connect { f :FruitFly => foreach(_.behave(jiva, f)) }
   }
 
   trait Hatcher {

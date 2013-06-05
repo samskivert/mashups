@@ -12,6 +12,7 @@ case class Viz (width :Int, height :Int) {
 
   def create (metrics :Metrics) :Layer = {
     val image = graphics.createImage(metrics.size*width, metrics.size*height)
+    image.canvas.setLineCap(Canvas.LineCap.ROUND)
     _ops.foreach(_.apply(image.canvas, image.width, image.height))
     graphics.createImageLayer(image).setOrigin(image.width/2, image.height/2)
   }
@@ -32,6 +33,15 @@ case class Viz (width :Int, height :Int) {
     _ops += ((canvas :Canvas, width :Float, height :Float) => {
       canvas.setStrokeColor(stroke).setStrokeWidth(2).
         strokeCircle(x*width, y*height, r*math.min(width, height)-2)
+    })
+    this
+  }
+
+  def line (x1 :Float, y1 :Float, x2 :Float, y2 :Float,
+            stroke :Int = 0xFF000000, swidth :Float = 2) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      canvas.setStrokeColor(stroke).setStrokeWidth(swidth).
+        drawLine(x1*width, y1*height, x2*width, y2*height)
     })
     this
   }
