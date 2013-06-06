@@ -38,6 +38,11 @@ class Frog extends Entity with MOB {
     layer.setRotation(Rots(orient))
   }
 
+  override protected def position (jiva :Jivaloka) {
+    super.position(jiva)
+    layer.setRotation(Rots(orient))
+  }
+
   val foot = Coord.square(size)
   def viz = Viz(size, size)
     .circleF(1/4f, 3/4f, 1/4f, 0xFF336600).circleF(3/4f, 3/4f, 1/4f, 0xFF336600)
@@ -68,7 +73,7 @@ class AwakeSpider extends Spider {
       jiva.remove(this) // replace ourselves with a sleeping spider
       jiva.add(new SleepingSpider(5+jiva.rand.nextInt(5)).at(coord))
     }
-    // otherwise just move randomly in our range
+    // otherwise just move randomly in our range (TODO: bias toward protagonist)
     else {
       val spots = coord.within(1).filter(jiva.pass.isPassable)
       if (!spots.isEmpty) {

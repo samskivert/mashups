@@ -22,7 +22,7 @@ class Jivaloka (
   val flyMove = Signal.create[FruitFly]()
   val moveLives = Value.create(0)
 
-  val rand    = new java.util.Random // TODO: seeded? save seed?
+  val rand    = new scala.util.Random // TODO: seeded? save seed?
   val pass    = new Passage(level.terrain)
   val systems = new Systems(this)
 
@@ -32,15 +32,25 @@ class Jivaloka (
   }
 
   def tryHatch () {
+    println("Trying hatch on " + level.depth)
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
     if (systems.move.protag == null) {
-      // if this is level zero, then it's game over (TODO: game over screen)
-      if (level.depth == 0) game.screens.remove(screen)
+      // if this is level zero, then it's game over
+      if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
       // otherwise pop back to the previous screen and try to hatch from there
-      else game.screens.replace(new GameScreen(game, levels, levels.get(level.depth-1, None)),
+      else game.screens.replace(new GameScreen(game, levels, levels.pop(level)),
                                 game.screens.slide.up)
+    }
+  }
+
+  def hatch (coord :Coord, dist :Int = 1) {
+    rand.shuffle(coord.within(dist)).find(pass.isPassable) match {
+      case None => hatch(coord, dist+1)
+      case Some(c) =>
+        add(new FruitFly().at(c))
+        // moveLives.update()
     }
   }
 
@@ -51,7 +61,7 @@ class Jivaloka (
     tryHatch()
   }
 
-  def ascend (protag :FruitFly, exit :Exit) {
+  def ascend (protag :FruitFly) {
     remove(protag) // remove our protagonist from this world
     levels.store(level.copy(entities = entities)) // save this world for later
     game.screens.replace(new GameScreen(game, levels, levels.get(level.depth+1, Some(protag))),

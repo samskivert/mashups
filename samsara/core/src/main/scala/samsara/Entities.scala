@@ -10,10 +10,10 @@ import pythagoras.f.FloatMath
 /** Something that exists on screen with a viz, dimensions and coords. */
 trait Bodied { self :Entity =>
 
-  final val DecalDepth = 1
-  final val PropDepth = 2
-  final val MOBDepth = 3
-  final val PlayerDepth = 4
+  final val DecalDepth = 10
+  final val PropDepth = 11
+  final val MOBDepth = 12
+  final val PlayerDepth = 13
 
   /** Generates this body's visualization. */
   def viz :Viz
@@ -60,7 +60,7 @@ trait Bodied { self :Entity =>
     layer = null
   }
 
-  private def position (jiva :Jivaloka) {
+  protected def position (jiva :Jivaloka) {
     val size = jiva.screen.metrics.size
     layer.setTranslation(coord.x * size + layer.originX, coord.y * size + layer.originY)
   }
@@ -94,14 +94,14 @@ class FruitFly extends Entity with Footed {
 }
 
 /** A nest of eggs, from which our protagonists spawn. */
-class Nest (val eggs :Int) extends Entity with Bodied {
+class Nest (val eggs :Int) extends Entity with Footed {
   def hatch (jiva :Jivaloka) {
     jiva.remove(this)
     if (eggs > 1) jiva.add(new Nest(eggs-1).at(coord))
-    jiva.add(new FruitFly().at(coord))
-    // jiva.moveLives.update(
+    jiva.hatch(coord)
   }
 
+  val foot = Coord.square(1)
   def viz = eggs match {
     case 4 => Viz(1, 1).
         circleF(1/4f, 1/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 1/4f, 1/4f, 0xFFFFCC99).
@@ -114,8 +114,22 @@ class Nest (val eggs :Int) extends Entity with Bodied {
   }
 }
 
+class Mate extends Entity with Footed {
+  def maybeMate (jiva :Jivaloka, fly :FruitFly) {
+    if (coord.dist(fly.coord) == 1) {
+      jiva.remove(this) // TODO: vary egg count based on depth?
+      jiva.add(new Nest(1+jiva.rand.nextInt(4)).at(coord))
+      // TODO: display animating heart floating up screen
+    }
+  }
+
+  val foot = Coord.square(1)
+  def viz = Viz(1, 1).circleSF(1/2f, 1/2f, 1/2f, 0xFFFF0000)
+}
+
 class Exit extends Entity with Bodied {
-  def viz = Viz(1, 1).roundRectSF(0.1f, 0.1f, 0.8f, 0.8f, 1/4f, 0xFFFFCC99)
+  def viz = Viz(1, 1).polyF(0x66000000, (1/2f, 1/5f), (4/5f, 1/2f), (2/3f, 1/2f), (2/3f, 3/4f),
+                            (1/3f, 3/4f), (1/3f, 1/2f), (1/5f, 1/2f))
 }
 
 class Splat extends Entity with Bodied {

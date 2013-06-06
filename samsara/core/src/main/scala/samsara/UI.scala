@@ -9,12 +9,15 @@ import playn.core.PlayN._
 
 import tripleplay.ui.Shim
 import tripleplay.ui.layout.AxisLayout
+import tripleplay.util.TextConfig
 
 object UI {
 
   val titleFont = graphics.createFont("Helvetica", Font.Style.BOLD, 48)
   val menuFont = graphics.createFont("Helvetica", Font.Style.BOLD, 24)
   def bodyFont (size :Float) = graphics.createFont("Helvetica", Font.Style.BOLD, size)
+
+  def levelCfg = new TextConfig(0xFF000000).withFont(bodyFont(256))
 
   /** Returns a shim configured with an [AxisLayout] stretch constraint. */
   def stretchShim :Shim = AxisLayout.stretch(shim(1, 1))

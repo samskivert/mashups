@@ -34,10 +34,10 @@ object Level {
     entities += new Exit().at(exit)
     pass.setImpass(exit)
 
-    // for now stick a nest somewhere randomly on the level
-    val nest = Coord(rando.nextInt(width), rando.nextInt(height))
-    entities += new Nest(2).at(nest)
-    pass.setImpass(nest)
+    // stick a mate somewhere randomly in the top 2/3 of the level
+    val mate = Coord(rando.nextInt(width), rando.nextInt(2*height/3))
+    entities += new Mate().at(mate)
+    pass.setImpass(mate)
 
     // helper to place an entity, check for validity, then update passability
     def place (ent :Entity with Footed) = {
@@ -99,6 +99,11 @@ class LevelDB {
 
   def store (level :Level) {
     _levels.put(level.depth, level)
+  }
+
+  def pop (level :Level) = {
+    _levels -= level.depth
+    get(level.depth-1, None)
   }
 
   private val _levels = MMap[Int,Level]()

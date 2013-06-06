@@ -22,7 +22,6 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
   }
 
   protected def newGame () {
-    val levels = new LevelDB
-    game.screens.push(new GameScreen(game, levels, levels.get(0, None)))
+    game.screens.push(new GameScreen(game, new LevelDB), game.screens.slide.down)
   }
 }

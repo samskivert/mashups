@@ -10,6 +10,7 @@ import playn.core.util.Clock
 import tripleplay.game.UIScreen
 
 class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
+  def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.get(0, None))
 
   val metrics = new Metrics(width, height)
   val jiva = new Jivaloka(game, this, levels, level)
@@ -17,10 +18,9 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
   override def wasAdded () {
     super.wasAdded()
 
-    // reload the screen on 'r' for debugging
+    // "reboot" on 'r' for debugging
     jiva.keyDown.connect(slot[Key] {
-      case key if (key == Key.R) =>
-        game.screens.replace(new GameScreen(game, levels, level))
+      case key if (key == Key.R) => game.screens.replace(new GameScreen(game, new LevelDB))
     })
 
     // TODO: center our level grid in the available space
@@ -45,6 +45,10 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
         }
       }
     }))
+
+    // display our current level depth number in the upper right
+    val levlay = UI.levelCfg.toLayer(level.depth.toString)
+    layer.addAt(levlay.setDepth(1).setAlpha(0.3f), (width-levlay.width)/2, (height-levlay.height)/2)
 
     // add all of the level entities
     jiva.level.entities foreach jiva.add

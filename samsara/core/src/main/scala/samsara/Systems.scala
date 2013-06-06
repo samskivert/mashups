@@ -47,6 +47,8 @@ class Systems (jiva :Jivaloka) {
         if (jiva.pass.isPassable(coord)) {
           protag.move(jiva, coord)
           jiva.flyMove.emit(protag)
+        } else if (dx == 0 && dy == -1 && protag.coord == jiva.level.exit) {
+          jiva.ascend(protag)
         }
       }
     }
@@ -70,6 +72,11 @@ class Systems (jiva :Jivaloka) {
     })
   }
 
+  val love = new System[Mate](jiva) {
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Mate]
+    jiva.flyMove.connect { f :FruitFly => foreach(_.maybeMate(jiva, f)) }
+  }
+
   val behave = new System[MOB](jiva) {
     override protected def handles (entity :Entity) = entity.isInstanceOf[MOB]
     jiva.flyMove.connect { f :FruitFly => foreach(_.behave(jiva, f)) }
@@ -82,23 +89,5 @@ class Systems (jiva :Jivaloka) {
   val hatcher = new System[Nest](jiva) with Hatcher {
     def hatch () = foreach(_.hatch(jiva))
     override protected def handles (entity :Entity) = entity.isInstanceOf[Nest]
-  }
-
-  val ascend = new System[Exit](jiva) {
-    var exit :Exit = _
-
-    jiva.flyMove.connect { f :FruitFly =>
-      if (f.coord == exit.coord) jiva.ascend(f, exit)
-    }
-
-    override def onAdded (entity :Exit) {
-      if (exit != null) throw new IllegalStateException("What? Two exits?")
-      exit = entity
-    }
-    override def onRemoved (entity :Exit) {
-      if (exit != entity) throw new IllegalStateException("Who was that exit?")
-      exit = null
-    }
-    override protected def handles (entity :Entity) = entity.isInstanceOf[Exit]
   }
 }
