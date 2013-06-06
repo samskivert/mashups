@@ -7,12 +7,12 @@ package samsara
 import pythagoras.f.FloatMath
 
 /** Something that takes action when the player moves. */
-trait MOB extends Footed {
+trait MOB extends Footed { self :Entity =>
   def behave (jiva :Jivaloka, protag :FruitFly)
   override def depth = MOBDepth
 }
 
-class Frog (val start :Coord) extends Entity with MOB {
+class Frog extends Entity with MOB {
   val tongue = 2
   val size = 2
   var orient :Int = 0 // Up, Right, Down, Left
@@ -55,9 +55,10 @@ abstract class Spider extends Entity with MOB {
     .line(0, 2/3f, 1, 1/3f, 0xFF330066)
     .line(0, 1,    1, 0,    0xFF330066)
     .circleSF(1/2f, 1/2f, 2/5f, 0xFF330066)
+  override def scale = 0.75f
 }
 
-class AwakeSpider (val start :Coord) extends Spider {
+class AwakeSpider extends Spider {
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     // if the fly is in our range...
@@ -65,11 +66,11 @@ class AwakeSpider (val start :Coord) extends Spider {
       move(jiva, protag.coord) // jump on him
       jiva.chomp(this, protag) // and eat him up yum!
       jiva.remove(this) // replace ourselves with a sleeping spider
-      jiva.add(new SleepingSpider(coord, 5+jiva.rand.nextInt(5)))
+      jiva.add(new SleepingSpider(5+jiva.rand.nextInt(5)).at(coord))
     }
     // otherwise just move randomly in our range
     else {
-      val spots = coord.within(range).filter(jiva.pass.isPassable)
+      val spots = coord.within(1).filter(jiva.pass.isPassable)
       if (!spots.isEmpty) {
         val spot = spots(jiva.rand.nextInt(spots.size))
         move(jiva, spot)
@@ -80,13 +81,13 @@ class AwakeSpider (val start :Coord) extends Spider {
   val range = 2
 }
 
-class SleepingSpider (val start :Coord, var turns :Int) extends Spider {
+class SleepingSpider (var turns :Int) extends Spider {
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     turns -= 1
     if (turns <= 0) {
       jiva.remove(this) // wake up!
-      jiva.add(new AwakeSpider(coord))
+      jiva.add(new AwakeSpider().at(coord))
     }
   }
 

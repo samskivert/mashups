@@ -9,9 +9,10 @@ import playn.core._
 import playn.core.util.Clock
 import tripleplay.game.UIScreen
 
-class LevelScreen (game :Samsara, level :Level) extends UIScreen {
+class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
 
-  val jiva = new Jivaloka(this, level, new Metrics(width, height))
+  val metrics = new Metrics(width, height)
+  val jiva = new Jivaloka(game, this, levels, level)
 
   override def wasAdded () {
     super.wasAdded()
@@ -19,9 +20,7 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
     // reload the screen on 'r' for debugging
     jiva.keyDown.connect(slot[Key] {
       case key if (key == Key.R) =>
-        game.screens.replace(new LevelScreen(game, level))
-      case key if (key == Key.N) =>
-        game.screens.replace(new LevelScreen(game, Level.random(level.depth)))
+        game.screens.replace(new GameScreen(game, levels, level))
     })
 
     // TODO: center our level grid in the available space
@@ -29,7 +28,7 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
     // add a renderer for our board
     layer.add(graphics.createImmediateLayer(new ImmediateLayer.Renderer {
       def render (surf :Surface) {
-        val size = jiva.metrics.size
+        val size = metrics.size
         var idx = 0 ; while (idx < level.terrain.length) {
           val x = idx % Level.width
           val y = idx / Level.width
@@ -48,20 +47,21 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
     }))
 
     // add all of the level entities
-    level.entities foreach jiva.add
-    // hatch a fly from the nest
-    jiva.systems.hatcher.hatch()
-  }
-
-  override def paint (clock :Clock) {
-    jiva.onPaint.emit(clock)
+    jiva.level.entities foreach jiva.add
   }
 
   override def showTransitionCompleted () {
     super.showTransitionCompleted()
+    // hatch a fly from the nest
+    jiva.start()
+    // start listening for keyboard input
     keyboard.setListener(new Keyboard.Adapter {
       override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
     })
+  }
+
+  override def paint (clock :Clock) {
+    jiva.onPaint.emit(clock)
   }
 
   override def hideTransitionStarted () {

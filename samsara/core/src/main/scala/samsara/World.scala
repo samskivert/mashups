@@ -83,6 +83,9 @@ class World {
     }
   }
 
+  /** Returns all entities registered with this world. */
+  def entities :Seq[Entity] = _ents.filterNot(_ == null)
+
   private[samsara] def addSystem (sys :System[_]) {
     _syss = sys :: _syss
   }

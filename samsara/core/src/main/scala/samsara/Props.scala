@@ -26,20 +26,14 @@ abstract class Tree extends Prop {
                    0xFF733D1A, 0xFF6B4226, 0xFF5C3317, 0xFF964514, 0xFF87421F, 0xFF9C661F)
 }
 
-class Tree2 (val start :Coord) extends Tree {
+class Tree2 extends Tree {
   val foot = Coord.square(2)
-  def viz = treeViz(2, 2, 1/2f, 1/2f, 1/2f)
+  def viz  = treeViz(2, 2, 1/2f, 1/2f, 1/2f)
 }
 
-class CornerTree (val corner :Int) extends Tree {
+class CornerTree (corner :Int) extends Tree {
   val foot = Coord.square(2)
-  val start = corner match {
-    case 0 => Coord(0, 0)
-    case 1 => Coord(Level.width-2, 0)
-    case 2 => Coord(Level.width-2, Level.height-2)
-    case 3 => Coord(0, Level.height-2)
-  }
-  def viz = corner match {
+  def viz  = corner match {
     case 0 => treeViz(2, 2, 0, 0, 1)
     case 1 => treeViz(2, 2, 1, 0, 1)
     case 2 => treeViz(2, 2, 1, 1, 1)
@@ -47,14 +41,12 @@ class CornerTree (val corner :Int) extends Tree {
   }
 }
 
-class LeftTree (y :Int) extends Tree {
-  val foot  = Coord.rect(2, 4)
-  val start = Coord(0, y)
-  def viz   = treeViz(2, 4, 0, 1/2f, 1)
+class LeftTree extends Tree {
+  val foot = Coord.rect(2, 4)
+  def viz  = treeViz(2, 4, 0, 1/2f, 1)
 }
 
-class RightTree (y :Int) extends Tree {
-  val foot  = Coord.rect(2, 4)
-  val start = Coord(Level.width-2, y)
-  def viz   = treeViz(2, 4, 1, 1/2f, 1)
+class RightTree extends Tree {
+  val foot = Coord.rect(2, 4)
+  def viz  = treeViz(2, 4, 1, 1/2f, 1)
 }

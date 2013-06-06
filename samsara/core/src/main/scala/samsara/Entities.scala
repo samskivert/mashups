@@ -4,17 +4,16 @@
 
 package samsara
 
-import playn.core.Layer
+import playn.core.{Layer, GroupLayer}
 import pythagoras.f.FloatMath
 
 /** Something that exists on screen with a viz, dimensions and coords. */
-trait Bodied {
-  final val DecalDepth = 0
-  final val PropDepth = 1
-  final val MOBDepth = 2
-  final val PlayerDepth = 3
+trait Bodied { self :Entity =>
 
-  val start :Coord
+  final val DecalDepth = 1
+  final val PropDepth = 2
+  final val MOBDepth = 3
+  final val PlayerDepth = 4
 
   /** Generates this body's visualization. */
   def viz :Viz
@@ -31,22 +30,48 @@ trait Bodied {
   /** Specifies the depth of this body's layer. */
   def depth :Float = DecalDepth
 
-  /** Updates this body's coordinates, and moves its layer. (TODO: animate) */
+  /** Specifies the scale to use for the body's image. */
+  def scale :Float = 1
+
+  /** Configures this entity's starting coordinate. */
+  def at (start :Coord) :this.type = {
+    coord = start
+    this
+  }
+
+  /** Creates and positions this body's viz. Sets starting coord if needed. */
+  def init (jiva :Jivaloka) {
+    layer = viz.create(jiva.screen.metrics).setDepth(depth).setScale(scale)
+    position(jiva)
+    jiva.screen.layer.add(layer)
+  }
+
+  /** Updates this body's coordinates, and moves its layer. */
   def move (jiva :Jivaloka, coord :Coord) {
     ocoord = this.coord
     this.coord = coord
-    layer.setTranslation(coord.x * jiva.metrics.size + layer.originX,
-                         coord.y * jiva.metrics.size + layer.originY)
+    position(jiva)
     jiva.onMove.emit(this)
+  }
+
+  /** Destroys this body's viz. */
+  def destroy () {
+    layer.destroy()
+    layer = null
+  }
+
+  private def position (jiva :Jivaloka) {
+    val size = jiva.screen.metrics.size
+    layer.setTranslation(coord.x * size + layer.originX, coord.y * size + layer.originY)
   }
 }
 
-trait Footed extends Bodied {
-  val foot  :Seq[Coord]
+trait Footed extends Bodied { self :Entity =>
+  val foot :Seq[Coord]
 }
 
 /** Our current protagonist. */
-class FruitFly (val start :Coord) extends Entity with Footed {
+class FruitFly extends Entity with Footed {
   /** Indicates that this fly is still alive.
     * MOBs who attack the fly will ignore it if some other MOB managed to kill it first. */
   var alive = true
@@ -62,15 +87,19 @@ class FruitFly (val start :Coord) extends Entity with Footed {
     .line(1/2f,  1/2f, 7/8f,   1/8f,    0xFF111111, 1)
     .ellipseSF(1/4f, 0f, 1/2f, 1f, 0xFF111111, 0xFFCCCCCC)
     .polySF(0xFF111111, 0xFFCCCCCC, (1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
+
   override def depth = PlayerDepth
+  override def scale = 0.6f
+  override def toString = s"Fly($coord)"
 }
 
 /** A nest of eggs, from which our protagonists spawn. */
-class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
+class Nest (val eggs :Int) extends Entity with Bodied {
   def hatch (jiva :Jivaloka) {
     jiva.remove(this)
-    if (eggs > 1) jiva.add(new Nest(start, eggs-1))
-    jiva.add(new FruitFly(coord))
+    if (eggs > 1) jiva.add(new Nest(eggs-1).at(coord))
+    jiva.add(new FruitFly().at(coord))
+    // jiva.moveLives.update(
   }
 
   def viz = eggs match {
@@ -85,11 +114,11 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
   }
 }
 
-class Exit (val start :Coord) extends Entity with Bodied {
+class Exit extends Entity with Bodied {
   def viz = Viz(1, 1).roundRectSF(0.1f, 0.1f, 0.8f, 0.8f, 1/4f, 0xFFFFCC99)
 }
 
-class Splat (val start :Coord) extends Entity with Bodied {
+class Splat extends Entity with Bodied {
   def viz = {
     val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))

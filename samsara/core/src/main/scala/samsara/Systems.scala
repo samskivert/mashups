@@ -6,22 +6,23 @@ package samsara
 
 import playn.core._
 
-class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
+class Systems (jiva :Jivaloka) {
 
   val render = new System[Bodied](jiva) {
     override def onAdded (entity :Bodied) {
-      entity.layer = entity.viz.create(jiva.metrics).setDepth(entity.depth)
-      entity.move(jiva, entity.start) // update layer position
-      screen.layer.add(entity.layer)
+      entity.init(jiva)
     }
     override def onRemoved (entity :Bodied) {
-      entity.layer.destroy()
-      entity.layer = null
+      entity.destroy()
     }
     override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
   }
 
   val pass = new System[Footed](jiva) {
+    override def onAdded (entity :Footed) {
+      if (entity.coord == null) println("Entity with null coord in onAdd? " + entity)
+      else jiva.pass.makeImpass(entity.foot, entity.coord)
+    }
     override def onRemoved (entity :Footed) {
       jiva.pass.resetPass(entity.foot, entity.coord)
     }
@@ -34,7 +35,10 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
     })
   }
 
-  val move = new System[FruitFly](jiva) {
+  trait Move {
+    def protag :FruitFly
+  }
+  val move = new System[FruitFly](jiva) with Move {
     var protag :FruitFly = _
 
     def move (dx :Int, dy :Int) {
@@ -78,5 +82,23 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
   val hatcher = new System[Nest](jiva) with Hatcher {
     def hatch () = foreach(_.hatch(jiva))
     override protected def handles (entity :Entity) = entity.isInstanceOf[Nest]
+  }
+
+  val ascend = new System[Exit](jiva) {
+    var exit :Exit = _
+
+    jiva.flyMove.connect { f :FruitFly =>
+      if (f.coord == exit.coord) jiva.ascend(f, exit)
+    }
+
+    override def onAdded (entity :Exit) {
+      if (exit != null) throw new IllegalStateException("What? Two exits?")
+      exit = entity
+    }
+    override def onRemoved (entity :Exit) {
+      if (exit != entity) throw new IllegalStateException("Who was that exit?")
+      exit = null
+    }
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Exit]
   }
 }
