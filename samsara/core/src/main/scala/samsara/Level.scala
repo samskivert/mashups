@@ -61,8 +61,9 @@ object Level {
     // maybe put a big tree in one corners or on one side
     (rando.nextFloat match {
       case f if (f < 0.25f) => Some(new CornerTree(rando.nextInt(4)))
-      case f if (f < 0.5f)  => Some(new HalfTree(rando.nextBoolean,
-                                                 Level.height/4+rando.nextInt(height/2)))
+      case f if (f < 0.5f)  =>
+        val y = Level.height/4+rando.nextInt(height/2)
+        Some(if (rando.nextBoolean) new LeftTree(y) else new RightTree(y))
       case _ => None
     }) foreach place
 

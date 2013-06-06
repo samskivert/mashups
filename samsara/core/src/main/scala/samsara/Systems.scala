@@ -10,7 +10,7 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
 
   val render = new System[Bodied](jiva) {
     override def onAdded (entity :Bodied) {
-      entity.layer = entity.viz.create(jiva.metrics)
+      entity.layer = entity.viz.create(jiva.metrics).setDepth(entity.depth)
       entity.move(jiva, entity.start) // update layer position
       screen.layer.add(entity.layer)
     }

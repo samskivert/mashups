@@ -7,11 +7,12 @@ package samsara
 import pythagoras.f.FloatMath
 
 /** Something that takes action when the player moves. */
-trait MOB {
+trait MOB extends Footed {
   def behave (jiva :Jivaloka, protag :FruitFly)
+  override def depth = MOBDepth
 }
 
-class Frog (val start :Coord) extends Entity with Footed with MOB {
+class Frog (val start :Coord) extends Entity with MOB {
   val tongue = 2
   val size = 2
   var orient :Int = 0 // Up, Right, Down, Left
@@ -46,7 +47,7 @@ class Frog (val start :Coord) extends Entity with Footed with MOB {
   private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
-class Spider (val start :Coord) extends Entity with Footed with MOB {
+class Spider (val start :Coord) extends Entity with MOB {
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     // if the fly is in our range...
@@ -67,10 +68,10 @@ class Spider (val start :Coord) extends Entity with Footed with MOB {
 
   val foot = Coord.square(1)
   val viz = Viz(1, 1)
-    .line(0.05f, 0.05f, 0.95f, 0.95f, 0xFF330066)
-    .line(0.05f, 1/3f, 0.95f, 2/3f, 0xFF330066)
-    .line(0.05f, 2/3f, 0.95f, 1/3f, 0xFF330066)
-    .line(0.05f, 0.95f, 0.95f, 0.05f, 0xFF330066)
+    .line(0, 0,    1, 1,    0xFF330066)
+    .line(0, 1/3f, 1, 2/3f, 0xFF330066)
+    .line(0, 2/3f, 1, 1/3f, 0xFF330066)
+    .line(0, 1,    1, 0,    0xFF330066)
     .circleSF(1/2f, 1/2f, 2/5f, 0xFF330066)
 
   val range = 2

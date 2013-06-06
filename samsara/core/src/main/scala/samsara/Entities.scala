@@ -9,6 +9,11 @@ import pythagoras.f.FloatMath
 
 /** Something that exists on screen with a viz, dimensions and coords. */
 trait Bodied {
+  final val DecalDepth = 0
+  final val PropDepth = 1
+  final val MOBDepth = 2
+  final val PlayerDepth = 3
+
   val start :Coord
   val viz   :Viz
 
@@ -20,6 +25,9 @@ trait Bodied {
 
   /** This body's visualization. Initialized by the render system. */
   var layer :Layer = _
+
+  /** Specifies the depth of this body's layer. */
+  def depth :Float = DecalDepth
 
   /** Updates this body's coordinates, and moves its layer. (TODO: animate) */
   def move (jiva :Jivaloka, coord :Coord) {
@@ -45,7 +53,14 @@ class FruitFly (val start :Coord) extends Entity with Footed {
   var item :Entity = _
 
   val foot = Coord.square(1)
-  val viz = Viz(1, 1).circleSF(1/2f, 1/2f, 1/2f)
+  val viz = Viz(1, 1)
+    .line(1/8f,  1/8f, 1/2f,   1/2f, 0xFF111111, 1)
+    .line(1/16f, 1/3f, 15/16f, 2/3f, 0xFF111111, 1)
+    .line(1/16f, 2/3f, 15/16f, 1/3f, 0xFF111111, 1)
+    .line(1/2f,  1/2f, 7/8f,   1/8f,    0xFF111111, 1)
+    .ellipseSF(1/4f, 0f, 1/2f, 1f, 0xFF111111, 0xFFCCCCCC)
+    .polySF(0xFF111111, 0xFFCCCCCC, (1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
+  override def depth = PlayerDepth
 }
 
 /** A nest of eggs, from which our protagonists spawn. */

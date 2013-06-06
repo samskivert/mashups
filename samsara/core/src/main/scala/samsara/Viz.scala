@@ -12,8 +12,8 @@ case class Viz (width :Int, height :Int) {
 
   def create (metrics :Metrics) :Layer = {
     val image = graphics.createImage(metrics.size*width, metrics.size*height)
-    image.canvas.setLineCap(Canvas.LineCap.ROUND)
-    _ops.foreach(_.apply(image.canvas, image.width, image.height))
+    image.canvas.setLineCap(Canvas.LineCap.ROUND).translate(1, 1)
+    _ops.foreach(_.apply(image.canvas, image.width-2, image.height-2))
     graphics.createImageLayer(image).setOrigin(image.width/2, image.height/2)
   }
 
@@ -24,7 +24,7 @@ case class Viz (width :Int, height :Int) {
 
   def circleF (x :Float, y :Float, r :Float, fill :Int) = {
     _ops += ((canvas :Canvas, width :Float, height :Float) => {
-      canvas.setFillColor(fill).fillCircle(x*width, y*height, r*math.min(width, height)-3)
+      canvas.setFillColor(fill).fillCircle(x*width, y*height, r*math.min(width, height)-1)
     })
     this
   }
@@ -32,7 +32,8 @@ case class Viz (width :Int, height :Int) {
   def circleS (x :Float, y :Float, r :Float, stroke :Int) = {
     _ops += ((canvas :Canvas, width :Float, height :Float) => {
       canvas.setStrokeColor(stroke).setStrokeWidth(2).
-        strokeCircle(x*width, y*height, r*math.min(width, height)-2)
+        strokeCircle(x*width, y*height, r*math.min(width, height)-1).
+        setStrokeWidth(1)
     })
     this
   }
@@ -41,7 +42,8 @@ case class Viz (width :Int, height :Int) {
             stroke :Int = 0xFF000000, swidth :Float = 2) = {
     _ops += ((canvas :Canvas, width :Float, height :Float) => {
       canvas.setStrokeColor(stroke).setStrokeWidth(swidth).
-        drawLine(x1*width, y1*height, x2*width, y2*height)
+        drawLine(x1*width, y1*height, x2*width, y2*height).
+        setStrokeWidth(1)
     })
     this
   }
@@ -55,6 +57,68 @@ case class Viz (width :Int, height :Int) {
         strokeRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width)
     })
     this
+  }
+
+  def ellipseF (x :Float, y :Float, ewidth :Float, eheight: Float, fill :Int) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      val path = ellipsePath(canvas.createPath(), x*width, y*width, ewidth*width, eheight*height)
+      canvas.setFillColor(fill).fillPath(path)
+    })
+    this
+  }
+
+  def ellipseS (x :Float, y :Float, ewidth :Float, eheight: Float, stroke :Int) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      val path = ellipsePath(canvas.createPath(), x*width, y*width, ewidth*width, eheight*height)
+      canvas.setStrokeColor(stroke).strokePath(path)
+    })
+    this
+  }
+
+  def ellipseSF (x :Float, y :Float, ewidth :Float, eheight: Float, stroke :Int, fill :Int) = {
+    ellipseF(x, y, ewidth, eheight, fill)
+    ellipseS(x, y, ewidth, eheight, stroke)
+  }
+
+  def polyS (stroke :Int, coords :(Float,Float)*) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      canvas.setStrokeColor(stroke).strokePath(poly(canvas.createPath(), width, height, coords))
+    })
+    this
+  }
+
+  def polyF (fill :Int, coords :(Float,Float)*) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      canvas.setFillColor(fill).fillPath(poly(canvas.createPath(), width, height, coords))
+    })
+    this
+  }
+
+  def polySF (stroke :Int, fill :Int, coords :(Float,Float)*) = {
+    polyF(fill, coords :_*)
+    polyS(stroke, coords :_*)
+  }
+
+  def poly (path :Path, sx :Float, sy: Float, coords :Seq[(Float,Float)]) = {
+    path.moveTo(coords.head._1*sx, coords.head._2*sy)
+    (path /: coords.drop(1))((p, c) => path.lineTo(c._1*sx, c._2*sy))
+    path.close()
+  }
+
+  def ellipsePath (path :Path, x :Float, y :Float, w :Float, h :Float) = {
+    val kappa = .5522848f
+    val ox = (w / 2) * kappa // control point offset horizontal
+    val oy = (h / 2) * kappa // control point offset vertical
+    val xe = x + w           // x-end
+    val ye = y + h           // y-end
+    val xm = x + w / 2       // x-middle
+    val ym = y + h / 2       // y-middle
+    path.moveTo(x, ym)
+    path.bezierTo(x, ym - oy, xm - ox, y, xm, y)
+    path.bezierTo(xm + ox, y, xe, ym - oy, xe, ym)
+    path.bezierTo(xe, ym + oy, xm + ox, ye, xm, ye)
+    path.bezierTo(xm - ox, ye, x, ym + oy, x, ym)
+    path.close()
   }
 
   val _ops = ArrayBuffer[(Canvas,Float,Float) => Unit]()
