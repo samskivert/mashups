@@ -15,7 +15,9 @@ trait Bodied {
   final val PlayerDepth = 3
 
   val start :Coord
-  val viz   :Viz
+
+  /** Generates this body's visualization. */
+  def viz :Viz
 
   /** This body's current coordinates. */
   var coord :Coord = _
@@ -53,7 +55,7 @@ class FruitFly (val start :Coord) extends Entity with Footed {
   var item :Entity = _
 
   val foot = Coord.square(1)
-  val viz = Viz(1, 1)
+  def viz = Viz(1, 1)
     .line(1/8f,  1/8f, 1/2f,   1/2f, 0xFF111111, 1)
     .line(1/16f, 1/3f, 15/16f, 2/3f, 0xFF111111, 1)
     .line(1/16f, 2/3f, 15/16f, 1/3f, 0xFF111111, 1)
@@ -71,7 +73,7 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
     jiva.add(new FruitFly(coord))
   }
 
-  val viz = eggs match {
+  def viz = eggs match {
     case 4 => Viz(1, 1).
         circleF(1/4f, 1/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 1/4f, 1/4f, 0xFFFFCC99).
         circleF(1/4f, 3/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 3/4f, 1/4f, 0xFFFFCC99)
@@ -84,11 +86,11 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
 }
 
 class Exit (val start :Coord) extends Entity with Bodied {
-  val viz = Viz(1, 1).roundRectSF(0.1f, 0.1f, 0.8f, 0.8f, 1/4f, 0xFFFFCC99)
+  def viz = Viz(1, 1).roundRectSF(0.1f, 0.1f, 0.8f, 0.8f, 1/4f, 0xFFFFCC99)
 }
 
 class Splat (val start :Coord) extends Entity with Bodied {
-  val viz = {
+  def viz = {
     val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))
     (Viz(1, 1) /: angcs) {

@@ -99,6 +99,14 @@ case class Viz (width :Int, height :Int) {
     polyS(stroke, coords :_*)
   }
 
+  def textF (text :String, fill :Int) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      val tl = graphics.layoutText(text, new TextFormat().withFont(UI.bodyFont(height/3)))
+      canvas.setFillColor(fill).fillText(tl, (width-tl.width)/2, (height-tl.height)/2)
+    })
+    this
+  }
+
   def poly (path :Path, sx :Float, sy: Float, coords :Seq[(Float,Float)]) = {
     path.moveTo(coords.head._1*sx, coords.head._2*sy)
     (path /: coords.drop(1))((p, c) => path.lineTo(c._1*sx, c._2*sy))

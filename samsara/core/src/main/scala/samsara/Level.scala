@@ -72,7 +72,7 @@ object Level {
 
     // put some MOBs in there (TODO: keep adding until depth based mob density is reached)
     placeN(1+rando.nextInt(2), 2, 2, new Frog(_))
-    placeN(1+rando.nextInt(2), 1, 1, new Spider(_))
+    placeN(1+rando.nextInt(2), 1, 1, new AwakeSpider(_))
 
     Level(depth, terrain, entities)
   }

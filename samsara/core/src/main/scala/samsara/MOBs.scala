@@ -39,7 +39,7 @@ class Frog (val start :Coord) extends Entity with MOB {
   }
 
   val foot = Coord.square(size)
-  val viz = Viz(size, size)
+  def viz = Viz(size, size)
     .circleF(1/4f, 3/4f, 1/4f, 0xFF336600).circleF(3/4f, 3/4f, 1/4f, 0xFF336600)
     .circleSF(1/2f, 1/2f, 1/2f, 0xFF336600)
     .circleF(1/4f, 1/4f, 1/8f, 0xFF336600).circleF(3/4f, 1/4f, 1/8f, 0xFF336600)
@@ -47,14 +47,25 @@ class Frog (val start :Coord) extends Entity with MOB {
   private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
-class Spider (val start :Coord) extends Entity with MOB {
+abstract class Spider extends Entity with MOB {
+  val foot = Coord.square(1)
+  def viz = Viz(1, 1)
+    .line(0, 0,    1, 1,    0xFF330066)
+    .line(0, 1/3f, 1, 2/3f, 0xFF330066)
+    .line(0, 2/3f, 1, 1/3f, 0xFF330066)
+    .line(0, 1,    1, 0,    0xFF330066)
+    .circleSF(1/2f, 1/2f, 2/5f, 0xFF330066)
+}
+
+class AwakeSpider (val start :Coord) extends Spider {
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     // if the fly is in our range...
     if (protag.alive && coord.dist(protag.coord) <= range) {
       move(jiva, protag.coord) // jump on him
       jiva.chomp(this, protag) // and eat him up yum!
-      // TODO: put spider to sleep for some period of time after eating (display zzzs?)
+      jiva.remove(this) // replace ourselves with a sleeping spider
+      jiva.add(new SleepingSpider(coord, 5+jiva.rand.nextInt(5)))
     }
     // otherwise just move randomly in our range
     else {
@@ -66,13 +77,18 @@ class Spider (val start :Coord) extends Entity with MOB {
     }
   }
 
-  val foot = Coord.square(1)
-  val viz = Viz(1, 1)
-    .line(0, 0,    1, 1,    0xFF330066)
-    .line(0, 1/3f, 1, 2/3f, 0xFF330066)
-    .line(0, 2/3f, 1, 1/3f, 0xFF330066)
-    .line(0, 1,    1, 0,    0xFF330066)
-    .circleSF(1/2f, 1/2f, 2/5f, 0xFF330066)
-
   val range = 2
+}
+
+class SleepingSpider (val start :Coord, var turns :Int) extends Spider {
+
+  def behave (jiva :Jivaloka, protag :FruitFly) {
+    turns -= 1
+    if (turns <= 0) {
+      jiva.remove(this) // wake up!
+      jiva.add(new AwakeSpider(coord))
+    }
+  }
+
+  override def viz = super.viz.textF("zzz", 0xFF330066)
 }
