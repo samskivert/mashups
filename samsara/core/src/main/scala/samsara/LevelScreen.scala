@@ -20,6 +20,8 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
     jiva.keyDown.connect(slot[Key] {
       case key if (key == Key.R) =>
         game.screens.replace(new LevelScreen(game, level))
+      case key if (key == Key.N) =>
+        game.screens.replace(new LevelScreen(game, Level.random(level.depth)))
     })
 
     // TODO: center our level grid in the available space
@@ -45,8 +47,8 @@ class LevelScreen (game :Samsara, level :Level) extends UIScreen {
       }
     }))
 
-    // create our entities
-    level.createEntities(jiva)
+    // add all of the level entities
+    level.entities foreach jiva.add
     // hatch a fly from the nest
     jiva.systems.hatcher.hatch()
   }

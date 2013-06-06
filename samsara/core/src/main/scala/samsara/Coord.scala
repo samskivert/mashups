@@ -45,6 +45,9 @@ object Coord {
   /** Returns all coordinates in the square from `[0, 0]` to `[size, size]`. */
   def square (size :Int) = region(0, 0, size, size)
 
+  /** Returns all coordinates in the rectangel from `[0, 0]` to `[width, height]`. */
+  def rect (width :Int, height :Int) = region(0, 0, width, height)
+
   /** Returns all coords in the specified rectangular region. */
   def region (x :Int, y :Int, width :Int, height :Int) :Seq[Coord] =
     for (xx <- 0 until width; yy <- 0 until height) yield Coord(x+xx, y+yy)

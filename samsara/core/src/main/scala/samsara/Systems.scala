@@ -21,20 +21,17 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
     override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
   }
 
-  val pass = new System[Bodied](jiva) {
-    override def onRemoved (entity :Bodied) {
-      apply(entity.foot, entity.coord)(jiva.resetPass)
+  val pass = new System[Footed](jiva) {
+    override def onRemoved (entity :Footed) {
+      jiva.pass.resetPass(entity.foot, entity.coord)
     }
-    override protected def handles (entity :Entity) = entity.isInstanceOf[Bodied]
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Footed]
 
-    jiva.onMove.connect { b :Bodied =>
-      if (b.ocoord != null) apply(b.foot, b.ocoord)(jiva.resetPass)
-      apply(b.foot, b.coord)(jiva.makeImpass)
-    }
-
-    private def apply (foot :Seq[Coord], origin :Coord)(f :(Coord => Unit)) {
-      foot map(_.add(origin)) filter(_ != null) foreach(f)
-    }
+    jiva.onMove.connect(slot[Bodied] {
+      case e :Footed =>
+        if (e.ocoord != null) jiva.pass.resetPass(e.foot, e.ocoord)
+        jiva.pass.makeImpass(e.foot, e.coord)
+    })
   }
 
   val move = new System[FruitFly](jiva) {
@@ -43,7 +40,7 @@ class Systems (jiva :Jivaloka, screen :LevelScreen, level :Level) {
     def move (dx :Int, dy :Int) {
       if (protag != null) {
         val coord = protag.coord.add(dx, dy)
-        if (jiva.isPassable(coord)) {
+        if (jiva.pass.isPassable(coord)) {
           protag.move(jiva, coord)
           jiva.flyMove.emit(protag)
         }

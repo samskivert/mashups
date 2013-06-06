@@ -11,7 +11,7 @@ trait MOB {
   def behave (jiva :Jivaloka, protag :FruitFly)
 }
 
-class Frog (val start :Coord) extends Entity with Bodied with MOB {
+class Frog (val start :Coord) extends Entity with Footed with MOB {
   val tongue = 2
   val size = 2
   var orient :Int = 0 // Up, Right, Down, Left
@@ -46,17 +46,18 @@ class Frog (val start :Coord) extends Entity with Bodied with MOB {
   private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
-class Spider (val start :Coord) extends Entity with Bodied with MOB {
+class Spider (val start :Coord) extends Entity with Footed with MOB {
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     // if the fly is in our range...
     if (protag.alive && coord.dist(protag.coord) <= range) {
       move(jiva, protag.coord) // jump on him
       jiva.chomp(this, protag) // and eat him up yum!
+      // TODO: put spider to sleep for some period of time after eating (display zzzs?)
     }
     // otherwise just move randomly in our range
     else {
-      val spots = coord.within(range).filter(jiva.isPassable)
+      val spots = coord.within(range).filter(jiva.pass.isPassable)
       if (!spots.isEmpty) {
         val spot = spots(jiva.rand.nextInt(spots.size))
         move(jiva, spot)

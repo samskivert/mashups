@@ -23,6 +23,6 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
 
   protected def newGame () {
     // TODO: delete any old saved data?
-    game.screens.push(new LevelScreen(game, Level.random()))
+    game.screens.push(new LevelScreen(game, Level.random(0)))
   }
 }

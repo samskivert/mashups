@@ -10,7 +10,6 @@ import pythagoras.f.FloatMath
 /** Something that exists on screen with a viz, dimensions and coords. */
 trait Bodied {
   val start :Coord
-  val foot  :Seq[Coord]
   val viz   :Viz
 
   /** This body's current coordinates. */
@@ -32,8 +31,12 @@ trait Bodied {
   }
 }
 
+trait Footed extends Bodied {
+  val foot  :Seq[Coord]
+}
+
 /** Our current protagonist. */
-class FruitFly (val start :Coord) extends Entity with Bodied {
+class FruitFly (val start :Coord) extends Entity with Footed {
   /** Indicates that this fly is still alive.
     * MOBs who attack the fly will ignore it if some other MOB managed to kill it first. */
   var alive = true
@@ -53,7 +56,6 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
     jiva.add(new FruitFly(coord))
   }
 
-  val foot = Coord.square(1)
   val viz = eggs match {
     case 4 => Viz(1, 1).
         circleF(1/4f, 1/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 1/4f, 1/4f, 0xFFFFCC99).
@@ -66,8 +68,11 @@ class Nest (val start :Coord, val eggs :Int) extends Entity with Bodied {
   }
 }
 
+class Exit (val start :Coord) extends Entity with Bodied {
+  val viz = Viz(1, 1).roundRectSF(0.1f, 0.1f, 0.8f, 0.8f, 1/4f, 0xFFFFCC99)
+}
+
 class Splat (val start :Coord) extends Entity with Bodied {
-  val foot = Coord.square(1)
   val viz = {
     val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))

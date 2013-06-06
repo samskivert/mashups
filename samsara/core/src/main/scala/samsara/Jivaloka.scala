@@ -21,6 +21,7 @@ class Jivaloka (
   val flyMove = Signal.create[FruitFly]()
 
   val rand    = new java.util.Random // TODO: seeded? save seed?
+  val pass    = new Passage(level.terrain)
   val systems = new Systems(this, screen, level)
 
   def chomp (chomper :MOB, protag :FruitFly) {
@@ -29,9 +30,4 @@ class Jivaloka (
     add(new Splat(protag.coord))
     systems.hatcher.hatch()
   }
-
-  val isPassable = (c :Coord) => c != null && _pass(c.index)
-  val makeImpass = (c :Coord) => _pass(c.index) = false
-  val resetPass  = (c :Coord) => _pass(c.index) = level.terrain(c.index).passable
-  private val _pass = level.terrain.map(_.passable)
 }

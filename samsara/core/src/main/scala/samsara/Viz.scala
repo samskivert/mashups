@@ -46,5 +46,16 @@ case class Viz (width :Int, height :Int) {
     this
   }
 
+  def roundRectSF (x :Float, y :Float, rwidth :Float, rheight :Float, corner :Float,
+                   stroke :Int = 0xFF000000, fill :Int = 0xFFFFFFFF) = {
+    _ops += ((canvas :Canvas, width :Float, height :Float) => {
+      canvas.setFillColor(fill).
+        fillRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width).
+        setStrokeColor(stroke).
+        strokeRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width)
+    })
+    this
+  }
+
   val _ops = ArrayBuffer[(Canvas,Float,Float) => Unit]()
 }
