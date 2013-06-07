@@ -40,8 +40,10 @@ class Jivaloka (
       // if this is level zero, then it's game over
       if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
       // otherwise pop back to the previous screen and try to hatch from there
-      else game.screens.replace(new GameScreen(game, levels, levels.pop(level)),
-                                game.screens.slide.up)
+      else {
+        levels.store(level.copy(entities = entities)) // save this world for later
+        game.screens.replace(new GameScreen(game, levels, levels.pop(level)), game.screens.slide.up)
+      }
     }
   }
 
@@ -55,21 +57,21 @@ class Jivaloka (
   def chomp (chomper :MOB, protag :FruitFly) {
     protag.alive = false
     remove(protag)
-    add(new Splat().at(protag.coord))
+    add(new Splat(0xFF990000).at(protag.coord))
     tryHatch()
   }
 
   def croak (protag :FruitFly) {
     protag.alive = false
     remove(protag)
-    add(new Splat().at(protag.coord)) // TODO: use a tombstone or something other than a splat
+    add(new Splat(0xFF666666).at(protag.coord)) // TODO: use a tombstone or something
     tryHatch()
   }
 
   def ascend (protag :FruitFly) {
     remove(protag) // remove our protagonist from this world
     levels.store(level.copy(entities = entities)) // save this world for later
-    game.screens.replace(new GameScreen(game, levels, levels.get(level.depth+1, Some(protag))),
+    game.screens.replace(new GameScreen(game, levels, levels.get(level.depth+1, protag)),
                          game.screens.slide.down)
   }
 }

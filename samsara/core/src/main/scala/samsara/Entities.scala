@@ -160,11 +160,11 @@ class Exit extends Entity with Bodied {
           (1/3f, 3/4f), (1/3f, 1/2f), (1/5f, 1/2f))
 }
 
-class Splat extends Entity with Bodied {
+class Splat (color :Int) extends Entity with Bodied {
   def viz = {
     val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))
-    (Viz(1, 1, 0xFFFFFFFF, 0xFF990000) /: angcs) {
+    (Viz(1, 1, 0xFFFFFFFF, color) /: angcs) {
       case (v, (r, a)) => v.circleF(1/2f + r*FloatMath.cos(a), 1/2f + r*FloatMath.sin(a), 1/6f)
     }
   }

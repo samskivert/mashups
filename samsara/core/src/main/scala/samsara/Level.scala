@@ -6,7 +6,9 @@ package samsara
 
 import scala.collection.mutable.{ArrayBuffer, Map => MMap}
 
-case class Level (depth :Int, terrain :Array[Terrain], exit :Coord, entities :Seq[Entity])
+case class Level (depth :Int, terrain :Array[Terrain], exit :Coord, entities :Seq[Entity]) {
+  def add (pt :FruitFly) = copy(entities = entities :+ pt.at(Coord(pt.coord.x, Level.height-1)))
+}
 
 /** Level-related static data. */
 object Level {
@@ -21,14 +23,6 @@ object Level {
 
     // we'll use this to track passability when randomly placing props
     val pass = new Passage(terrain)
-
-    // if we have an ascended protagonist, put 'em on the board, otherwise add a nest
-    val starter = ascender match {
-      case Some(protag) => protag.at(Coord(protag.coord.x, height-1)) // move to bottom row
-      case None => new Nest(3, Constants.BaseMoves).at(Coord(rando.nextInt(width), height-1))
-    }
-    entities += starter
-    pass.setImpass(starter.coord)
 
     // pick an exit point
     val exit = Coord(rando.nextInt(width), 0)
@@ -58,10 +52,19 @@ object Level {
       loop(count, 0)
     }
 
-    // stick a mate somewhere if we didn't already add a nest due to having no ascender
-    if (ascender.isDefined) {
-      // hackily call the mate height/3 tall to prevent it being placed in the bottom 1/3
-      placeN(1, 1, height/3, new Mate)
+    // if we have an ascended protagonist...
+    ascender match {
+      // note their entry position and add a mate
+      case Some(protag) =>
+        pass.setImpass(protag.coord)
+        // hackily call the mate height/3 tall to prevent it being placed in the bottom 1/3
+        placeN(1, 1, height/3, new Mate)
+
+      // otherwise add a nest in the bottom row (we're on level zero)
+      case None =>
+        val nest = new Nest(3, Constants.BaseMoves).at(Coord(rando.nextInt(width), height-1))
+        entities += nest
+        pass.setImpass(nest.coord)
     }
 
     // maybe put a big tree in one corners or on one side
@@ -96,16 +99,20 @@ object Level {
 
 class LevelDB {
 
-  def get (depth :Int, protag :Option[FruitFly]) :Level =
-    _levels.getOrElse(depth, Level.random(depth, protag))
+  def level0 = Level.random(0, None)
+
+  def get (depth :Int, protag :FruitFly) :Level = {
+    _levels.getOrElse(depth, Level.random(depth, Some(protag))).add(protag)
+  }
 
   def store (level :Level) {
     _levels.put(level.depth, level)
   }
 
   def pop (level :Level) = {
-    _levels -= level.depth
-    get(level.depth-1, None)
+    // keep one level beyond where we're popping
+    _levels -= (level.depth+1)
+    _levels(level.depth-1)
   }
 
   private val _levels = MMap[Int,Level]()

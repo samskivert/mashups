@@ -12,7 +12,7 @@ import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
 
 class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
-  def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.get(0, None))
+  def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.level0)
 
   val metrics = new Metrics(width, height)
   val jiva = new Jivaloka(game, this, levels, level)
