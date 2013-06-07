@@ -54,23 +54,29 @@ class Jivaloka (
     }
   }
 
-  def chomp (chomper :MOB, protag :FruitFly) {
-    protag.alive = false
-    remove(protag)
-    add(new Splat(0xFF990000).at(protag.coord))
-    tryHatch()
+  def chomp (target :Edible) {
+    target.alive = false
+    remove(target.entity)
+    add(new Splat(0xFF990000).at(target.coord))
+  }
+
+  def stomp (target :Stompable) {
+    target.alive = false
+    remove(target.entity)
+    add(new Splat(0xFF660000).at(target.coord))
   }
 
   def croak (protag :FruitFly) {
     protag.alive = false
     remove(protag)
     add(new Splat(0xFF666666).at(protag.coord)) // TODO: use a tombstone or something
-    tryHatch()
   }
 
   def ascend (protag :FruitFly) {
-    remove(protag) // remove our protagonist from this world
-    levels.store(level.copy(entities = entities)) // save this world for later
+    // hide our protagonist (we can't remove them or it will trigger a hatch)
+    protag.layer.setVisible(false)
+    // save this world for later (minus our protagonist)
+    levels.store(level.copy(entities = entities filter(_ != protag)))
     game.screens.replace(new GameScreen(game, levels, levels.get(level.depth+1, protag)),
                          game.screens.slide.down)
   }

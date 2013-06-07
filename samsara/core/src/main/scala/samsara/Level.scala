@@ -56,7 +56,7 @@ object Level {
     ascender match {
       // note their entry position and add a mate
       case Some(protag) =>
-        pass.setImpass(protag.coord)
+        pass.setImpass(Coord(protag.coord.x, height-1))
         // hackily call the mate height/3 tall to prevent it being placed in the bottom 1/3
         placeN(1, 1, height/3, new Mate)
 
@@ -69,7 +69,7 @@ object Level {
 
     // maybe put a big tree in one corners or on one side
     (rando.nextFloat match {
-      case f if (f < 0.25f) =>
+      case f if (f < 0.5f) =>
         val corner = rando.nextInt(4)
         Some(new CornerTree(corner).at(corner match {
           case 0 => Coord(0, 0)
@@ -77,13 +77,12 @@ object Level {
           case 2 => Coord(width-2, height-2)
           case 3 => Coord(0, height-2)
         }))
-      case f if (f < 0.5f)  =>
+      case _  =>
         val left = rando.nextBoolean
         val x = if (left) 0 else width-2
         val y = Level.height/4+rando.nextInt(height/2)
         val tree = if (left) new LeftTree else new RightTree
         Some(tree.at(Coord(x, y)))
-      case _ => None
     }) foreach place
 
     // now put some other trees (TODO: vary density based on depth? maybe cyclically)

@@ -70,13 +70,25 @@ trait Footed extends Bodied { self :Entity =>
   val foot :Seq[Coord]
 }
 
+trait Living { self :Entity =>
+  /** Indicates that this entitiy is still alive.
+    * MOBs who eat/stomp it will ignore it if some other MOB managed to kill it first. */
+  var alive :Boolean
+
+  def entity :Entity = self
+}
+
+trait Edible extends Bodied with Living { self :Entity =>
+}
+
+trait Stompable extends Bodied with Living { self :Entity =>
+}
+
 /** Our current protagonist. */
 class FruitFly (
   /** The number of moves remaining for this fly. */
   var movesLeft :Int = Constants.BaseMoves
-) extends Entity with Footed {
-  /** Indicates that this fly is still alive.
-    * MOBs who attack the fly will ignore it if some other MOB managed to kill it first. */
+) extends Entity with Footed with Edible with Stompable {
   var alive = true
 
   /** The item currently being carried by the fly (or null). */
@@ -132,7 +144,7 @@ class Nest (val eggs :Int, val moves :Int) extends Entity with Footed {
   }
 }
 
-class Mate extends Entity with Footed {
+class Mate extends Entity with Footed with Edible with Stompable {
   def maybeMate (jiva :Jivaloka, fly :FruitFly) {
     if (coord.dist(fly.coord) == 1) {
       jiva.remove(this) // TODO: vary egg count based on depth?
@@ -141,6 +153,7 @@ class Mate extends Entity with Footed {
     }
   }
 
+  var alive = true
   val foot = Coord.square(1)
   def viz = Viz(1, 1, 0xFFAA1111, 0xFFCCCCCC)
     .line(1/8f,  7/8f, 1/2f,   1/2f, 1)

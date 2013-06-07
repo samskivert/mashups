@@ -58,6 +58,7 @@ class Systems (jiva :Jivaloka) {
     override def onRemoved (entity :FruitFly) {
       if (protag != entity) throw new IllegalStateException("Who was that man?")
       protag = null
+      jiva.tryHatch()
     }
     override protected def handles (entity :Entity) = entity.isInstanceOf[FruitFly]
 
@@ -68,6 +69,33 @@ class Systems (jiva :Jivaloka) {
       case Key.RIGHT => move(1, 0)
       case _ => // nada
     })
+  }
+
+  trait Edibles {
+    def chomp (region :Set[Coord]) :Boolean
+  }
+  val edibles = new System[Edible](jiva) with Edibles {
+    def chomp (region :Set[Coord]) = {
+      var chomped = false
+      foreach { ed =>
+        if (region(ed.coord)) {
+          jiva.chomp(ed)
+          chomped = true
+        }
+      }
+      chomped
+    }
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Edible]
+  }
+
+  trait Stompables {
+    def stompables (region :Seq[Coord]) :Seq[Stompable]
+  }
+  val stompables = new System[Stompable](jiva) with Stompables {
+    def stompables (region :Seq[Coord]) = {
+      Seq() // TODO
+    }
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Stompable]
   }
 
   val love = new System[Mate](jiva) {

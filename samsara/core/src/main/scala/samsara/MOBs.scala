@@ -19,7 +19,8 @@ class Frog (
   val size = 2
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
-    if (protag.alive && region(orient, tongue)(protag.coord)) jiva.chomp(this, protag)
+    if (jiva.systems.edibles.chomp(region(orient, tongue))) () // we chomped, we're done
+                                                               // (TODO: maybe sleep?
     // if they're to our left/right, turn left/right
     else if (region(dorient(orient, -1), 1)(protag.coord)) turn(-1)
     else if (region(dorient(orient,  1), 1)(protag.coord)) turn(1)
@@ -53,7 +54,8 @@ class Frog (
   private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
-abstract class Spider extends Entity with MOB {
+abstract class Spider extends Entity with MOB with Edible {
+  var alive = true
   val foot = Coord.square(1)
   def viz = Viz(1, 1, 0xFF330066, 0xFFFFFFFF)
     .line(0, 0,    1, 1)
@@ -70,7 +72,7 @@ class AwakeSpider extends Spider {
     // if the fly is in our range...
     if (protag.alive && coord.dist(protag.coord) <= range) {
       move(jiva, protag.coord) // jump on him
-      jiva.chomp(this, protag) // and eat him up yum!
+      jiva.stomp(protag) // and eat him up yum!
       jiva.remove(this) // replace ourselves with a sleeping spider
       jiva.add(new SleepingSpider(5+jiva.rand.nextInt(5)).at(coord))
     }
