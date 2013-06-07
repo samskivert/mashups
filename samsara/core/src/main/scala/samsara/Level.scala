@@ -17,7 +17,7 @@ object Level {
     val rando = new java.util.Random
     val entities = ArrayBuffer[Entity]()
     val terrain = Array.fill[Terrain](width*height)(Dirt)
-    // TODO: add rivers, puddles, etc.
+    // TODO: add streams, puddles, etc.
 
     // we'll use this to track passability when randomly placing props
     val pass = new Passage(terrain)

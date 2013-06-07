@@ -8,12 +8,13 @@ import playn.core.PlayN._
 import playn.core._
 import scala.collection.mutable.ArrayBuffer
 
-case class Viz (width :Int, height :Int) {
+case class Viz (width :Int, height :Int, stroke :Int, fill :Int) {
   import Viz._
 
   def create (metrics :Metrics) :Layer = {
     val image = graphics.createImage(metrics.size*width, metrics.size*height)
-    image.canvas.setLineCap(Canvas.LineCap.ROUND).translate(1, 1)
+    image.canvas.setLineCap(Canvas.LineCap.ROUND).setStrokeColor(stroke).setFillColor(fill).
+      translate(1, 1)
     _ops.foreach(_.apply(image.canvas, image.width-2, image.height-2))
     graphics.createImageLayer(image).setOrigin(image.width/2, image.height/2)
   }
@@ -23,70 +24,55 @@ case class Viz (width :Int, height :Int) {
     this
   }
 
-  def circleSF (x :Float, y :Float, r :Float, stroke :Int = 0xFF000000, fill :Int = 0xFFFFFFFF) = {
-    circleF(x, y, r, fill)
-    circleS(x, y, r, stroke)
-  }
+  def circleF (x :Float, y :Float, r :Float) = op {
+    (canvas :Canvas, width :Float, height :Float) => {
+      canvas.fillCircle(x*width, y*height, r*math.min(width, height)-1)
+    }}
+  def circleSF (x :Float, y :Float, r :Float) = op {
+    (canvas :Canvas, width :Float, height :Float) => {
+      val (cx, cy, cr) = (x*width, y*height, r*math.min(width, height))
+      canvas.fillCircle(cx, cy, cr-1).setStrokeWidth(2).strokeCircle(cx, cy, cr-1).setStrokeWidth(1)
+    }}
 
   def circleF (x :Float, y :Float, r :Float, fill :Int) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setFillColor(fill).fillCircle(x*width, y*height, r*math.min(width, height)-1)
+      canvas.save().setFillColor(fill).
+        fillCircle(x*width, y*height, r*math.min(width, height)-1).restore()
     }}
 
-  def circleS (x :Float, y :Float, r :Float, stroke :Int) = op {
+  def line (x1 :Float, y1 :Float, x2 :Float, y2 :Float, swidth :Float = 2) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setStrokeColor(stroke).setStrokeWidth(2).
-        strokeCircle(x*width, y*height, r*math.min(width, height)-1).
+      canvas.setStrokeWidth(swidth).drawLine(x1*width, y1*height, x2*width, y2*height).
         setStrokeWidth(1)
     }}
 
-  def line (x1 :Float, y1 :Float, x2 :Float, y2 :Float, stroke :Int, swidth :Float = 2) = op {
+  def roundRectSF (x :Float, y :Float, rwidth :Float, rheight :Float, corner :Float) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setStrokeColor(stroke).setStrokeWidth(swidth).
-        drawLine(x1*width, y1*height, x2*width, y2*height).
-        setStrokeWidth(1)
-    }}
-
-  def roundRectSF (x :Float, y :Float, rwidth :Float, rheight :Float, corner :Float,
-                   stroke :Int = 0xFF000000, fill :Int = 0xFFFFFFFF) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setFillColor(fill).
-        fillRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width).
-        setStrokeColor(stroke).
+      canvas.fillRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width).
         strokeRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width)
     }}
 
-  def ellipseF (x :Float, y :Float, ewidth :Float, eheight: Float, fill :Int) = op {
+  def ellipseSF (x :Float, y :Float, ewidth :Float, eheight: Float) = op {
     (canvas :Canvas, width :Float, height :Float) => {
       val path = ellipsePath(canvas.createPath(), x*width, y*width, ewidth*width, eheight*height)
-      canvas.setFillColor(fill).fillPath(path)
+      canvas.fillPath(path).strokePath(path)
     }}
 
-  def ellipseS (x :Float, y :Float, ewidth :Float, eheight: Float, stroke :Int) = op {
+  def polyF (coords :(Float,Float)*) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      val path = ellipsePath(canvas.createPath(), x*width, y*width, ewidth*width, eheight*height)
-      canvas.setStrokeColor(stroke).strokePath(path)
+      canvas.fillPath(poly(canvas.createPath(), width, height, coords))
     }}
-
-  def ellipseSF (x :Float, y :Float, ewidth :Float, eheight: Float, stroke :Int, fill :Int) = {
-    ellipseF(x, y, ewidth, eheight, fill)
-    ellipseS(x, y, ewidth, eheight, stroke)
-  }
-
-  def polyS (stroke :Int, coords :(Float,Float)*) = op {
+  def polySF (coords :(Float,Float)*) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setStrokeColor(stroke).strokePath(poly(canvas.createPath(), width, height, coords))
+      val path = poly(canvas.createPath(), width, height, coords)
+      canvas.fillPath(path).strokePath(path)
     }}
 
-  def polyF (fill :Int, coords :(Float,Float)*) = op {
+  def heartSF (bx :Float, by :Float, height :Float) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      canvas.setFillColor(fill).fillPath(poly(canvas.createPath(), width, height, coords))
+      val path = heart(canvas.createPath(), bx, by, height)
+      canvas.fillPath(path).strokePath(path)
     }}
-
-  def polySF (stroke :Int, fill :Int, coords :(Float,Float)*) = {
-    polyF(fill, coords :_*)
-    polyS(stroke, coords :_*)
-  }
 
   def textF (text :String, fill :Int) = op {
     (canvas :Canvas, width :Float, height :Float) => {
@@ -119,5 +105,9 @@ object Viz {
     path.bezierTo(xe, ym + oy, xm + ox, ye, xm, ye)
     path.bezierTo(xm - ox, ye, x, ym + oy, x, ym)
     path.close()
+  }
+
+  def heart (path :Path, bx :Float, by :Float, height :Float) = {
+    path
   }
 }

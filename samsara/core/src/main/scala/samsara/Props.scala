@@ -15,7 +15,7 @@ abstract class Tree extends Prop {
     val browns = Random.shuffle(Browns)
     val rings = 3+Random.nextInt(math.max(w, h)*2)
     val dr = r / (rings+1)
-    val viz = Viz(w, h).circleSF(cx, cy, r, 0xFF402105, browns(1))
+    val viz = Viz(w, h, 0xFF402105, browns(1)).circleSF(cx, cy, r)
     (viz /: (1 to rings)) { (v, n) =>
       val tr = r - dr*n - dr/2 + Random.nextFloat*dr
       v.circleF(cx, cy, tr, browns(n % browns.length))

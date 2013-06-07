@@ -80,13 +80,13 @@ class FruitFly extends Entity with Footed {
   var item :Entity = _
 
   val foot = Coord.square(1)
-  def viz = Viz(1, 1)
-    .line(1/8f,  1/8f, 1/2f,   1/2f, 0xFF111111, 1)
-    .line(1/16f, 1/3f, 15/16f, 2/3f, 0xFF111111, 1)
-    .line(1/16f, 2/3f, 15/16f, 1/3f, 0xFF111111, 1)
-    .line(1/2f,  1/2f, 7/8f,   1/8f,    0xFF111111, 1)
-    .ellipseSF(1/4f, 0f, 1/2f, 1f, 0xFF111111, 0xFFCCCCCC)
-    .polySF(0xFF111111, 0xFFCCCCCC, (1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
+  def viz = Viz(1, 1, 0xFF111111, 0xFFCCCCCC)
+    .line(1/8f,  1/8f, 1/2f,   1/2f, 1)
+    .line(1/16f, 1/3f, 15/16f, 2/3f, 1)
+    .line(1/16f, 2/3f, 15/16f, 1/3f, 1)
+    .line(1/2f,  1/2f, 7/8f,   1/8f, 1)
+    .ellipseSF(1/4f, 0f, 1/2f, 1f)
+    .polySF((1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
 
   override def depth = PlayerDepth
   override def scale = 0.6f
@@ -102,15 +102,17 @@ class Nest (val eggs :Int) extends Entity with Footed {
   }
 
   val foot = Coord.square(1)
-  def viz = eggs match {
-    case 4 => Viz(1, 1).
-        circleF(1/4f, 1/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 1/4f, 1/4f, 0xFFFFCC99).
-        circleF(1/4f, 3/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 3/4f, 1/4f, 0xFFFFCC99)
-    case 3 => Viz(1, 1).circleF(1/2f, 1/4f, 1/4f, 0xFFFFCC99).
-        circleF(1/4f, 3/4f, 1/4f, 0xFFFFCC99).circleF(3/4f, 3/4f, 1/4f, 0xFFFFCC99)
-    case 2 => Viz(1, 1).circleF(1/2f, 1/4f, 1/4f, 0xFFFFCC99).
-        circleF(1/2f, 3/4f, 1/4f, 0xFFFFCC99)
-    case 1 => Viz(1, 1).circleF(1/2f, 1/2f, 1/4f, 0xFFFFCC99)
+  def viz = {
+    val viz = Viz(1, 1, 0xFFFFFFFF, 0xFFFFCC99)
+    eggs match {
+      case 4 => viz.circleF(1/4f, 1/4f, 1/4f).circleF(3/4f, 1/4f, 1/4f).
+          circleF(1/4f, 3/4f, 1/4f).circleF(3/4f, 3/4f, 1/4f)
+      case 3 => viz.circleF(1/2f, 1/4f, 1/4f).
+          circleF(1/4f, 3/4f, 1/4f).circleF(3/4f, 3/4f, 1/4f)
+      case 2 => viz.circleF(1/2f, 1/4f, 1/4f).
+          circleF(1/2f, 3/4f, 1/4f)
+      case 1 => viz.circleF(1/2f, 1/2f, 1/4f)
+    }
   }
 }
 
@@ -124,21 +126,30 @@ class Mate extends Entity with Footed {
   }
 
   val foot = Coord.square(1)
-  def viz = Viz(1, 1).circleSF(1/2f, 1/2f, 1/2f, 0xFFFF0000)
+  def viz = Viz(1, 1, 0xFFAA1111, 0xFFCCCCCC)
+    .line(1/8f,  1/8f, 1/2f,   1/2f, 1)
+    .line(1/16f, 1/3f, 15/16f, 2/3f, 1)
+    .line(1/16f, 2/3f, 15/16f, 1/3f, 1)
+    .line(1/2f,  1/2f, 7/8f,   1/8f, 1)
+    .ellipseSF(1/4f, 0f, 1/2f, 1f)
+    .polySF((1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
+
+  override def depth = MOBDepth
+  override def scale = 0.6f
 }
 
 class Exit extends Entity with Bodied {
-  def viz = Viz(1, 1).polyF(0x66000000, (1/2f, 1/5f), (4/5f, 1/2f), (2/3f, 1/2f), (2/3f, 3/4f),
-                            (1/3f, 3/4f), (1/3f, 1/2f), (1/5f, 1/2f))
+  def viz = Viz(1, 1, 0xFFFFFFFF, 0x66000000).
+    polyF((1/2f, 1/5f), (4/5f, 1/2f), (2/3f, 1/2f), (2/3f, 3/4f),
+          (1/3f, 3/4f), (1/3f, 1/2f), (1/5f, 1/2f))
 }
 
 class Splat extends Entity with Bodied {
   def viz = {
     val rando = new java.util.Random
     val angcs = Array.fill(20)((rando.nextFloat*2/5f, rando.nextFloat*FloatMath.PI*2))
-    (Viz(1, 1) /: angcs) {
-      case (v, (r, a)) =>
-        v.circleF(1/2f + r*FloatMath.cos(a), 1/2f + r*FloatMath.sin(a), 1/6f, 0xFF990000)
+    (Viz(1, 1, 0xFFFFFFFF, 0xFF990000) /: angcs) {
+      case (v, (r, a)) => v.circleF(1/2f + r*FloatMath.cos(a), 1/2f + r*FloatMath.sin(a), 1/6f)
     }
   }
 }
