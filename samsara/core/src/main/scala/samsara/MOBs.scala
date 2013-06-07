@@ -12,10 +12,11 @@ trait MOB extends Footed { self :Entity =>
   override def depth = MOBDepth
 }
 
-class Frog extends Entity with MOB {
+class Frog (
+  var orient :Int
+) extends Entity with MOB {
   val tongue = 2
   val size = 2
-  var orient :Int = 0 // Up, Right, Down, Left
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     if (protag.alive && region(orient, tongue)(protag.coord)) jiva.chomp(this, protag)

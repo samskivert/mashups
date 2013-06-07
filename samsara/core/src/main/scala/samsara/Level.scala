@@ -22,22 +22,18 @@ object Level {
     // we'll use this to track passability when randomly placing props
     val pass = new Passage(terrain)
 
-    // if we have an ascended protagonist, use 'em
-    val px = ascender.map(_.coord.x).getOrElse(rando.nextInt(width))
-    val protag = ascender.getOrElse(new FruitFly).at(Coord(px, height-1))
-    println("Random " + ascender + " " + protag)
-    entities += protag
-    pass.setImpass(protag.coord)
+    // if we have an ascended protagonist, put 'em on the board, otherwise add a nest
+    val starter = ascender match {
+      case Some(protag) => protag.at(Coord(protag.coord.x, height-1)) // move to bottom row
+      case None => new Nest(3, Constants.BaseMoves).at(Coord(rando.nextInt(width), height-1))
+    }
+    entities += starter
+    pass.setImpass(starter.coord)
 
     // pick an exit point
     val exit = Coord(rando.nextInt(width), 0)
     entities += new Exit().at(exit)
     pass.setImpass(exit)
-
-    // stick a mate somewhere randomly in the top 2/3 of the level
-    val mate = Coord(rando.nextInt(width), rando.nextInt(2*height/3))
-    entities += new Mate().at(mate)
-    pass.setImpass(mate)
 
     // helper to place an entity, check for validity, then update passability
     def place (ent :Entity with Footed) = {
@@ -60,6 +56,12 @@ object Level {
         }
       }
       loop(count, 0)
+    }
+
+    // stick a mate somewhere if we didn't already add a nest due to having no ascender
+    if (ascender.isDefined) {
+      // hackily call the mate height/3 tall to prevent it being placed in the bottom 1/3
+      placeN(1, 1, height/3, new Mate)
     }
 
     // maybe put a big tree in one corners or on one side
@@ -85,7 +87,7 @@ object Level {
     placeN(2+rando.nextInt(3), 2, 2, new Tree2)
 
     // put some MOBs in there (TODO: keep adding until depth based mob density is reached)
-    placeN(1+rando.nextInt(2), 2, 2, new Frog)
+    placeN(1+rando.nextInt(2), 2, 2, new Frog(rando.nextInt(4)))
     placeN(1+rando.nextInt(2), 1, 1, new AwakeSpider)
 
     Level(depth, terrain, exit, entities)

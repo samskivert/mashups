@@ -32,7 +32,7 @@ class Jivaloka (
   }
 
   def tryHatch () {
-    println("Trying hatch on " + level.depth)
+    // println("Trying hatch on " + level.depth)
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
