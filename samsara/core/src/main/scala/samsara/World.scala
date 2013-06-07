@@ -74,17 +74,22 @@ class World {
 
   /** Removes `entity` from the world. */
   def remove (entity :Entity) {
-    _ents(entity.index) = null
-    // insert the next added entity here if this index is lower than our current target
-    if (entity.index < _nextIndex) _nextIndex = entity.index
+    // mark the entity at this spot as going away so that `entities` will ignore this entity while
+    // we're notifying the systems, but so that we won't reuse this entity's slot yet
+    _ents(entity.index) = Dummy
     // tell our systems about the removal
     var sys = _syss ; while (sys != Nil) {
       sys.head.entityRemoved(entity) ; sys = sys.tail
     }
+    // now actually null out our entity slot and update nextIndex
+    _ents(entity.index) = null
+    if (entity.index < _nextIndex) _nextIndex = entity.index
   }
 
   /** Returns all entities registered with this world. */
-  def entities :Seq[Entity] = _ents.filterNot(_ == null)
+  def entities :Seq[Entity] = _ents.filterNot(e => e == null || e == Dummy)
+
+  private val Dummy = new Entity {}
 
   private[samsara] def addSystem (sys :System[_]) {
     _syss = sys :: _syss
