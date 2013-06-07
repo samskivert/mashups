@@ -68,9 +68,9 @@ case class Viz (width :Int, height :Int, stroke :Int, fill :Int) {
       canvas.fillPath(path).strokePath(path)
     }}
 
-  def heartSF (bx :Float, by :Float, height :Float) = op {
+  def heartSF (bx :Float, by :Float, hw :Float, hh :Float) = op {
     (canvas :Canvas, width :Float, height :Float) => {
-      val path = heart(canvas.createPath(), bx, by, height)
+      val path = heart(canvas.createPath(), bx*width, by*height, hw*width, 2*hh*height/3)
       canvas.fillPath(path).strokePath(path)
     }}
 
@@ -107,7 +107,12 @@ object Viz {
     path.close()
   }
 
-  def heart (path :Path, bx :Float, by :Float, height :Float) = {
-    path
+  def heart (path :Path, bx :Float, by :Float, width :Float, height :Float) = {
+    val (l, r, top) = (bx-width/2, bx+width/2, by-height)
+    path.moveTo(bx, by)
+    path.lineTo(r, top)
+    path.bezierTo(r, top-height/2, bx, top-height/2, bx, top)
+    path.bezierTo(bx, top-height/2, l, top-height/2, l, top)
+    path.close()
   }
 }

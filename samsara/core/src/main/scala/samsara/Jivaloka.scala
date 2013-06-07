@@ -6,7 +6,7 @@ package samsara
 
 import playn.core.Key
 import playn.core.util.Clock
-import react.{Signal, Value}
+import react.{Signal, Value, IntValue}
 
 class Jivaloka (
   val game    :Samsara,
@@ -20,7 +20,7 @@ class Jivaloka (
   val onChomp = Signal.create[MOB]()
   val onMove  = Signal.create[Bodied]()
   val flyMove = Signal.create[FruitFly]()
-  val moveLives = Value.create(0)
+  val movesLeft = new IntValue(0)
 
   val rand    = new scala.util.Random // TODO: seeded? save seed?
   val pass    = new Passage(level.terrain)
@@ -45,12 +45,10 @@ class Jivaloka (
     }
   }
 
-  def hatch (coord :Coord, dist :Int = 1) {
+  def hatch (coord :Coord, moves :Int, dist :Int = 0) {
     rand.shuffle(coord.within(dist)).find(pass.isPassable) match {
-      case None => hatch(coord, dist+1)
-      case Some(c) =>
-        add(new FruitFly().at(c))
-        // moveLives.update()
+      case None    => hatch(coord, moves, dist+1)
+      case Some(c) => add(new FruitFly(moves).at(c))
     }
   }
 
@@ -58,6 +56,13 @@ class Jivaloka (
     protag.alive = false
     remove(protag)
     add(new Splat().at(protag.coord))
+    tryHatch()
+  }
+
+  def croak (protag :FruitFly) {
+    protag.alive = false
+    remove(protag)
+    add(new Splat().at(protag.coord)) // TODO: use a tombstone or something other than a splat
     tryHatch()
   }
 

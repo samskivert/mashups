@@ -71,13 +71,19 @@ trait Footed extends Bodied { self :Entity =>
 }
 
 /** Our current protagonist. */
-class FruitFly extends Entity with Footed {
+class FruitFly (
+  /** The number of moves remaining for this fly. */
+  var movesLeft :Int = Constants.BaseMoves
+) extends Entity with Footed {
   /** Indicates that this fly is still alive.
     * MOBs who attack the fly will ignore it if some other MOB managed to kill it first. */
   var alive = true
 
   /** The item currently being carried by the fly (or null). */
   var item :Entity = _
+
+  /** The number of moves our offspring will have. Can be modified by powerups? */
+  var offspringMoves = Constants.BaseMoves
 
   val foot = Coord.square(1)
   def viz = Viz(1, 1, 0xFF111111, 0xFFCCCCCC)
@@ -88,17 +94,27 @@ class FruitFly extends Entity with Footed {
     .ellipseSF(1/4f, 0f, 1/2f, 1f)
     .polySF((1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
 
+  override def move (jiva :Jivaloka, coord :Coord) {
+    super.move(jiva, coord)
+    jiva.flyMove.emit(this)
+    // decrement our move counter and note whether we've run out of moves
+    movesLeft -= 1
+    jiva.movesLeft.update(movesLeft)
+    // if we're out of moves and were not killed for other reasons; keel over
+    if (alive && movesLeft == 0) jiva.croak(this)
+  }
+
   override def depth = PlayerDepth
   override def scale = 0.6f
   override def toString = s"Fly($coord)"
 }
 
 /** A nest of eggs, from which our protagonists spawn. */
-class Nest (val eggs :Int) extends Entity with Footed {
+class Nest (val eggs :Int, val moves :Int) extends Entity with Footed {
   def hatch (jiva :Jivaloka) {
     jiva.remove(this)
-    if (eggs > 1) jiva.add(new Nest(eggs-1).at(coord))
-    jiva.hatch(coord)
+    if (eggs > 1) jiva.add(new Nest(eggs-1, moves).at(coord))
+    jiva.hatch(coord, moves)
   }
 
   val foot = Coord.square(1)
@@ -120,19 +136,19 @@ class Mate extends Entity with Footed {
   def maybeMate (jiva :Jivaloka, fly :FruitFly) {
     if (coord.dist(fly.coord) == 1) {
       jiva.remove(this) // TODO: vary egg count based on depth?
-      jiva.add(new Nest(1+jiva.rand.nextInt(4)).at(coord))
+      jiva.add(new Nest(1+jiva.rand.nextInt(4), fly.offspringMoves).at(coord))
       // TODO: display animating heart floating up screen
     }
   }
 
   val foot = Coord.square(1)
   def viz = Viz(1, 1, 0xFFAA1111, 0xFFCCCCCC)
-    .line(1/8f,  1/8f, 1/2f,   1/2f, 1)
+    .line(1/8f,  7/8f, 1/2f,   1/2f, 1)
     .line(1/16f, 1/3f, 15/16f, 2/3f, 1)
     .line(1/16f, 2/3f, 15/16f, 1/3f, 1)
-    .line(1/2f,  1/2f, 7/8f,   1/8f, 1)
+    .line(1/2f,  1/2f, 7/8f,   7/8f, 1)
     .ellipseSF(1/4f, 0f, 1/2f, 1f)
-    .polySF((1/2f, 1/4f), (1f, 1f), (1/2f, 3/4f), (0f, 1f))
+    .heartSF(1/2f, 3/4f, 1f, 3/4f)
 
   override def depth = MOBDepth
   override def scale = 0.6f

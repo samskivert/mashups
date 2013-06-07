@@ -44,18 +44,16 @@ class Systems (jiva :Jivaloka) {
     def move (dx :Int, dy :Int) {
       if (protag != null) {
         val coord = protag.coord.add(dx, dy)
-        if (jiva.pass.isPassable(coord)) {
-          protag.move(jiva, coord)
-          jiva.flyMove.emit(protag)
-        } else if (dx == 0 && dy == -1 && protag.coord == jiva.level.exit) {
-          jiva.ascend(protag)
-        }
+        if (jiva.pass.isPassable(coord)) protag.move(jiva, coord)
+        else if (dx == 0 && dy == -1 && protag.coord == jiva.level.exit) jiva.ascend(protag)
       }
     }
 
     override def onAdded (entity :FruitFly) {
       if (protag != null) throw new IllegalStateException("What? Two protagonists?")
       protag = entity
+      // Constants.BaseMoves;
+      jiva.movesLeft.update(protag.movesLeft)
     }
     override def onRemoved (entity :FruitFly) {
       if (protag != entity) throw new IllegalStateException("Who was that man?")

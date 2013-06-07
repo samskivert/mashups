@@ -8,6 +8,8 @@ import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
 import tripleplay.game.UIScreen
+import tripleplay.ui._
+import tripleplay.ui.layout.AxisLayout
 
 class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
   def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.get(0, None))
@@ -46,9 +48,15 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
       }
     }))
 
-    // display our current level depth number in the upper right
+    // display our current level depth number as a giant decal overlaying the board
     val levlay = UI.levelCfg.toLayer(level.depth.toString)
     layer.addAt(levlay.setDepth(1).setAlpha(0.3f), (width-levlay.width)/2, (height-levlay.height)/2)
+
+    // display our remaining move count in the lower left
+    val croot = iface.createRoot(AxisLayout.vertical, UI.sheet)
+    croot.add(new ValueLabel(jiva.movesLeft).addStyles(Style.FONT.is(UI.bodyFont(24))))
+    croot.setSize(metrics.size, metrics.size)
+    layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f), 0, height - metrics.size)
 
     // add all of the level entities
     jiva.level.entities foreach jiva.add
@@ -65,6 +73,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
   }
 
   override def paint (clock :Clock) {
+    super.paint(clock)
     jiva.onPaint.emit(clock)
   }
 

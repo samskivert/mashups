@@ -7,7 +7,7 @@ package samsara
 import playn.core.Font
 import playn.core.PlayN._
 
-import tripleplay.ui.Shim
+import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
 import tripleplay.util.TextConfig
 
@@ -16,6 +16,8 @@ object UI {
   val titleFont = graphics.createFont("Helvetica", Font.Style.BOLD, 48)
   val menuFont = graphics.createFont("Helvetica", Font.Style.BOLD, 24)
   def bodyFont (size :Float) = graphics.createFont("Helvetica", Font.Style.BOLD, size)
+
+  def sheet = SimpleStyles.newSheet
 
   def levelCfg = new TextConfig(0xFF000000).withFont(bodyFont(256))
 

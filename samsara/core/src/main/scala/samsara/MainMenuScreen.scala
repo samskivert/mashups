@@ -11,7 +11,7 @@ import tripleplay.ui.layout.AxisLayout
 class MainMenuScreen (game :Samsara) extends UIScreen {
 
   override def wasAdded () {
-    val root = iface.createRoot(AxisLayout.vertical, SimpleStyles.newSheet, layer)
+    val root = iface.createRoot(AxisLayout.vertical, UI.sheet, layer)
     root.addStyles(Style.BACKGROUND.is(Background.solid(0xFFFFFFFF)))
     root.add(UI.stretchShim,
              new Label("Sa\u1E43s\u0101ra").addStyles(Style.FONT.is(UI.titleFont)),
