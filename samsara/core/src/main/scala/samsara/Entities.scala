@@ -39,7 +39,7 @@ trait Bodied { self :Entity =>
     this
   }
 
-  /** Creates and positions this body's viz. Sets starting coord if needed. */
+  /** Creates and positions this body's viz. */
   def init (jiva :Jivaloka) {
     layer = viz.create(jiva.screen.metrics).setDepth(depth).setScale(scale)
     position(jiva)
@@ -71,8 +71,8 @@ trait Footed extends Bodied { self :Entity =>
 }
 
 trait Living { self :Entity =>
-  /** Indicates that this entitiy is still alive.
-    * MOBs who eat/stomp it will ignore it if some other MOB managed to kill it first. */
+  /** Indicates that this entitiy is still alive. MOBs who eat/stomp it will ignore it if some other
+    * MOB managed to kill it first. */
   var alive :Boolean
 
   def entity :Entity = self
@@ -118,7 +118,7 @@ class FruitFly (
 
   override def depth = PlayerDepth
   override def scale = 0.6f
-  override def toString = s"Fly($coord)"
+  override def toString = super.toString + s":$coord"
 }
 
 /** A nest of eggs, from which our protagonists spawn. */

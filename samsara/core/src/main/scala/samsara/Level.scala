@@ -43,7 +43,7 @@ object Level {
     // helper to place N entities at random coordinates
     def placeN (count :Int, ew :Int, eh :Int, mkBody : =>Entity with Footed) {
       def loop (remain :Int, fails :Int) {
-        if (remain > 0 && fails < 5) {
+        if (remain > 0 && fails < 10) {
           val ent = mkBody.at(Coord(rando.nextInt(width-ew), rando.nextInt(height-eh)))
           if (place(ent)) loop(remain-1, fails)
           else loop(remain, fails+1)
@@ -89,8 +89,11 @@ object Level {
     placeN(2+rando.nextInt(3), 2, 2, new Tree2)
 
     // put some MOBs in there (TODO: keep adding until depth based mob density is reached)
-    placeN(1+rando.nextInt(2), 2, 2, new Frog(rando.nextInt(4)))
-    placeN(1+rando.nextInt(2), 1, 1, new AwakeSpider)
+    val frogs = if (depth == 0) 0 else if (depth < 5) 1 else
+      if (depth < 10) 1+rando.nextInt(2) else 2
+    placeN(frogs, 2, 2, new Frog(rando.nextInt(4)))
+    val spiders = if (depth < 3) 0 else if (depth < 8) 1 else 2
+    placeN(spiders, 1, 1, new AwakeSpider)
 
     Level(depth, terrain, exit, entities)
   }

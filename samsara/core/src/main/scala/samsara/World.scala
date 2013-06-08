@@ -7,16 +7,14 @@ package samsara
 import scala.collection.mutable.{BitSet => MBitSet}
 
 abstract class Entity {
+  override def toString = s"${getClass.getName}:$index"
   private[samsara] var index :Int = 0
 }
 
 abstract class System[A] (world :World) {
 
-  def onAdded (entity :A) {
-  }
-
-  def onRemoved (entity :A) {
-  }
+  def onAdded (entity :A) {}
+  def onRemoved (entity :A) {}
 
   def foreach (f :(A => Unit)) {
     val max = world.maxIndex

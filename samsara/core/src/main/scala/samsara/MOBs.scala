@@ -7,23 +7,40 @@ package samsara
 import pythagoras.f.FloatMath
 
 /** Something that takes action when the player moves. */
-trait MOB extends Footed { self :Entity =>
+trait MOB extends Footed with Living { self :Entity =>
   def behave (jiva :Jivaloka, protag :FruitFly)
   override def depth = MOBDepth
 }
 
+trait Eater { self :Entity =>
+  def eat (jiva :Jivaloka, edible :Edible)
+}
+
 class Frog (
-  var orient :Int
-) extends Entity with MOB {
+  startOrient :Int
+) extends Entity with MOB with Eater {
+
   val tongue = 2
   val size = 2
+  var orient = startOrient
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
-    if (jiva.systems.edibles.chomp(region(orient, tongue))) () // we chomped, we're done
-                                                               // (TODO: maybe sleep?
     // if they're to our left/right, turn left/right
-    else if (region(dorient(orient, -1), 1)(protag.coord)) turn(-1)
-    else if (region(dorient(orient,  1), 1)(protag.coord)) turn(1)
+    if (_left(protag.coord)) setOrient(dorient(orient, -1))
+    else if (_right(protag.coord)) setOrient(dorient(orient, 1))
+  }
+
+  def eat (jiva :Jivaloka, edible :Edible) {
+    if (edible.alive && _front(edible.coord)) jiva.chomp(edible) // (TODO: maybe sleep?)
+  }
+
+  def setOrient (norient :Int) :Int = {
+    orient = norient
+    _front = region(norient, tongue)
+    _left = region(dorient(norient, -1), 1)
+    _right = region(dorient(norient, 1), 1)
+    layer.setRotation(Rots(orient))
+    norient
   }
 
   def dorient (orient :Int, delta :Int) = (orient + 4 + delta) % 4
@@ -35,9 +52,9 @@ class Frog (
     case _ => Coord.region(coord.x - depth, coord.y, depth, size)
   }).toSet
 
-  def turn (delta :Int) {
-    orient = dorient(orient, delta)
-    layer.setRotation(Rots(orient))
+  override def init (jiva :Jivaloka) {
+    super.init(jiva)
+    setOrient(orient)
   }
 
   override protected def position (jiva :Jivaloka) {
@@ -45,16 +62,22 @@ class Frog (
     layer.setRotation(Rots(orient))
   }
 
+  var alive = true
   val foot = Coord.square(size)
   def viz = Viz(size, size, 0xFF336600, 0xFFFFFFFF)
     .circleF(1/4f, 3/4f, 1/4f, 0xFF336600).circleF(3/4f, 3/4f, 1/4f, 0xFF336600)
     .circleSF(1/2f, 1/2f, 1/2f)
     .circleF(1/4f, 1/4f, 1/8f, 0xFF336600).circleF(3/4f, 1/4f, 1/8f, 0xFF336600)
 
+  private var _front :Set[Coord] = _
+  private var _left  :Set[Coord] = _
+  private var _right :Set[Coord] = _
+
   private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
-abstract class Spider extends Entity with MOB with Edible {
+abstract class Spider extends Entity with MOB {
+
   var alive = true
   val foot = Coord.square(1)
   def viz = Viz(1, 1, 0xFF330066, 0xFFFFFFFF)
@@ -66,27 +89,30 @@ abstract class Spider extends Entity with MOB with Edible {
   override def scale = 0.75f
 }
 
-class AwakeSpider extends Spider {
+class AwakeSpider extends Spider with Edible {
+
+  val range = 2
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
+    val pdist = coord.dist(protag.coord)
     // if the fly is in our range...
-    if (protag.alive && coord.dist(protag.coord) <= range) {
+    if (protag.alive && pdist <= range) {
       move(jiva, protag.coord) // jump on him
-      jiva.stomp(protag) // and eat him up yum!
-      jiva.remove(this) // replace ourselves with a sleeping spider
-      jiva.add(new SleepingSpider(5+jiva.rand.nextInt(5)).at(coord))
+      jiva.stomp(protag)       // eat the fly
+      jiva.remove(this)        // replace ourselves with a sleeping spider
+      jiva.add(new SleepingSpider(7+jiva.rand.nextInt(7)).at(coord))
     }
-    // otherwise just move randomly in our range (TODO: bias toward protagonist)
+    // otherwise...
     else {
       val spots = coord.within(1).filter(jiva.pass.isPassable)
       if (!spots.isEmpty) {
         val spot = spots(jiva.rand.nextInt(spots.size))
+        // TOO HARD: if he's kind of close, move toward him, otherwise just move randomly
+        /// if (protag.alive && pdist <= range+2) spots.minBy(protag.coord.dist)
         move(jiva, spot)
       }
     }
   }
-
-  val range = 2
 }
 
 class SleepingSpider (var turns :Int) extends Spider {

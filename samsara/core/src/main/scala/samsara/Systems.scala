@@ -71,21 +71,11 @@ class Systems (jiva :Jivaloka) {
     })
   }
 
-  trait Edibles {
-    def chomp (region :Set[Coord]) :Boolean
-  }
-  val edibles = new System[Edible](jiva) with Edibles {
-    def chomp (region :Set[Coord]) = {
-      var chomped = false
-      foreach { ed =>
-        if (region(ed.coord)) {
-          jiva.chomp(ed)
-          chomped = true
-        }
-      }
-      chomped
-    }
-    override protected def handles (entity :Entity) = entity.isInstanceOf[Edible]
+  val eaters = new System[Eater](jiva) {
+    override protected def handles (entity :Entity) = entity.isInstanceOf[Eater]
+    jiva.onMove.connect(slot[Bodied] {
+      case ed :Edible => foreach(_.eat(jiva, ed))
+    })
   }
 
   trait Stompables {
@@ -105,7 +95,9 @@ class Systems (jiva :Jivaloka) {
 
   val behave = new System[MOB](jiva) {
     override protected def handles (entity :Entity) = entity.isInstanceOf[MOB]
-    jiva.flyMove.connect { f :FruitFly => foreach(_.behave(jiva, f)) }
+    jiva.flyMove.connect { f :FruitFly => foreach {
+      mob => if (mob.alive) mob.behave(jiva, f)
+    }}
   }
 
   trait Hatcher {

@@ -4,7 +4,7 @@
 
 package samsara
 
-import playn.core.Key
+import playn.core._
 import playn.core.util.Clock
 import react.{Signal, Value, IntValue}
 
@@ -36,15 +36,19 @@ class Jivaloka (
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
-    if (systems.move.protag == null) {
-      // if this is level zero, then it's game over
-      if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
-      // otherwise pop back to the previous screen and try to hatch from there
-      else {
-        levels.store(level.copy(entities = entities)) // save this world for later
-        game.screens.replace(new GameScreen(game, levels, levels.pop(level)), game.screens.slide.up)
+    if (systems.move.protag == null) PlayN.invokeLater(new Runnable {
+      // defer our rollback one frame to give entities a chance to settle down before we save them
+      def run () {
+        // if this is level zero, then it's game over
+        if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
+        // otherwise pop back to the previous screen and try to hatch from there
+        else {
+          levels.store(level.copy(entities = entities)) // save this world for later
+          game.screens.replace(new GameScreen(game, levels, levels.pop(level)),
+                               game.screens.slide.up)
+        }
       }
-    }
+    })
   }
 
   def hatch (coord :Coord, moves :Int, dist :Int = 0) {
@@ -55,6 +59,7 @@ class Jivaloka (
   }
 
   def chomp (target :Edible) {
+    println("Chomping " + target)
     target.alive = false
     remove(target.entity)
     add(new Splat(0xFF990000).at(target.coord))
