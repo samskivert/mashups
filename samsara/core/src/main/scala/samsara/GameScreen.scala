@@ -17,6 +17,16 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
   val metrics = new Metrics(width, height)
   val jiva = new Jivaloka(game, this, levels, level)
 
+  def position (layer :Layer, coord :Coord) {
+    val size = metrics.size
+    layer.setTranslation(coord.x * size + layer.originX, coord.y * size + layer.originY)
+  }
+
+  def center (layer :Layer, coord :Coord) {
+    val size = metrics.size
+    layer.setTranslation(coord.x * size + size/2, coord.y * size + size/2)
+  }
+
   override def wasAdded () {
     super.wasAdded()
 

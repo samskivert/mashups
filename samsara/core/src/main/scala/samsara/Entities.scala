@@ -61,8 +61,7 @@ trait Bodied { self :Entity =>
   }
 
   protected def position (jiva :Jivaloka) {
-    val size = jiva.screen.metrics.size
-    layer.setTranslation(coord.x * size + layer.originX, coord.y * size + layer.originY)
+    jiva.screen.position(layer, coord)
   }
 }
 

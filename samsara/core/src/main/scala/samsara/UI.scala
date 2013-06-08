@@ -20,6 +20,7 @@ object UI {
   def sheet = SimpleStyles.newSheet
 
   def levelCfg = new TextConfig(0xFF000000).withFont(bodyFont(256))
+  def animCfg (color :Int, size :Float) = new TextConfig(color).withFont(bodyFont(size))
 
   /** Returns a shim configured with an [AxisLayout] stretch constraint. */
   def stretchShim :Shim = AxisLayout.stretch(shim(1, 1))

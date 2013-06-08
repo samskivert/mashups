@@ -36,7 +36,7 @@ class Jivaloka (
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
-    if (systems.move.protag == null) PlayN.invokeLater(new Runnable {
+    if (systems.move.protag == null) screen.iface.animator.action(new Runnable {
       // defer our rollback one frame to give entities a chance to settle down before we save them
       def run () {
         // if this is level zero, then it's game over
@@ -60,18 +60,21 @@ class Jivaloka (
 
   def chomp (target :Edible) {
     println("Chomping " + target)
+    anim(target.coord, "Chomp!", 0xFF990000, 24)
     target.alive = false
     remove(target.entity)
     add(new Splat(0xFF990000).at(target.coord))
   }
 
   def stomp (target :Stompable) {
+    anim(target.coord, "Splat!", 0xFF660000, 24)
     target.alive = false
     remove(target.entity)
     add(new Splat(0xFF660000).at(target.coord))
   }
 
   def croak (protag :FruitFly) {
+    anim(protag.coord, "Croak!", 0xFF666666, 24)
     protag.alive = false
     remove(protag)
     add(new Splat(0xFF666666).at(protag.coord)) // TODO: use a tombstone or something
@@ -84,5 +87,18 @@ class Jivaloka (
     levels.store(level.copy(entities = entities filter(_ != protag)))
     game.screens.replace(new GameScreen(game, levels, levels.get(level.depth+1, protag)),
                          game.screens.slide.down)
+  }
+
+  def anim (coord :Coord, text :String, color :Int, size :Float) {
+    val tlayer = UI.animCfg(color, size).toLayer(text)
+    tlayer.setOrigin(tlayer.width/2, tlayer.height/2)
+    tlayer.setDepth(100)
+    screen.center(tlayer, coord)
+    screen.iface.animator.add(screen.layer, tlayer).`then`.
+      tweenScale(tlayer).to(1.5f).in(500).`then`.
+      tweenScale(tlayer).to(1f).in(500).`then`.
+      tweenAlpha(tlayer).to(0f).in(250).`then`.
+      destroy(tlayer)
+    screen.iface.animator.addBarrier()
   }
 }
