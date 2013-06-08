@@ -6,7 +6,7 @@ package samsara
 
 import playn.core._
 import playn.core.util.Clock
-import react.{Signal, Value, IntValue}
+import react.{Signal, IntValue}
 
 class Jivaloka (
   val game    :Samsara,
@@ -22,6 +22,7 @@ class Jivaloka (
   val flyMove = Signal.create[FruitFly]()
   val movesLeft = new IntValue(0)
 
+  val anims   = new IntValue(0)
   val rand    = new scala.util.Random // TODO: seeded? save seed?
   val pass    = new Passage(level.terrain)
   val systems = new Systems(this)
@@ -36,11 +37,13 @@ class Jivaloka (
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
-    if (systems.move.protag == null) screen.iface.animator.action(new Runnable {
+    if (systems.move.protag == null) PlayN.invokeLater(new Runnable {
       // defer our rollback one frame to give entities a chance to settle down before we save them
       def run () {
+        // if we still have animations pending, "busy wait" until they're done
+        if (anims.get > 0) PlayN.invokeLater(this)
         // if this is level zero, then it's game over
-        if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
+        else if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
         // otherwise pop back to the previous screen and try to hatch from there
         else {
           levels.store(level.copy(entities = entities)) // save this world for later
@@ -51,26 +54,40 @@ class Jivaloka (
     })
   }
 
-  def hatch (coord :Coord, moves :Int, dist :Int = 0) {
-    rand.shuffle(coord.within(dist)).find(pass.isPassable) match {
-      case None    => hatch(coord, moves, dist+1)
-      case Some(c) => add(new FruitFly(moves).at(c))
+  def hatch (coord :Coord, moves :Int) {
+    val reach = pass.reachable(level.exit)
+    def loop (dist :Int) {
+      rand.shuffle(coord.within(dist)).find(c => pass.isPassable(c) && reach(c.index)) match {
+        case None    => loop(dist+1)
+        case Some(c) => add(new FruitFly(moves).at(c))
+      }
     }
+    loop(0)
   }
 
   def chomp (target :Edible) {
-    println("Chomping " + target)
-    anim(target.coord, "Chomp!", 0xFF990000, 24)
-    target.alive = false
-    remove(target.entity)
-    add(new Splat(0xFF990000).at(target.coord))
+    if (!target.alive) {
+      println("Refusing to chomp dead target " + target)
+      Thread.dumpStack()
+    } else {
+      println("Chomping " + target)
+      anim(target.coord, "Chomp!", 0xFF990000, 24)
+      target.alive = false
+      remove(target.entity)
+      add(new Splat(0xFF990000).at(target.coord))
+    }
   }
 
   def stomp (target :Stompable) {
-    anim(target.coord, "Splat!", 0xFF660000, 24)
-    target.alive = false
-    remove(target.entity)
-    add(new Splat(0xFF660000).at(target.coord))
+    if (!target.alive) {
+      println("Refusing to stomp dead target " + target)
+      Thread.dumpStack()
+    } else {
+      anim(target.coord, "Splat!", 0xFF660000, 24)
+      target.alive = false
+      remove(target.entity)
+      add(new Splat(0xFF660000).at(target.coord))
+    }
   }
 
   def croak (protag :FruitFly) {
@@ -94,11 +111,11 @@ class Jivaloka (
     tlayer.setOrigin(tlayer.width/2, tlayer.height/2)
     tlayer.setDepth(100)
     screen.center(tlayer, coord)
+    anims.increment(1)
     screen.iface.animator.add(screen.layer, tlayer).`then`.
       tweenScale(tlayer).to(1.5f).in(500).`then`.
-      tweenScale(tlayer).to(1f).in(500).`then`.
       tweenAlpha(tlayer).to(0f).in(250).`then`.
+      increment(anims, -1).`then`.
       destroy(tlayer)
-    screen.iface.animator.addBarrier()
   }
 }

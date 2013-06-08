@@ -7,6 +7,7 @@ package samsara
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
+import scala.collection.BitSet
 import tripleplay.game.UIScreen
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
@@ -16,6 +17,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
 
   val metrics = new Metrics(width, height)
   val jiva = new Jivaloka(game, this, levels, level)
+  var reach :BitSet = _
 
   def position (layer :Layer, coord :Coord) {
     val size = metrics.size
@@ -41,20 +43,34 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     layer.add(graphics.createImmediateLayer(new ImmediateLayer.Renderer {
       def render (surf :Surface) {
         val size = metrics.size
+        // render the terrain
         var idx = 0 ; while (idx < level.terrain.length) {
           val x = idx % Level.width
           val y = idx / Level.width
           surf.setFillColor(level.terrain(idx).color).fillRect(x*size, y*size, size, size)
           idx += 1
         }
-        var x = 0 ; while (x <= Level.width) {
-          x += 1
-          surf.setFillColor(0x33FFFFFF).drawLine(x*size, 0, x*size, Level.height*size, 1)
+
+        // render reachable tiles for debuggery
+        if (reach != null) {
+          idx = 0 ; while (idx < level.terrain.length) {
+            if (!reach(idx)) {
+              val x = idx % Level.width
+              val y = idx / Level.width
+              surf.setFillColor(0x44FF0000).fillRect(x*size, y*size, size, size)
+            }
+            idx += 1
+          }
         }
-        var y = 0 ; while (y <= Level.height) {
-          y += 1
-          surf.setFillColor(0x33FFFFFF).drawLine(0, y*size, Level.width*size, y*size, 1)
-        }
+
+        // var x = 0 ; while (x <= Level.width) {
+        //   x += 1
+        //   surf.setFillColor(0x33FFFFFF).drawLine(x*size, 0, x*size, Level.height*size, 1)
+        // }
+        // var y = 0 ; while (y <= Level.height) {
+        //   y += 1
+        //   surf.setFillColor(0x33FFFFFF).drawLine(0, y*size, Level.width*size, y*size, 1)
+        // }
       }
     }))
 

@@ -25,6 +25,18 @@ class Coord (val x :Int, val y :Int) {
     c = Coord(x+xx, y+yy) ; if (c != null)
   } yield c
 
+  /** Folds `f` over the neighbors of this coord. */
+  def foldn[A] (z :A)(f :((A, Coord) => A)) :A = {
+    val u = add(0, -1)
+    val zu = if (u != null) f(z, u) else z
+    val d = add(0, 1)
+    val zd = if (d != null) f(zu, d) else zu
+    val l = add(-1, 0)
+    val zl = if (l != null) f(zd, l) else zd
+    val r = add(1, 0)
+    if (r != null) f(zl, r) else zl
+  }
+
   override def toString = s"+$x+$y"
   override def hashCode = x ^ y
   override def equals (other :Any) = other match {
@@ -41,6 +53,9 @@ object Coord {
     if (x < 0 || x >= Level.width || y < 0 || y >= Level.height) null
     else _coords(y * Level.width + x)
   }
+
+  /** Returns the coord for the specified index. Note: does no bounds checking. */
+  def fromIndex (idx :Int) = _coords(idx)
 
   /** Returns all coordinates in the square from `[0, 0]` to `[size, size]`. */
   def square (size :Int) = region(0, 0, size, size)

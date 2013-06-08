@@ -52,7 +52,7 @@ class Systems (jiva :Jivaloka) {
     override def onAdded (entity :FruitFly) {
       if (protag != null) throw new IllegalStateException("What? Two protagonists?")
       protag = entity
-      // Constants.BaseMoves;
+      // jiva.screen.reach = jiva.pass.reachable(protag.coord) // TEMP: debug
       jiva.movesLeft.update(protag.movesLeft)
     }
     override def onRemoved (entity :FruitFly) {

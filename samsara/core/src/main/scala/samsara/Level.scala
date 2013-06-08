@@ -15,7 +15,7 @@ object Level {
   val width = 8
   val height = 12
 
-  def random (depth :Int, ascender :Option[FruitFly]) = {
+  def random (depth :Int, ascender :Option[FruitFly]) :Level = {
     val rando = new java.util.Random
     val entities = ArrayBuffer[Entity]()
     val terrain = Array.fill[Terrain](width*height)(Dirt)
@@ -41,31 +41,38 @@ object Level {
     }
 
     // helper to place N entities at random coordinates
-    def placeN (count :Int, ew :Int, eh :Int, mkBody : =>Entity with Footed) {
-      def loop (remain :Int, fails :Int) {
-        if (remain > 0 && fails < 10) {
-          val ent = mkBody.at(Coord(rando.nextInt(width-ew), rando.nextInt(height-eh)))
-          if (place(ent)) loop(remain-1, fails)
-          else loop(remain, fails+1)
+    abstract class Placer (count :Int, ew :Int, eh :Int) {
+      def mkBody :Entity with Footed
+      def check (ent :Footed) = true
+      def go () {
+        def loop (remain :Int, fails :Int) {
+          if (remain > 0 && fails < 10) {
+            val ent = mkBody.at(Coord(rando.nextInt(width-ew), rando.nextInt(height-eh)))
+            if (check(ent) && place(ent)) loop(remain-1, fails)
+            else loop(remain, fails+1)
+          }
         }
+        loop(count, 0)
       }
-      loop(count, 0)
     }
 
     // if we have an ascended protagonist...
-    ascender match {
+    val start = ascender match {
       // note their entry position and add a mate
       case Some(protag) =>
-        pass.setImpass(Coord(protag.coord.x, height-1))
         // hackily call the mate height/3 tall to prevent it being placed in the bottom 1/3
-        placeN(1, 1, height/3, new Mate)
+        new Placer(1, 1, height/3) {
+          def mkBody = new Mate
+        }.go()
+        Coord(protag.coord.x, height-1)
 
       // otherwise add a nest in the bottom row (we're on level zero)
       case None =>
         val nest = new Nest(3, Constants.BaseMoves).at(Coord(rando.nextInt(width), height-1))
         entities += nest
-        pass.setImpass(nest.coord)
+        nest.coord
     }
+    pass.setImpass(start)
 
     // maybe put a big tree in one corners or on one side
     (rando.nextFloat match {
@@ -86,16 +93,43 @@ object Level {
     }) foreach place
 
     // now put some other trees (TODO: vary density based on depth? maybe cyclically)
-    placeN(2+rando.nextInt(3), 2, 2, new Tree2)
+    new Placer(2+rando.nextInt(3), 2, 2) {
+     def mkBody = new Tree2
+    }.go()
 
     // put some MOBs in there (TODO: keep adding until depth based mob density is reached)
-    val frogs = if (depth == 0) 0 else if (depth < 5) 1 else
-      if (depth < 10) 1+rando.nextInt(2) else 2
-    placeN(frogs, 2, 2, new Frog(rando.nextInt(4)))
-    val spiders = if (depth < 3) 0 else if (depth < 8) 1 else 2
-    placeN(spiders, 1, 1, new AwakeSpider)
+    val frogs =
+      if (depth == 0) 0
+      else if (depth < 5) 1
+      else if (depth < 10) 1+rando.nextInt(2)
+      else 2
+    new Placer(frogs, 2, 2) {
+      def mkBody = new Frog(rando.nextInt(4))
+      // make sure the exit is not right next to this frog; that can result in badness
+      override def check (frog :Footed) = {
+        def in (v :Int, low :Int, high :Int) = (v >= low) && (v < high)
+        val above = exit.y == frog.coord.y-1 ; val below = exit.y == frog.coord.y+2
+        val left  = exit.x == frog.coord.x-1 ; val right = exit.y == frog.coord.x+2
+        val vert  = in(exit.x - frog.coord.x, 0, 2) && (above || below)
+        val horiz = in(exit.y - frog.coord.y, 0, 2) && (left || right)
+        if (vert || horiz) println(s"Frog too close to exit ($exit) ${frog.coord} v:$vert h:$horiz")
+        !(vert || horiz)
+      }
+    }.go()
 
-    Level(depth, terrain, exit, entities)
+    val spiders =
+      if (depth < 3) 0
+      else if (depth < 8) 1
+      else 2
+    new Placer(spiders, 1, 1) {
+      def mkBody = new AwakeSpider
+    }.go()
+
+    if (pass.canReach(start, exit)) Level(depth, terrain, exit, entities)
+    else {
+      println("Oops, can't get to exit; reboot!")
+      random(depth, ascender)
+    }
   }
 }
 

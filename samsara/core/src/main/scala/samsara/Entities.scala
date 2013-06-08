@@ -148,7 +148,7 @@ class Mate extends Entity with Footed with Edible with Stompable {
     if (coord.dist(fly.coord) == 1) {
       jiva.remove(this) // TODO: vary egg count based on depth?
       jiva.add(new Nest(1+jiva.rand.nextInt(4), fly.offspringMoves).at(coord))
-      // TODO: display animating heart floating up screen
+      jiva.anim(coord, "\u2665", 0xFFFF0000, 48)
     }
   }
 
