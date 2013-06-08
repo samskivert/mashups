@@ -107,13 +107,17 @@ object Level {
       def mkBody = new Frog(rando.nextInt(4))
       // make sure the exit is not right next to this frog; that can result in badness
       override def check (frog :Footed) = {
+        if (tooClose(frog.coord, exit)) {
+          println(s"Frog too close to exit ($exit) ${frog.coord}") ; false }
+        else if (tooClose(frog.coord, start)) {
+          println(s"Frog too close to start ($start) ${frog.coord}") ; false }
+        else true
+      }
+      def tooClose (fc :Coord, c :Coord) = {
         def in (v :Int, low :Int, high :Int) = (v >= low) && (v < high)
-        val above = exit.y == frog.coord.y-1 ; val below = exit.y == frog.coord.y+2
-        val left  = exit.x == frog.coord.x-1 ; val right = exit.y == frog.coord.x+2
-        val vert  = in(exit.x - frog.coord.x, 0, 2) && (above || below)
-        val horiz = in(exit.y - frog.coord.y, 0, 2) && (left || right)
-        if (vert || horiz) println(s"Frog too close to exit ($exit) ${frog.coord} v:$vert h:$horiz")
-        !(vert || horiz)
+        val above = c.y == fc.y-1 ; val below = c.y == fc.y+2
+        val left  = c.x == fc.x-1 ; val right = c.y == fc.x+2
+        in(c.x - fc.x, 0, 2) && (above || below) || in(c.y - fc.y, 0, 2) && (left || right)
       }
     }.go()
 
@@ -123,6 +127,11 @@ object Level {
       else 2
     new Placer(spiders, 1, 1) {
       def mkBody = new AwakeSpider
+      override def check (spider :Footed) = {
+        val byStart = spider.coord.within(1).toSet.contains(start)
+        if (byStart) println(s"Spider too close to start ($start) ${spider.coord}")
+        !byStart
+      }
     }.go()
 
     if (pass.canReach(start, exit)) Level(depth, terrain, exit, entities)

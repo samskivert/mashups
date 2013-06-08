@@ -15,7 +15,7 @@ object UI {
 
   val titleFont = graphics.createFont("Helvetica", Font.Style.BOLD, 48)
   val menuFont = graphics.createFont("Helvetica", Font.Style.BOLD, 24)
-  def bodyFont (size :Float) = graphics.createFont("Helvetica", Font.Style.BOLD, size)
+  def bodyFont (size :Float) = graphics.createFont("Times New Roman", Font.Style.BOLD, size)
 
   def sheet = SimpleStyles.newSheet
 

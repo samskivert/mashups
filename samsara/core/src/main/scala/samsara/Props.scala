@@ -32,7 +32,12 @@ class Tree2 extends Tree {
 }
 
 class CornerTree (corner :Int) extends Tree {
-  val foot = Coord.square(2)
+  val foot = (Coord.square(2).toSet - (corner match {
+    case 0 => Coord(1, 1)
+    case 1 => Coord(0, 1)
+    case 2 => Coord(0, 0)
+    case 3 => Coord(1, 0)
+  })).toSeq
   def viz  = corner match {
     case 0 => treeViz(2, 2, 0, 0, 1)
     case 1 => treeViz(2, 2, 1, 0, 1)
@@ -42,11 +47,11 @@ class CornerTree (corner :Int) extends Tree {
 }
 
 class LeftTree extends Tree {
-  val foot = Coord.rect(2, 4)
+  val foot = (Coord.rect(2, 4).toSet -- Seq(Coord(1, 0), Coord(1, 3))).toSeq
   def viz  = treeViz(2, 4, 0, 1/2f, 1)
 }
 
 class RightTree extends Tree {
-  val foot = Coord.rect(2, 4)
+  val foot = (Coord.rect(2, 4).toSet -- Seq(Coord(0, 0), Coord(0, 3))).toSeq
   def viz  = treeViz(2, 4, 1, 1/2f, 1)
 }

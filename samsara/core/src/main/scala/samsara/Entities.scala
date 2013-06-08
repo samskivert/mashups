@@ -56,9 +56,20 @@ trait Bodied { self :Entity =>
 
   /** Destroys this body's viz. */
   def destroy () {
-    layer.destroy()
-    layer = null
+    if (saved != null) {
+      println("Double destroy!" + this)
+      println("Saved:")
+      saved.printStackTrace(System.err)
+      println("Current:")
+      Thread.dumpStack()
+    } else {
+      saved = new Throwable
+      layer.destroy()
+      layer = null
+    }
   }
+
+  var saved :Throwable = _
 
   protected def position (jiva :Jivaloka) {
     jiva.screen.position(layer, coord)
