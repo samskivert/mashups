@@ -34,6 +34,9 @@ I decided to write this one in Scala, so that means no HTML5 version. You'll hav
 [download the jar file](https://www.dropbox.com/s/6c40cfnp0fhnbz1/samsara.jar) and run it with
 `java -jar samsara.jar`.
 
+Here's a [screenshot](http://samskivert.github.io/mashups/samsara/screenshot.png) of my awesome
+programmer art, to whet your visual appetite.
+
 I'll put up an Android APK that you can install at some point, but I need to implement touch
 controls before that will be viable.
 
