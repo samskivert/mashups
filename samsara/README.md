@@ -28,6 +28,15 @@ The design I came up with for this one is as follows:
   * If you exhaust the supply of eggs at a mating site, you may have to roll back to previous
     levels to resume your quest
 
+## Play It
+
+I decided to write this one in Scala, so that means no HTML5 version. You'll have to
+[download the jar file](https://www.dropbox.com/s/6c40cfnp0fhnbz1/samsara.jar) and run it with
+`java -jar samsara.jar`.
+
+I'll put up an Android APK that you can install at some point, but I need to implement touch
+controls before that will be viable.
+
 ## Obstacles
 
 Obstacles are both passive and active.
