@@ -14,7 +14,7 @@
   <name>Samsara Java</name>
 
   <properties>
-    <mainClass>samsara.java.SamsaraJava</mainClass>
+    <mainClass>samsara.SamsaraJava</mainClass>
   </properties>
 
   <dependencies>
