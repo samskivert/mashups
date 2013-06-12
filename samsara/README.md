@@ -83,6 +83,23 @@ Seasons are not yet implemented, but I have some ideas for seasonal variation.
   * Streams (as in fall) with fish which swim back and forth and eat you if you try to cross a leaf
     while a fish is adjacent to it
 
+## Tweaks
+
+  * When you roll back to previous levels, I made the game keep only one level of "future". For
+    example, if you die on level 5 and have to roll back to level 2 to get to your previous nest,
+    level 3 will be the same level 3 you played before, but level 4 (and all subsequent levels)
+    will be newly generated. The most important thing here is that they have a new mate on them,
+    otherwise you can get into situations where a single fly's lifespan is not enough to get you to
+    a level with a new mate. It's also not that fun to go through multiple levels that you've
+    already traversed.
+  * Currently the level generator can create "unwinnable" situations where there's no way to get to
+    the next level without dying. It doesn't happen too often, and you can just kill off your
+    remaining flies and use the previous tweak to cause a new level to be generated, but that's
+    very unsatisfying when you have to do it. So I might introduce a sleep period for all critters,
+    so that you have a chance of getting past any critter regardless of level configuration. Or
+    maybe I'll try to come up with some other way, like tunneling through trees at triple (or more)
+    the normal movement life cost.
+
 ## Other disorganized notes
 
 ### Mechanics
