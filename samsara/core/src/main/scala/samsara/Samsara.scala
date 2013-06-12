@@ -7,11 +7,13 @@ package samsara
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
+import scala.collection.mutable.{Set => MSet}
 import tripleplay.game.ScreenStack
 
 class Samsara extends Game.Default(33) {
 
   val screens = new ScreenStack
+  val seenTips = MSet[Int]()
 
   override def init ()  {
     screens.push(new MainMenuScreen(this))

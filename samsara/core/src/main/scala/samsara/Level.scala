@@ -99,7 +99,7 @@ object Level {
 
     // put some MOBs in there (TODO: keep adding until depth based mob density is reached)
     val frogs =
-      if (depth == 0) 0
+      if (depth < 2) 0
       else if (depth < 5) 1
       else if (depth < 10) 1+rando.nextInt(2)
       else 2

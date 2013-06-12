@@ -84,8 +84,26 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     croot.setSize(metrics.size, metrics.size)
     layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f), 0, height - metrics.size)
 
+    // add a tip on the first few levels
+    if (!game.seenTips(level.depth)) {
+      game.seenTips += level.depth
+      level.depth match {
+        case 0 => addTip("Move your fly to the exit at the top of the screen using the arrow keys.")
+        case 1 => addTip("Move next to the mate to 'create eggs'.")
+        case 2 => addTip("Watch out for frogs. They eat anything in the 2x2 space in front of them.")
+        case 3 => addTip("Spiders will eat you too, and they move.")
+        case _ => // nada
+      }
+    }
+
     // add all of the level entities
     jiva.level.entities foreach jiva.add
+  }
+
+  private def addTip (msg :String) {
+    val tlayer = UI.tipCfg.toLayer(msg)
+    layer.addAt(tlayer.setDepth(9999), (width-tlayer.width)/2, (height-tlayer.height)/2)
+    jiva.keyDown.connect(tlayer.destroy()).once // go away on any key press
   }
 
   override def showTransitionCompleted () {
