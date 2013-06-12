@@ -14,9 +14,7 @@ object GameBuild extends samskivert.MavenBuild {
   )
 
   override def moduleSettings (name :String, pom :pomutil.POM) = name match {
-    case "java" => LWJGLPlugin.lwjglSettings ++ seq(
-      LWJGLPlugin.lwjgl.version := pom.getAttr("lwjgl.version").get
-    ) ++ spray.revolver.RevolverPlugin.Revolver.settings
+    case "java" => spray.revolver.RevolverPlugin.Revolver.settings
     case _ => Nil
   }
 
