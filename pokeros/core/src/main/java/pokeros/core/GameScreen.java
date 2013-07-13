@@ -214,8 +214,8 @@ public class GameScreen extends UIAnimScreen {
     turnHolder.update(0);
 
     // display some tips before the first turn and make them disappear once the first move is made
-    final ImageLayer step1 = TIP_CFG.toLayer("1. Click a card to select it");
-    final ImageLayer step2 = TIP_CFG.toLayer("2. Click a white square to play the card.");
+    final ImageLayer step1 = TIP_CFG.toLayer("1. Tap a card to select it");
+    final ImageLayer step2 = TIP_CFG.toLayer("2. Tap a white square to play the card.");
     final ImageLayer step3 = TIP_CFG.toLayer("3. Try to make, pairs, 3 of a kind, straights, etc.");
     layer.addAt(step1, 10, graphics().height() - Media.CARD_HHEI - step1.height() - 15);
     layer.addAt(step2, 10, graphics().height()/2 + Media.CARD_HHEI - 10);
