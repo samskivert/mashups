@@ -49,12 +49,10 @@ public class GameScreen extends UIAnimScreen {
 
   @Override public void wasAdded () {
     // render a solid green background
-    layer.add(graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
-      public void render (Surface surf) {
-        surf.setFillColor(0xFF336600);
-        surf.fillRect(0, 0, graphics().width(), graphics().height());
-      }
-    }));
+    ImageLayer bg = graphics().createImageLayer(media.felt);
+    bg.setWidth(graphics().width());
+    bg.setHeight(graphics().height());
+    layer.add(bg);
 
     // render our cards above the background
     layer.add(cardsL);

@@ -20,6 +20,7 @@ public class Media {
     assets().getImage("images/diamonds.png")
   };
   public final Image cardBack = assets().getImage("images/redback.png");
+  public final Image felt = assets().getImage("images/felt.jpg");
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();
 
