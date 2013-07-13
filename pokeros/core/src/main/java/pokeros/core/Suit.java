@@ -7,8 +7,8 @@ package pokeros.core;
 /** Enumerates our card suits. */
 public enum Suit {
 
-  SPADES, HEARTS, CLUBS, DIAMONGS;
-  // note: this matches the order of the cards in the sprite sheet
+  SPADES, HEARTS, CLUBS, DIAMONDS;
+  // note: this matches the order of the card images in the Media array
 
   public static final String ABBREV = "SHCD";
 }

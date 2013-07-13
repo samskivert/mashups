@@ -15,5 +15,6 @@ public class CardSprite {
   public CardSprite (Media media, Card card) {
     this.card = card;
     this.layer = graphics().createImageLayer(media.card(card));
+    layer.setOrigin(layer.width()/2, layer.height()/2);
   }
 }

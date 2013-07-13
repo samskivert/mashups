@@ -5,18 +5,18 @@
 package pokeros.core;
 
 import java.util.List;
-import pythagoras.f.FloatMath;
+import pythagoras.f.MathUtil;
 import pythagoras.f.Point;
 import pythagoras.f.Rectangle;
 import react.*;
 
 import playn.core.*;
 import static playn.core.PlayN.*;
+import playn.core.Mouse;
 
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
-import tripleplay.ui.layout.TableLayout;
 import tripleplay.util.TextConfig;
 
 public class GameScreen extends UIAnimScreen {
@@ -58,12 +58,11 @@ public class GameScreen extends UIAnimScreen {
 
     // render our cards above the background
     layer.add(cardsL);
+    cardsL.setScale(0.5f);
     // put 0, 0 in the middle of the screen to start
-    cardsL.setTranslation((graphics().width()-GRID_X)/2, (graphics().height()-GRID_Y)/2);
-    // add our last played card indicator
-    cardsL.add(_lastPlayed);
-    // add our legal moves indicator layer
-    cardsL.add(movesL);
+    cardsL.setTranslation(graphics().width()/2, graphics().height()/2);
+    cardsL.add(_lastPlayed); // add our last played card indicator
+    cardsL.add(movesL); // add our legal moves indicator layer
     // add our stash views
     for (int ii = 0; ii < sviews.length; ii++) {
       if (sviews[ii] == null) continue;
@@ -71,39 +70,32 @@ public class GameScreen extends UIAnimScreen {
       sviews[ii].layer.setVisible(false);
     }
 
-    // TEMP: scale cards layer down
-    // cardsL.setScale(0.5f);
-
-    // render the deck sprite in the upper left
-    // layer.addAt(new DeckSprite(media, deck).layer, 10, 10);
-
-    // display the scores in the upper right
-    Group sgroup = new Group(new TableLayout(TableLayout.COL, TableLayout.COL.stretch(),
-                                             TableLayout.COL.alignRight()).gaps(5, 10));
+    // display the scores across the top
+    Stylesheet sheet = SimpleStyles.newSheetBuilder().
+      add(Element.class, Style.FONT.is(graphics().createFont("Helvetica", Font.Style.PLAIN, 12))).
+      add(Label.class, Style.TEXT_EFFECT.shadow, Style.COLOR.is(0xFFFFFFFF),
+          Style.SHADOW.is(0x99000000), Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
+      create();
+    Root root = iface.createRoot(AxisLayout.horizontal().stretchByDefault(), sheet, layer);
     for (int ii = 0; ii < players.length; ii++) {
       final int idx = ii;
       ValueView<String> turnInd = turnHolder.map(new Function<Integer,String>() {
         public String apply (Integer turnIdx) { return (idx == turnIdx) ? "★" : ""; }
       });
-      sgroup.add(new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
-                 new Label(players[ii].name(ii)).addStyles(Style.HALIGN.left),
-                 new ValueLabel(players[ii].score).setConstraint(Constraints.minSize("000")));
+      root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
+                 new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
+                 new Label(players[ii].name(ii) + ":").addStyles(Style.HALIGN.left),
+                 new ValueLabel(players[ii].score).setConstraint(Constraints.minSize("000"))));
     }
 
-    CanvasImage bar = graphics().createImage(150, 1);
-    bar.canvas().setFillColor(0xFF000000).fillRect(0, 0, bar.width(), bar.height());
+    root.add(new Group(AxisLayout.horizontal().gap(3)).add(
+               new Label("Cards:"), new ValueLabel(deck.cards.sizeView())));
 
-    Root root = iface.createRoot(AxisLayout.vertical(), SimpleStyles.newSheet(), layer);
-    root.addStyles(Style.BACKGROUND.is(Background.solid(0xFF99CCFF).inset(5)));
-    Button restart;
-    root.add(new Label("Scores").addStyles(Style.FONT.is(HEADER_FONT)),
-             new Label(Icons.image(bar)), sgroup, new Label(Icons.image(bar)),
-             new Group(AxisLayout.horizontal()).add(
-               new Label("Cards left:"), new ValueLabel(deck.cards.sizeView())),
-             restart = new Button("RESTART"));
-    restart.clicked().connect(_onRestart).once();
-    root.pack();
-    root.layer.setTranslation(graphics().width()-root.size().width()-5, 5);
+    // Button restart = new Button("RESTART")
+    // restart.clicked().connect(_onRestart).once();
+    // root.add(restart);
+    root.packToWidth(graphics().width()-10);
+    root.layer.setTranslation(5, 5);
 
     // listen for clicks and drags on the cards layer
     cardsL.setHitTester(new Layer.HitTester() {
@@ -124,8 +116,8 @@ public class GameScreen extends UIAnimScreen {
 
       @Override public void onPointerEnd (Pointer.Event event) {
         if (!_scrolling) {
-          int cx = FloatMath.ifloor(event.localX() / GRID_X);
-          int cy = FloatMath.ifloor(event.localY() / GRID_Y);
+          int cx = Math.round(event.localX() / GRID_X);
+          int cy = Math.round(event.localY() / GRID_Y);
           click.emit(Coord.get(cx, cy));
         }
       }
@@ -133,6 +125,12 @@ public class GameScreen extends UIAnimScreen {
       protected Point _startO = new Point(), _start = new Point();
       protected boolean _scrolling;
       protected static final float SCROLL_THRESH = 5;
+    });
+    // TODO: handle pinch to zoom
+    cardsL.addListener(new Mouse.LayerAdapter() {
+      @Override public void onMouseWheelScroll (Mouse.WheelEvent event) {
+        cardsL.setScale(MathUtil.clamp(cardsL.scaleX() + event.velocity()/20, 0.25f, 1f));
+      }
     });
 
     // add card sprites when cards are added to the board
@@ -190,7 +188,7 @@ public class GameScreen extends UIAnimScreen {
             move.setOrigin(media.move.width()/2, media.move.height()/2);
             movesL.add(move);
           }
-          move.setTranslation(coord.x * GRID_X + GRID_X/2, coord.y * GRID_Y + GRID_Y/2);
+          move.setTranslation(coord.x * GRID_X, coord.y * GRID_Y);
           ii++;
         }
         for (; ii < ll; ii++) movesL.get(ii).setVisible(false);
@@ -219,11 +217,9 @@ public class GameScreen extends UIAnimScreen {
     final ImageLayer step1 = TIP_CFG.toLayer("1. Click a card to select it");
     final ImageLayer step2 = TIP_CFG.toLayer("2. Click a white square to play the card.");
     final ImageLayer step3 = TIP_CFG.toLayer("3. Try to make, pairs, 3 of a kind, straights, etc.");
-    layer.addAt(step1, (graphics().width() - step1.width())/2,
-                graphics().height() - Media.CARD_HEI - step1.height() - 20);
-    layer.addAt(step2, (graphics().width() - step2.width())/2,
-                graphics().height()/2 - 3*Media.CARD_HEI/2 - step2.height());
-    layer.addAt(step3, (graphics().width() - step2.width())/2, Media.CARD_HEI + 30);
+    layer.addAt(step1, 10, graphics().height() - Media.CARD_HHEI - step1.height() - 15);
+    layer.addAt(step2, 10, graphics().height()/2 + Media.CARD_HHEI - 10);
+    layer.addAt(step3, 10, graphics().height()/2 - Media.CARD_HHEI/2 - step3.height());
     turnHolder.connect(new UnitSlot() { public void onEmit () {
       step1.destroy();
       step2.destroy();
@@ -256,6 +252,7 @@ public class GameScreen extends UIAnimScreen {
       Rectangle rect = null;
       for (Cons<Coord> cs = hand.coords; cs != null; cs = cs.tail) {
         Layer glow = position(graphics().createImageLayer(media.glow), cs.head);
+        glow.setOrigin(media.glow.width()/2, media.glow.height()/2);
         group.add(glow);
         if (rect == null) {
           rect = new Rectangle(glow.tx(), glow.ty(), Media.CARD_WID, Media.CARD_HEI);
@@ -299,19 +296,20 @@ public class GameScreen extends UIAnimScreen {
   protected final ImmediateLayer _lastPlayed =
     graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
       public void render (Surface surf) {
-        surf.setFillColor(0xFF0000FF).fillRect(-2, -2, Media.CARD_WID+4, Media.CARD_HEI+4);
+        surf.setFillColor(0xFF0000FF).fillRect(-Media.CARD_HWID-2, -Media.CARD_HHEI-2,
+                                               Media.CARD_WID+4, Media.CARD_HEI+4);
       }
     });
 
   protected final UnitSlot _onRestart;
 
-  protected final int GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
-  protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 16);
+  protected final float GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
+  protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 12);
 
-  protected final TextConfig MARQUEE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 3f).
-    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 32));
+  protected final TextConfig MARQUEE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 1.5f).
+    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 18));
 
-  protected final TextConfig TIP_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 2f).
-    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 24)).
-    withWrapping(280, TextFormat.Alignment.CENTER);
+  protected final TextConfig TIP_CFG = new TextConfig(0xFFFFFFFF).withShadow(0xFF000000, 1f, 1f).
+    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 14)).
+    withWrapping(130, TextFormat.Alignment.LEFT);
 }

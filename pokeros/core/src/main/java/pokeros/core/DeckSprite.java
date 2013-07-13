@@ -24,7 +24,7 @@ public class DeckSprite {
 
     for (int ii = _backs.length-1; ii >= 0; ii--) {
       float gap = (ii+1)*GAP;
-      layer.addAt(_backs[ii] = graphics().createImageLayer(media.cardBack()), gap, gap);
+      layer.addAt(_backs[ii] = graphics().createImageLayer(media.cardBack), gap, gap);
     }
     layer.add(_top);
 

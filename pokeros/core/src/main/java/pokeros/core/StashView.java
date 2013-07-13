@@ -21,16 +21,17 @@ public class StashView {
 
   public StashView (final Media media, RSet<Card> stash) {
     _slots = new CardSprite[Player.STASH];
-    _xOff = Math.min(Media.CARD_WID+5, (graphics().width()-Media.CARD_WID)/(Player.STASH-1));
-    float width = Media.CARD_WID + _xOff*(Player.STASH-1), height = Media.CARD_HEI;
-    layer.setTranslation((graphics().width()-width)/2, graphics().height()-height-10);
+    _dx = graphics().width() / (Player.STASH+1);
+    layer.setTranslation(0, graphics().height()-Media.CARD_HHEI/2-5);
 
     stash.connect(new RSet.Listener<Card>() {
       @Override public void onAdd (Card card) {
         // look for an empty slot
         for (int ii = 0; ii < _slots.length; ii++) {
           if (_slots[ii] == null) {
-            add(ii, new CardSprite(media, card));
+            CardSprite cs = new CardSprite(media, card);
+            cs.layer.setScale(0.5f);
+            add(ii, cs);
             return;
           }
         }
@@ -54,7 +55,7 @@ public class StashView {
   protected void add (final int index, CardSprite sprite) {
     _slots[index] = sprite;
     sprite.layer.setDepth(index);
-    layer.addAt(sprite.layer, _xOff*index, 0);
+    layer.addAt(sprite.layer, _dx+_dx*index, 0);
     sprite.layer.addListener(new Pointer.Adapter() {
       public void onPointerStart (Pointer.Event event) {
         select(index);
@@ -73,5 +74,5 @@ public class StashView {
   }
 
   protected final CardSprite[] _slots;
-  protected final float _xOff;
+  protected final float _dx;
 }

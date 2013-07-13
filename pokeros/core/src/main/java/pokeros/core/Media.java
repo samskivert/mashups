@@ -10,29 +10,33 @@ import static playn.core.PlayN.*;
 
 public class Media {
 
-  public static final int CARD_WID = 60, CARD_HEI = 80;
-  public final Image cards = assets().getImage("images/cards.png");
+  public static final float CARD_WID = 169/2f, CARD_HEI = 236/2f;
+  public static final float CARD_HWID = CARD_WID/2, CARD_HHEI = CARD_HEI/2;
+
+  public final Image[] cards = {
+    assets().getImage("images/spades.png"),
+    assets().getImage("images/hearts.png"),
+    assets().getImage("images/clubs.png"),
+    assets().getImage("images/diamonds.png")
+  };
+  public final Image cardBack = assets().getImage("images/redback.png");
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();
 
   // stamp the shape of a card, in all white pixels, into the glow image
   public Media () {
-    cards.addCallback(new Callback<Image>() {
+    cardBack.addCallback(new Callback<Image>() {
       public void onSuccess (Image cards) {
         glow.canvas().setFillColor(0xFFFFFFFF).fillRect(0, 0, CARD_WID, CARD_HEI);
-        glow.canvas().setCompositeOperation(Canvas.Composite.DST_IN).drawImage(cardBack(), 0, 0);
+        glow.canvas().setCompositeOperation(Canvas.Composite.DST_IN).drawImage(cardBack, 0, 0);
       }
       public void onFailure (Throwable t) {} // oh noes!
     });
   }
 
   public Image card (Card card) {
-    return cards.subImage(card.rank.ordinal()*CARD_WID, card.suit.ordinal()*CARD_HEI,
-                          CARD_WID, CARD_HEI);
-  }
-
-  public Image cardBack () {
-    return cards.subImage(13*CARD_WID, 0, CARD_WID, CARD_HEI);
+    int x = card.rank.ordinal() % 5, y = card.rank.ordinal() / 5;
+    return cards[card.suit.ordinal()].subImage(x*CARD_WID, y*CARD_HEI, CARD_WID, CARD_HEI);
   }
 
   protected Image createMoveIndicator () {

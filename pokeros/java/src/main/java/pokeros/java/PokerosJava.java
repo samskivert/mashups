@@ -13,8 +13,9 @@ public class PokerosJava {
 
   public static void main(String[] args) {
     JavaPlatform.Config config = new JavaPlatform.Config();
-    config.width = 640;
-    config.height = 960;
+    config.width = 320;
+    config.height = 480;
+    config.scaleFactor = 2;
     // use config to customize the Java platform, if needed
     JavaPlatform.register(config);
     PlayN.run(new Pokeros());
