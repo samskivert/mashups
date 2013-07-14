@@ -21,15 +21,19 @@ public class Media {
   };
   public final Image cardBack = assets().getImage("images/redback.png");
   public final Image felt = assets().getImage("images/felt.jpg");
+
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
+  public final CanvasImage shadow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();
 
   // stamp the shape of a card, in all white pixels, into the glow image
   public Media () {
     cardBack.addCallback(new Callback<Image>() {
       public void onSuccess (Image cards) {
-        glow.canvas().setFillColor(0xFFFFFFFF).fillRect(0, 0, CARD_WID, CARD_HEI);
-        glow.canvas().setCompositeOperation(Canvas.Composite.DST_IN).drawImage(cardBack, 0, 0);
+        glow.canvas().setFillColor(0xFFFFFFFF).fillRect(0, 0, CARD_WID, CARD_HEI).
+          setCompositeOperation(Canvas.Composite.DST_IN).drawImage(cardBack, 0, 0);
+        shadow.canvas().setFillColor(0x66000000).fillRect(0, 0, CARD_WID, CARD_HEI).
+          setCompositeOperation(Canvas.Composite.DST_IN).drawImage(cardBack, 0, 0);
       }
       public void onFailure (Throwable t) {} // oh noes!
     });

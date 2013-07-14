@@ -56,7 +56,7 @@ public class StashView {
     _slots[index] = sprite;
     sprite.layer.setDepth(index);
     layer.addAt(sprite.layer, _dx+_dx*index, 0);
-    sprite.layer.addListener(new Pointer.Adapter() {
+    sprite.clayer.addListener(new Pointer.Adapter() {
       public void onPointerStart (Pointer.Event event) {
         select(index);
       }
