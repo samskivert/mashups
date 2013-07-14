@@ -14,6 +14,8 @@ import tripleplay.game.ScreenStack;
 
 public class Pokeros extends Game.Default {
 
+  public final Media media = new Media();
+
   public Pokeros () {
     super(33); // call update every 33ms (30 times per second)
   }
@@ -45,6 +47,6 @@ public class Pokeros extends Game.Default {
   protected final ScreenStack _screens = new ScreenStack();
   protected final UnitSlot _restart = new UnitSlot() { public void onEmit () {
     if (_screens.size() > 0) _screens.remove(_screens.top());
-    _screens.push(new GameScreen(_restart, Player.human(), Player.computer()));
+    _screens.push(new GameScreen(Pokeros.this, _restart, Player.human(), Player.computer()));
   }};
 }

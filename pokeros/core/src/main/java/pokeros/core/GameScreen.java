@@ -17,7 +17,6 @@ import playn.core.Mouse;
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
-import tripleplay.util.TextConfig;
 
 public class GameScreen extends UIAnimScreen {
 
@@ -31,12 +30,14 @@ public class GameScreen extends UIAnimScreen {
   public final Signal<Coord> click = Signal.create();
 
   // rendering
-  public final Media media = new Media();
+  public final Media media;
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
 
-  public GameScreen (UnitSlot onRestart, Player... players) {
+  public GameScreen (Pokeros game, UnitSlot onRestart, Player... players) {
+    // this.media = game.media;
+    this.media = new Media(); // temp for testing
     _onRestart = onRestart;
     this.players = players;
     this.sviews = new StashView[players.length];
@@ -70,7 +71,7 @@ public class GameScreen extends UIAnimScreen {
 
     // display the scores across the top
     Stylesheet sheet = SimpleStyles.newSheetBuilder().
-      add(Element.class, Style.FONT.is(graphics().createFont("Helvetica", Font.Style.PLAIN, 12))).
+      add(Element.class, Style.FONT.is(media.defaultFont)).
       add(Label.class, Style.TEXT_EFFECT.shadow, Style.COLOR.is(0xFFFFFFFF),
           Style.SHADOW.is(0x99000000), Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
       create();
@@ -212,9 +213,10 @@ public class GameScreen extends UIAnimScreen {
     turnHolder.update(0);
 
     // display some tips before the first turn and make them disappear once the first move is made
-    final ImageLayer step1 = TIP_CFG.toLayer("1. Tap a card to select it");
-    final ImageLayer step2 = TIP_CFG.toLayer("2. Tap a white square to play the card.");
-    final ImageLayer step3 = TIP_CFG.toLayer("3. Try to make, pairs, 3 of a kind, straights, etc.");
+    final ImageLayer step1 = media.tipCfg.toLayer("1. Tap a card to select it");
+    final ImageLayer step2 = media.tipCfg.toLayer("2. Tap a white square to play the card.");
+    final ImageLayer step3 = media.tipCfg.toLayer(
+      "3. Try to make, pairs, 3 of a kind, straights, etc.");
     layer.addAt(step1, 10, graphics().height() - Media.CARD_HHEI - step1.height() - 15);
     layer.addAt(step2, 10, graphics().height()/2 + Media.CARD_HHEI - 10);
     layer.addAt(step3, 10, graphics().height()/2 - Media.CARD_HHEI/2 - step3.height());
@@ -261,7 +263,7 @@ public class GameScreen extends UIAnimScreen {
       }
       String info = hand.descrip() + " - " + hand.score + multSuff;
       log().info(players[thIdx].name(thIdx) + ": " + info);
-      ImageLayer label = MARQUEE_CFG.toLayer(info);
+      ImageLayer label = media.marqueeCfg.toLayer(info);
       anim.delay(delay).then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
@@ -285,7 +287,7 @@ public class GameScreen extends UIAnimScreen {
       else { maxScore = score; winIdx = ii; }
     }
 
-    ImageLayer winLayer = MARQUEE_CFG.toLayer(
+    ImageLayer winLayer = media.marqueeCfg.toLayer(
       (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!"));
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
@@ -302,12 +304,4 @@ public class GameScreen extends UIAnimScreen {
   protected final UnitSlot _onRestart;
 
   protected final float GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
-  protected final Font HEADER_FONT = graphics().createFont("Helvetica", Font.Style.BOLD, 12);
-
-  protected final TextConfig MARQUEE_CFG = new TextConfig(0xFFFFFFFF).withOutline(0xFF000000, 1.5f).
-    withFont(graphics().createFont("Helvetica", Font.Style.BOLD, 18));
-
-  protected final TextConfig TIP_CFG = new TextConfig(0xFFFFFFFF).withShadow(0xFF000000, 1f, 1f).
-    withFont(graphics().createFont("Helvetica", Font.Style.PLAIN, 14)).
-    withWrapping(130, TextFormat.Alignment.LEFT);
 }
