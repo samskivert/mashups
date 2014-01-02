@@ -98,19 +98,20 @@ public class GameScreen extends UIAnimScreen {
     cardsL.setHitTester(new Layer.HitTester() {
       @Override public Layer hitTest (Layer layer, Point p) { return layer; }
     });
-    cardsL.addListener(new Pointer.Adapter() {
+
+    // use a single entity to handle scrolling and scaling so that it can avoid scrolling while
+    // scaling, as that's weird
+    class ScrollScaler implements Pointer.Listener, Touch.LayerListener {
       @Override public void onPointerStart (Pointer.Event event) {
         _start.set(event.x(), event.y());
         _startO.set(cardsL.tx(), cardsL.ty());
         _scrolling = false;
       }
-
       @Override public void onPointerDrag (Pointer.Event event) {
         float dx = event.x() - _start.x, dy = event.y() - _start.y;
         if (Math.abs(dx) > SCROLL_THRESH || Math.abs(dy) > SCROLL_THRESH) _scrolling = true;
-        if (_scrolling) cardsL.setTranslation(_startO.x + dx, _startO.y + dy);
+        if (_scrolling && !isScaling()) cardsL.setTranslation(_startO.x + dx, _startO.y + dy);
       }
-
       @Override public void onPointerEnd (Pointer.Event event) {
         if (!_scrolling) {
           int cx = Math.round(event.localX() / GRID_X);
@@ -118,12 +119,62 @@ public class GameScreen extends UIAnimScreen {
           click.emit(Coord.get(cx, cy));
         }
       }
+      @Override public void onPointerCancel (Pointer.Event event) {
+        onPointerEnd(event);
+      }
 
+      @Override public void onTouchStart (Touch.Event touch) {
+        if (_firstId == 0) {
+          _firstId = touch.id();
+          _firstPos.set(touch.x(), touch.y());
+        } else if (_secondId == 0) {
+          _secondId = touch.id();
+          _secondPos.set(touch.x(), touch.y());
+          _baseDist = _firstPos.distance(_secondPos);
+          _baseScale = cardsL.scaleX();
+          // TODO: set scale "origin" to halfway point between touch 1 and 2
+        } // otherwise ignore
+      }
+      @Override public void onTouchMove (Touch.Event touch) {
+        if (_firstId == touch.id()) {
+          _firstPos.set(touch.x(), touch.y());
+        } else if (_secondId == touch.id()) {
+          _secondPos.set(touch.x(), touch.y());
+        }
+        if (isScaling()) {
+          float dist = _firstPos.distance(_secondPos);
+          // System.err.println("Movement " + dist + " / " + _baseDist);
+          cardsL.setScale(MathUtil.clamp(dist/_baseDist*_baseScale, 0.25f, 1f));
+        }
+      }
+      @Override public void onTouchEnd (Touch.Event touch) {
+        // if either the first or second touch ends, end the gesture
+        if (_firstId == touch.id() || _secondId == touch.id()) {
+          _firstId = _secondId = 0;
+        }
+      }
+      @Override public void onTouchCancel (Touch.Event touch) {
+        onTouchEnd(touch);
+      }
+
+      private boolean isScaling () {
+        return _firstId != 0 && _secondId != 0;
+      }
+
+      // scrolling bits
       protected Point _startO = new Point(), _start = new Point();
       protected boolean _scrolling;
       protected static final float SCROLL_THRESH = 5;
-    });
-    // TODO: handle pinch to zoom
+
+      // scaling bits
+      protected int _firstId, _secondId;
+      protected Point _firstPos = new Point(), _secondPos = new Point();
+      protected float _baseDist, _baseScale;
+    }
+    ScrollScaler sser = new ScrollScaler();
+    cardsL.addListener((Pointer.Listener)sser);
+    cardsL.addListener((Touch.LayerListener)sser);
+
     cardsL.addListener(new Mouse.LayerAdapter() {
       @Override public void onMouseWheelScroll (Mouse.WheelEvent event) {
         cardsL.setScale(MathUtil.clamp(cardsL.scaleX() + event.velocity()/20, 0.25f, 1f));

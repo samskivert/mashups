@@ -16,6 +16,7 @@ public class PokerosJava {
     config.width = 320;
     config.height = 480;
     config.scaleFactor = 2;
+    config.emulateTouch = true;
     // use config to customize the Java platform, if needed
     JavaPlatform.register(config);
     PlayN.run(new Pokeros());
