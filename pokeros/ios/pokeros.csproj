@@ -94,6 +94,7 @@
     <Content Include="assets\images\hearts%402x.png" />
     <Content Include="assets\images\spades%402x.png" />
     <Content Include="assets\images\redback%402x.png" />
+    <Content Include="assets\images\felt%402x.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

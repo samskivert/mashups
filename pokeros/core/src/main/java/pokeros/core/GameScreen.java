@@ -30,15 +30,16 @@ public class GameScreen extends UIAnimScreen {
   public final Signal<Coord> click = Signal.create();
 
   // rendering
+  public final Pokeros game;
   public final Media media;
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
 
-  public GameScreen (Pokeros game, UnitSlot onRestart, Player... players) {
-    // this.media = game.media;
-    this.media = new Media(); // temp for testing
-    _onRestart = onRestart;
+  public GameScreen (Pokeros game, Player... players) {
+    this.game = game;
+    this.media = game.media;
+    // this.media = new Media(); // temp for testing
     this.players = players;
     this.sviews = new StashView[players.length];
     for (int ii = 0; ii < sviews.length; ii++) {
@@ -71,7 +72,7 @@ public class GameScreen extends UIAnimScreen {
 
     // display the scores across the top
     Stylesheet sheet = SimpleStyles.newSheetBuilder().
-      add(Element.class, Style.FONT.is(media.defaultFont)).
+      add(Element.class, Style.FONT.is(UI.defaultFont)).
       add(Label.class, Style.TEXT_EFFECT.shadow, Style.COLOR.is(0xFFFFFFFF),
           Style.SHADOW.is(0x99000000), Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
       create();
@@ -90,11 +91,8 @@ public class GameScreen extends UIAnimScreen {
     root.add(new Group(AxisLayout.horizontal().gap(3)).add(
                new Label("Cards:"), new ValueLabel(deck.cards.sizeView())));
 
-    // Button restart = new Button("RESTART")
-    // restart.clicked().connect(_onRestart).once();
-    // root.add(restart);
     root.packToWidth(graphics().width()-10);
-    root.layer.setTranslation(5, 5);
+    root.layer.setTranslation(5, 25);
 
     // listen for clicks and drags on the cards layer
     cardsL.setHitTester(new Layer.HitTester() {
@@ -213,10 +211,9 @@ public class GameScreen extends UIAnimScreen {
     turnHolder.update(0);
 
     // display some tips before the first turn and make them disappear once the first move is made
-    final ImageLayer step1 = media.tipCfg.toLayer("1. Tap a card to select it");
-    final ImageLayer step2 = media.tipCfg.toLayer("2. Tap a white square to play the card.");
-    final ImageLayer step3 = media.tipCfg.toLayer(
-      "3. Try to make, pairs, 3 of a kind, straights, etc.");
+    final ImageLayer step1 = UI.mkTip("1. Tap a card to select it");
+    final ImageLayer step2 = UI.mkTip("2. Tap a white square to play the card.");
+    final ImageLayer step3 = UI.mkTip("3. Try to make, pairs, 3 of a kind, straights, etc.");
     layer.addAt(step1, 10, graphics().height() - Media.CARD_HHEI - step1.height() - 15);
     layer.addAt(step2, 10, graphics().height()/2 + Media.CARD_HHEI - 10);
     layer.addAt(step3, 10, graphics().height()/2 - Media.CARD_HHEI/2 - step3.height());
@@ -241,7 +238,7 @@ public class GameScreen extends UIAnimScreen {
     int delay = 0;
     List<Hand> hands = grid.bestHands(Hand.byScore, grid.cards.get(coord), coord);
     final int mult = hands.size();
-    String multSuff = (mult > 1) ? (" x " + mult) : "";
+    String multSuff = (mult > 1) ? (" x" + mult) : "";
     for (final Hand hand : hands) {
       if (hand.score == 0) continue;
       // System.err.println(hand);
@@ -261,18 +258,18 @@ public class GameScreen extends UIAnimScreen {
           rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
         }
       }
-      String info = hand.descrip() + " - " + hand.score + multSuff;
-      log().info(players[thIdx].name(thIdx) + ": " + info);
-      ImageLayer label = media.marqueeCfg.toLayer(info);
+      String scstr = hand.score + multSuff;
+      log().info(players[thIdx].name(thIdx) + ": " + hand.descrip() + " " + scstr);
+      ImageLayer label = UI.mkScore(hand.descrip(), scstr, width());
       anim.delay(delay).then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
-        tweenAlpha(group).to(0).in(500).easeIn().then().
-        tweenAlpha(label).to(0).in(500).easeIn().then().
+        tweenAlpha(group).to(0).in(1000).easeIn().then().
+        tweenAlpha(label).to(0).in(1000).easeIn().then().
         destroy(group).then().
         destroy(label).then().
         action(new Runnable() { public void run () { score.increment(hand.score*mult); }});
-      delay += 750;
+      delay += 1250;
     }
   }
 
@@ -287,10 +284,18 @@ public class GameScreen extends UIAnimScreen {
       else { maxScore = score; winIdx = ii; }
     }
 
-    ImageLayer winLayer = media.marqueeCfg.toLayer(
+    ImageLayer winLayer = UI.mkMarquee(
       (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!"));
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
+
+    Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
+    String msg = (winIdx == 0) ? "Yay!" : "Alas";
+    root.add(new Button(msg).addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
+      public void onEmit () { game.screens.remove(GameScreen.this); }
+    }));
+    root.pack();
+    root.layer.setTranslation((width()-root.size().width())/2, height()-root.size().height()-15);
   }
 
   protected final ImmediateLayer _lastPlayed =
@@ -300,8 +305,6 @@ public class GameScreen extends UIAnimScreen {
                                                Media.CARD_WID+4, Media.CARD_HEI+4);
       }
     });
-
-  protected final UnitSlot _onRestart;
 
   protected final float GRID_X = Media.CARD_WID + 5, GRID_Y = Media.CARD_HEI + 5;
 }

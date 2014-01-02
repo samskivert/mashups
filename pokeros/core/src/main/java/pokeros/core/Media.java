@@ -8,8 +8,6 @@ import playn.core.*;
 import playn.core.util.Callback;
 import static playn.core.PlayN.*;
 
-import tripleplay.util.TextConfig;
-
 public class Media {
 
   public static final float CARD_WID = 169/2f, CARD_HEI = 236/2f;
@@ -27,16 +25,6 @@ public class Media {
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
   public final CanvasImage shadow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();
-
-  public final String textFont = "Copperplate";
-  public final Font defaultFont = graphics().createFont(textFont, Font.Style.PLAIN, 12);
-  public final Font marqueeFont = graphics().createFont(textFont, Font.Style.BOLD, 18);
-  public final Font tipFont = graphics().createFont(textFont, Font.Style.PLAIN, 14);
-
-  public final TextConfig marqueeCfg = new TextConfig(0xFFFFFFFF).
-    withOutline(0xFF000000, 1.5f).withFont(marqueeFont);
-  public final TextConfig tipCfg = new TextConfig(0xFFFFFFFF).withShadow(0xFF000000, 1f, 1f).
-    withFont(tipFont).withWrapping(130, TextFormat.Alignment.LEFT);
 
   // stamp the shape of a card, in all white pixels, into the glow image
   public Media () {

@@ -14,12 +14,12 @@ public abstract class Player {
 
   public static Player human () { return new Player() {
     public boolean isHuman () { return true; }
-    public String name (int index) { return "Human " + (index+1); }
+    public String name (int index) { return "You" /*+ (index+1)*/; }
   };}
 
   public static Player computer () { return new Player() {
     public boolean isHuman () { return false; }
-    public String name (int index) { return "Computer " + (index+1); }
+    public String name (int index) { return "HAL" /*+ (index+1)*/; }
   };}
 
   public final RSet<Card> stash = RSet.create();
