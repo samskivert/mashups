@@ -15,6 +15,7 @@ import tripleplay.util.TextStyle;
 
 public class UI {
 
+  public static final int GREEN = 0xFF53B16B;
   public static final String textFont = "Copperplate";
   public static final Font defaultFont = graphics().createFont(textFont, Font.Style.PLAIN, 18);
 
@@ -43,15 +44,15 @@ public class UI {
     return AxisLayout.stretch(new Shim(1, 1));
   }
 
-  public static final TextStyle marqueeStyle = new TextStyle().withTextColor(0xFFFFFFFF).
-    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 24));
+  public static final TextStyle marqueeStyle = new TextStyle().withTextColor(GREEN).
+    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 48));
   public static ImageLayer mkMarquee (String text) {
     return StyledText.span(text, marqueeStyle).toLayer();
   }
 
-  public static final TextStyle handStyle = new TextStyle().withTextColor(0xFF53B16B).
+  public static final TextStyle handStyle = new TextStyle().withTextColor(GREEN).
     withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 32));
-  public static final TextStyle pointsStyle = new TextStyle().withTextColor(0xFF53B16B).
+  public static final TextStyle pointsStyle = new TextStyle().withTextColor(GREEN).
     withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 48));
   public static ImageLayer mkScore (String descrip, String score, float screenWidth) {
     StyledText dblock = new StyledText.Block(
