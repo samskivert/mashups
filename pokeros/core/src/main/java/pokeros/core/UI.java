@@ -5,6 +5,7 @@
 package pokeros.core;
 
 import playn.core.*;
+import playn.core.util.TextBlock;
 import static playn.core.PlayN.*;
 
 import tripleplay.ui.*;
@@ -53,7 +54,8 @@ public class UI {
   public static final TextStyle pointsStyle = new TextStyle().withTextColor(0xFF53B16B).
     withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 48));
   public static ImageLayer mkScore (String descrip, String score, float screenWidth) {
-    StyledText dblock = StyledText.span(descrip, handStyle);
+    StyledText dblock = new StyledText.Block(
+      descrip, handStyle, new TextWrap(screenWidth), TextBlock.Align.CENTER);
     StyledText sblock = StyledText.span(score, pointsStyle);
     CanvasImage image = graphics().createImage(Math.max(dblock.width(), sblock.width()),
                                                dblock.height() + sblock.height());
