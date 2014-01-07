@@ -21,14 +21,20 @@ public class MainMenuScreen extends UIAnimScreen {
 
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
     root.addStyles(Style.BACKGROUND.is(Background.image(_game.media.felt).inset(10)));
-    root.add(UI.stretchShim(),
-             new Label("Pokeros").addStyles(Style.FONT.is(UI.defaultFont.derive(68f))),
+    root.add(new Label("Pokeros").addStyles(Style.FONT.is(UI.defaultFont.derive(68f))),
              UI.stretchShim(),
-             new Button("New Game").addStyles(UI.bigButtonStyles).onClick(
+             new Button("Play").addStyles(UI.bigButtonStyles).onClick(
                new UnitSlot() { public void onEmit () {
-                 _game.screens.push(new GameScreen(_game, Player.human(), Player.computer()));
+                 _game.screens.push(new GameScreen(_game));
                }}),
-             UI.stretchShim());
+             UI.stretchShim(),
+             new Group(AxisLayout.horizontal()).add(
+               new Label("Wins:"), new ValueLabel(_game.history.wins), new Shim(10, 1),
+               new Label("Losses:"), new ValueLabel(_game.history.losses), new Shim(20, 1),
+               new Button("More...").onClick(
+                 new UnitSlot() { public void onEmit () {
+                   _game.screens.push(new HistoryScreen(_game));
+                 }})));
     root.setSize(width(), height());
   }
 

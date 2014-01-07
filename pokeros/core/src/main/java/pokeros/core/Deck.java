@@ -27,6 +27,7 @@ public class Deck {
     for (Suit suit : Suit.values()) for (Rank rank : Rank.values()) deck.add(new Card(suit, rank));
     _rando.shuffle(deck);
     cards.addAll(deck);
+    // cards.addAll(deck.subList(0, 8)); // for testing
   }
 
   protected final Randoms _rando = Randoms.with(new Random());

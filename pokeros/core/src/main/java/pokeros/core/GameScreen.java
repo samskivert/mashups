@@ -36,6 +36,10 @@ public class GameScreen extends UIAnimScreen {
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
 
+  public GameScreen (Pokeros game) {
+    this(game, Player.human(), Player.computer());
+  }
+
   public GameScreen (Pokeros game, Player... players) {
     this.game = game;
     this.media = game.media;
@@ -84,7 +88,7 @@ public class GameScreen extends UIAnimScreen {
       });
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
                  new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
-                 new Label(players[ii].name(ii) + ":").addStyles(Style.HALIGN.left),
+                 new Label(Player.WHO[ii] + ":").addStyles(Style.HALIGN.left),
                  new ValueLabel(players[ii].score).setConstraint(Constraints.minSize("000"))));
     }
 
@@ -292,7 +296,6 @@ public class GameScreen extends UIAnimScreen {
     String multSuff = (mult > 1) ? (" x" + mult) : "";
     for (final Hand hand : hands) {
       if (hand.score == 0) continue;
-      // System.err.println(hand);
       int thIdx = turnHolder.get();
       final IntValue score = players[thIdx].score;
       // glow the scoring hand, and then increment the player's score
@@ -310,17 +313,17 @@ public class GameScreen extends UIAnimScreen {
         }
       }
       String scstr = hand.score + multSuff;
-      log().info(players[thIdx].name(thIdx) + ": " + hand.descrip() + " " + scstr);
+      log().info(Player.WHO[thIdx] + ": " + hand.descrip() + " " + scstr);
       ImageLayer label = UI.mkScore(hand.descrip(), scstr, width());
       anim.delay(delay).then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
-        tweenAlpha(group).to(0).in(1000).easeIn().then().
-        tweenAlpha(label).to(0).in(1000).easeIn().then().
+        tweenAlpha(group).to(0).in(750).easeIn().then().
+        tweenAlpha(label).to(0).in(750).easeIn().then().
         destroy(group).then().
         destroy(label).then().
         action(new Runnable() { public void run () { score.increment(hand.score*mult); }});
-      delay += 1250;
+      delay += 1500;
     }
   }
 
@@ -328,15 +331,26 @@ public class GameScreen extends UIAnimScreen {
     turnHolder.update(-1);
 
     int maxScore = 0, winIdx = -1;
+    int[] scores = new int[players.length];
     for (int ii = 0; ii < players.length; ii++) {
       int score = players[ii].score.get();
+      scores[ii] = score;
       if (score < maxScore) continue;
       else if (score == maxScore) winIdx = -1;
       else { maxScore = score; winIdx = ii; }
     }
 
-    ImageLayer winLayer = UI.mkMarquee(
-      (winIdx < 0) ? "Tie game!" : (players[winIdx].name(winIdx) + " wins!"));
+    // note the game for posterity
+    game.history.noteGame(winIdx, scores);
+
+    // display a celebratory (or conciliatory) message
+    String winMsg;
+    switch (winIdx) {
+    case 0: winMsg = "You win!"; break;
+    case 1: winMsg = "HAL wins!"; break;
+    default: winMsg = "Tie game!"; break;
+    }
+    ImageLayer winLayer = UI.mkMarquee(winMsg);
     layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
                 (graphics().height() - winLayer.height())/2);
 

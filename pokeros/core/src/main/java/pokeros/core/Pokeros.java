@@ -12,14 +12,17 @@ import tripleplay.game.ScreenStack;
 public class Pokeros extends Game.Default {
 
   public final Media media = new Media();
+
   public final ScreenStack screens = new ScreenStack() {
     protected Transition defaultPushTransition () {
       return slide();
     }
     protected Transition defaultPopTransition () {
-      return slide().left();
+      return slide().right();
     }
   };
+
+  public final History history = new History();
 
   public Pokeros () {
     super(33); // call update every 33ms (30 times per second)
