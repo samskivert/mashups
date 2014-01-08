@@ -32,6 +32,7 @@ public class GameScreen extends UIAnimScreen {
   // rendering
   public final Pokeros game;
   public final Media media;
+  public final GroupLayer cardsBox = graphics().createGroupLayer();
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
@@ -56,17 +57,22 @@ public class GameScreen extends UIAnimScreen {
   @Override public void wasAdded () {
     // render a solid green background
     ImageLayer bg = graphics().createImageLayer(media.felt);
-    bg.setWidth(graphics().width());
-    bg.setHeight(graphics().height());
+    bg.setWidth(width());
+    bg.setHeight(height());
     layer.add(bg);
 
-    // render our cards above the background
-    layer.add(cardsL);
-    cardsL.setScale(0.5f);
-    // put 0, 0 in the middle of the screen to start
-    cardsL.setTranslation(graphics().width()/2, graphics().height()/2);
+    // CanvasImage center = graphics().createImage(20, 20);
+    // center.canvas().setFillColor(0xFFFFCC99).fillCircle(10, 10, 10);
+    // cardsBox.add(graphics().createImageLayer(center).setOrigin(10, 10));
+
+    // create a layer to hold the cards layer which will put (0, 0) in the middle of the screen
+    cardsBox.setTranslation(width()/2, height()/2);
+    layer.add(cardsBox);
+    updateScale(0.5f);
+    cardsBox.add(cardsL);
     cardsL.add(_lastPlayed); // add our last played card indicator
     cardsL.add(movesL); // add our legal moves indicator layer
+
     // add our stash views
     for (int ii = 0; ii < sviews.length; ii++) {
       if (sviews[ii] == null) continue;
@@ -95,7 +101,7 @@ public class GameScreen extends UIAnimScreen {
     root.add(new Group(AxisLayout.horizontal().gap(3)).add(
                new Label("Cards:"), new ValueLabel(deck.cards.sizeView())));
 
-    root.packToWidth(graphics().width()-10);
+    root.packToWidth(width()-10);
     root.layer.setTranslation(5, 25);
 
     // listen for clicks and drags on the cards layer
@@ -112,7 +118,8 @@ public class GameScreen extends UIAnimScreen {
         _scrolling = false;
       }
       @Override public void onPointerDrag (Pointer.Event event) {
-        float dx = event.x() - _start.x, dy = event.y() - _start.y;
+        float scale = scale(), dx = (event.x() - _start.x) / scale,
+          dy = (event.y() - _start.y) / scale;
         if (Math.abs(dx) > SCROLL_THRESH || Math.abs(dy) > SCROLL_THRESH) _scrolling = true;
         if (_scrolling && !isScaling()) cardsL.setTranslation(_startO.x + dx, _startO.y + dy);
       }
@@ -135,7 +142,7 @@ public class GameScreen extends UIAnimScreen {
           _secondId = touch.id();
           _secondPos.set(touch.x(), touch.y());
           _baseDist = _firstPos.distance(_secondPos);
-          _baseScale = cardsL.scaleX();
+          _baseScale = scale();
           // TODO: set scale "origin" to halfway point between touch 1 and 2
         } // otherwise ignore
       }
@@ -148,7 +155,7 @@ public class GameScreen extends UIAnimScreen {
         if (isScaling()) {
           float dist = _firstPos.distance(_secondPos);
           // System.err.println("Movement " + dist + " / " + _baseDist);
-          cardsL.setScale(MathUtil.clamp(dist/_baseDist*_baseScale, 0.25f, 1f));
+          updateScale(MathUtil.clamp(dist/_baseDist*_baseScale, 0.25f, 1f));
         }
       }
       @Override public void onTouchEnd (Touch.Event touch) {
@@ -181,7 +188,7 @@ public class GameScreen extends UIAnimScreen {
 
     cardsL.addListener(new Mouse.LayerAdapter() {
       @Override public void onMouseWheelScroll (Mouse.WheelEvent event) {
-        cardsL.setScale(MathUtil.clamp(cardsL.scaleX() + event.velocity()/20, 0.25f, 1f));
+        updateScale(MathUtil.clamp(scale() + event.velocity()/20, 0.25f, 1f));
       }
     });
 
@@ -191,6 +198,7 @@ public class GameScreen extends UIAnimScreen {
         // add a new sprite to display the placed card
         CardSprite sprite = new CardSprite(media, card);
         cardsL.add(position(sprite.layer, coord));
+
         // position the last played sprite over this card
         position(_lastPlayed, coord);
         // we're notified once before the game starts, so ignore that one
@@ -305,19 +313,16 @@ public class GameScreen extends UIAnimScreen {
         Layer glow = position(graphics().createImageLayer(media.glow), cs.head);
         glow.setOrigin(media.glow.width()/2, media.glow.height()/2);
         group.add(glow);
-        if (rect == null) {
-          rect = new Rectangle(glow.tx(), glow.ty(), Media.CARD_WID, Media.CARD_HEI);
-        } else {
-          rect.add(glow.tx(), glow.ty());
-          rect.add(glow.tx() + Media.CARD_WID, glow.ty() + Media.CARD_HEI);
-        }
+        if (rect == null) rect = new Rectangle(glow.tx(), glow.ty(), 0, 0);
+        else rect.add(glow.tx(), glow.ty());
       }
       String scstr = hand.score + multSuff;
       log().info(Player.WHO[thIdx] + ": " + hand.descrip() + " " + scstr);
       ImageLayer label = UI.mkScore(hand.descrip(), scstr, width());
       anim.delay(delay).then().
+        tweenXY(cardsL).to(-rect.centerX(), -rect.centerY()).in(300).easeInOut().then().
         add(cardsL, group).then().
-        addAt(layer, label, (width()-label.width())/2, (height()-label.height())/2).then().
+        addAt(layer, label, (width()-label.width())/2, height()/3-label.height()/2).then().
         tweenAlpha(group).to(0).in(750).easeIn().then().
         tweenAlpha(label).to(0).in(750).easeIn().then().
         destroy(group).then().
@@ -325,6 +330,10 @@ public class GameScreen extends UIAnimScreen {
         action(new Runnable() { public void run () { score.increment(hand.score*mult); }});
       delay += 1500;
     }
+
+    // if we animated nothing, then still queue up a delay animation to ensure that the computer
+    // doesn't play immediately after we do
+    if (delay == 0) anim.delay(500);
   }
 
   protected void endGame () {
@@ -351,8 +360,7 @@ public class GameScreen extends UIAnimScreen {
     default: winMsg = "Tie game!"; break;
     }
     ImageLayer winLayer = UI.mkMarquee(winMsg);
-    layer.addAt(winLayer, (graphics().width() - winLayer.width())/2,
-                (graphics().height() - winLayer.height())/2);
+    layer.addAt(winLayer, (width() - winLayer.width())/2, (height() - winLayer.height())/2);
 
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
     String msg = (winIdx == 0) ? "Yay!" : "Alas";
@@ -361,6 +369,14 @@ public class GameScreen extends UIAnimScreen {
     }));
     root.pack();
     root.layer.setTranslation((width()-root.size().width())/2, height()-root.size().height()-15);
+  }
+
+  protected void updateScale (float scale) {
+    cardsBox.setScale(scale);
+  }
+
+  protected float scale () {
+    return cardsBox.scaleX();
   }
 
   protected final ImmediateLayer _lastPlayed =
