@@ -14,6 +14,7 @@ import playn.core.*;
 import static playn.core.PlayN.*;
 import playn.core.Mouse;
 
+import tripleplay.anim.AnimBuilder;
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
@@ -194,22 +195,40 @@ public class GameScreen extends UIAnimScreen {
 
     // add card sprites when cards are added to the board
     grid.cards.connect(new RMap.Listener<Coord,Card>() {
-      @Override public void onPut (Coord coord, Card card) {
+      @Override public void onPut (final Coord coord, Card card) {
+        final int thIdx = turnHolder.get();
+
+        // turn off the legal moves while we animate the play; it will be turned back on once the
+        // turn holder index advances
+        anim.tweenAlpha(movesL).to(0).in(300);
+
         // add a new sprite to display the placed card
         CardSprite sprite = new CardSprite(media, card);
-        cardsL.add(position(sprite.layer, coord));
+        // slide the card into place from its location in the stash
+        float tx = coord.x * GRID_X, ty = coord.y * GRID_Y;
+        AnimBuilder then;
+        if (thIdx == 0) {
+          Point start = Layer.Util.screenToLayer(cardsL, sviews[thIdx].lastRemoved, new Point());
+          cardsL.addAt(sprite.layer, start.x, start.y);
+          then = anim.tweenXY(sprite.layer).to(tx, ty).in(300).easeIn().then();
+        }
+        // unless it's the computer playing, in which case just jam it in
+        else then = anim.addAt(cardsL, sprite.layer, tx, ty).then();
 
         // position the last played sprite over this card
-        position(_lastPlayed, coord);
+        then.action(new Runnable() { public void run () {
+          position(_lastPlayed, coord);
+        }});
+
         // we're notified once before the game starts, so ignore that one
-        if (turnHolder.get() >= 0) {
+        if (thIdx >= 0) {
           // score any valid hands made by this card
           scorePlacement(coord);
           anim.addBarrier();
           // wait for any animations to finish, then move to the next turn or end the game
           anim.action(new Runnable() {
             public void run () {
-              int nextTH = (turnHolder.get() + 1) % players.length;
+              int nextTH = (thIdx + 1) % players.length;
               boolean outOfCards = deck.cards.isEmpty() && players[nextTH].stash.isEmpty();
               if (outOfCards || !grid.haveLegalMove()) endGame();
               else turnHolder.update(nextTH);
@@ -237,7 +256,7 @@ public class GameScreen extends UIAnimScreen {
     // add a display of legal moves
     turnHolder.connect(new Slot<Integer>() {
       public void onEmit (Integer thIdx) {
-        movesL.setVisible(thIdx >= 0);
+        anim.tweenAlpha(movesL).to(thIdx >= 0 ? 1 : 0).in(300);
         int ii = 0, ll = movesL.size();
         java.util.Set<Coord> moves = grid.legalMoves();
         for (Coord coord : moves) {

@@ -7,6 +7,9 @@ package pokeros.core;
 import react.RSet;
 import react.Value;
 
+import pythagoras.f.Points;
+import pythagoras.f.Point;
+
 import playn.core.*;
 import static playn.core.PlayN.*;
 
@@ -18,6 +21,10 @@ public class StashView {
 
   /** The currently selected card. */
   public final Value<CardSprite> selection = Value.create(null);
+
+  /** A point configured with the screen coordinates of the last removed card. This is used by
+   * GameScreen to animate a card sliding into place. */
+  public final Point lastRemoved = new Point();
 
   public StashView (final Media media, RSet<Card> stash) {
     _slots = new CardSprite[Player.STASH];
@@ -42,6 +49,7 @@ public class StashView {
         for (int ii = 0; ii < _slots.length; ii++) {
           CardSprite cs = _slots[ii];
           if (cs != null && cs.card == card) {
+            Layer.Util.layerToScreen(cs.layer, Points.ZERO, lastRemoved);
             cs.layer.destroy();
             _slots[ii] = null;
             return;
