@@ -11,6 +11,7 @@ import react.UnitSlot;
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
+import tripleplay.ui.layout.TableLayout;
 
 public class HistoryScreen extends UIAnimScreen {
 
@@ -21,9 +22,15 @@ public class HistoryScreen extends UIAnimScreen {
   @Override public void wasAdded () {
     super.wasAdded();
 
+    Group games = new Group(new TableLayout(TableLayout.COL.alignLeft(),
+                                            TableLayout.COL.alignRight(),
+                                            TableLayout.COL.alignRight()).gaps(2, 10));
+    games.add(new Label(""),
+              new Label(Player.WHO[0]).addStyles(Style.UNDERLINE.on),
+              new Label(Player.WHO[1]).addStyles(Style.UNDERLINE.on));
+
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
     root.addStyles(Style.BACKGROUND.is(Background.image(_game.media.felt).inset(10)));
-    Group games = new Group(AxisLayout.vertical().offStretch());
     root.add(new Label("Recent Games").addStyles(Style.FONT.is(UI.defaultFont.derive(36f))),
              AxisLayout.stretch(games),
              new Button("Back").onClick(new UnitSlot() { public void onEmit () {
@@ -32,7 +39,7 @@ public class HistoryScreen extends UIAnimScreen {
     // history.recents is oldest to newest, but we want to display the games newest to oldest, so
     // use recursion to reverse the list during addition
     addRecents(games, _game.history.recents.iterator());
-    if (games.childCount() == 0) games.add(new Label("No recent games."));
+    if (_game.history.recents.isEmpty()) games.add(new Label("No recent games."));
     root.setSize(width(), height());
   }
 
@@ -40,7 +47,8 @@ public class HistoryScreen extends UIAnimScreen {
     if (!iter.hasNext()) return;
     History.Game game = iter.next();
     addRecents(games, iter);
-    games.add(new Label(game.format()).addStyles(Style.HALIGN.left));
+    games.add(new Label(game.icon()).addStyles(Style.FONT.is(UI.iconFont)),
+              new Label(""+game.scores[0]), new Label(""+game.scores[1]));
   }
 
   protected final Pokeros _game;

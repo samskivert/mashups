@@ -29,11 +29,14 @@ public class History {
       this.scores = scores;
     }
 
+    public String icon () {
+      if (scores[0] > scores[1]) return "\u263A";
+      else if (scores[1] > scores[0]) return "\u2639";
+      else return " ";
+    }
+
     public String format () {
-      StringBuilder buf = new StringBuilder();
-      if (scores[0] > scores[1]) buf.append("\u263A");
-      else if (scores[1] > scores[0]) buf.append("\u2639");
-      else buf.append("\u22C8");
+      StringBuilder buf = new StringBuilder(icon());
       for (int ii = 0; ii < scores.length; ii++) {
         buf.append("  ").append(Player.WHO[ii]).append(": ").append(scores[ii]);
       }
