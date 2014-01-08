@@ -88,13 +88,8 @@
     <Compile Include="src\Main.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Content Include="assets\images\clubs%402x.png" />
-    <Content Include="assets\images\diamonds%402x.png" />
-    <Content Include="assets\images\hearts%402x.png" />
-    <Content Include="assets\images\spades%402x.png" />
-    <Content Include="assets\images\redback%402x.png" />
-    <Content Include="assets\images\felt%402x.jpg" />
+  <ItemGroup Label="assets">
+    <Content Include="assets\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
