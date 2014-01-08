@@ -6,6 +6,7 @@ package pokeros.core;
 
 import java.util.TreeSet;
 
+import playn.core.Image;
 import static playn.core.PlayN.log;
 import static playn.core.PlayN.storage;
 
@@ -29,18 +30,10 @@ public class History {
       this.scores = scores;
     }
 
-    public String icon () {
-      if (scores[0] > scores[1]) return "\u263A";
-      else if (scores[1] > scores[0]) return "\u2639";
-      else return " ";
-    }
-
-    public String format () {
-      StringBuilder buf = new StringBuilder(icon());
-      for (int ii = 0; ii < scores.length; ii++) {
-        buf.append("  ").append(Player.WHO[ii]).append(": ").append(scores[ii]);
-      }
-      return buf.toString();
+    public Image icon (Media media) {
+      if (scores[0] > scores[1]) return media.smile;
+      else if (scores[1] > scores[0]) return media.frown;
+      else return null;
     }
 
     @Override public int compareTo (Game other) {

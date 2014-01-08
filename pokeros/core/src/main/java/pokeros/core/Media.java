@@ -22,6 +22,9 @@ public class Media {
   public final Image cardBack = assets().getImage("images/redback.png");
   public final Image felt = assets().getImage("images/felt.jpg");
 
+  public final Image smile = assets().getImage("images/smile.png");
+  public final Image frown = assets().getImage("images/frown.png");
+
   public final CanvasImage glow = graphics().createImage(CARD_WID, CARD_HEI);
   public final CanvasImage shadow = graphics().createImage(CARD_WID, CARD_HEI);
   public final Image move = createMoveIndicator();

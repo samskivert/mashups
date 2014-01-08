@@ -18,7 +18,6 @@ public class UI {
   public static final int GREEN = 0xFF53B16B;
   public static final String textFont = "Copperplate";
   public static final Font defaultFont = graphics().createFont(textFont, Font.Style.PLAIN, 18);
-  public static final Font iconFont = graphics().createFont("Helvetica", Font.Style.PLAIN, 16);
 
   public static final Styles bigButtonStyles = Styles.
     make(Style.FONT.is(UI.defaultFont.derive(48f)),

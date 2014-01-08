@@ -8,6 +8,8 @@ import java.util.Iterator;
 
 import react.UnitSlot;
 
+import playn.core.Image;
+
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
@@ -22,10 +24,7 @@ public class HistoryScreen extends UIAnimScreen {
   @Override public void wasAdded () {
     super.wasAdded();
 
-    Group games = new Group(new TableLayout(TableLayout.COL.alignLeft(),
-                                            TableLayout.COL.alignRight(),
-                                            TableLayout.COL.alignRight()).gaps(2, 10));
-
+    Group games = new Group(new TableLayout(TableLayout.COL.alignRight().copy(3)).gaps(0, 10));
     if (_game.history.recents.isEmpty()) games.add(new Label("No recent games."));
     else games.add(new Label(""),
                    new Label(Player.WHO[0]).addStyles(Style.UNDERLINE.on),
@@ -49,8 +48,10 @@ public class HistoryScreen extends UIAnimScreen {
     if (!iter.hasNext()) return;
     History.Game game = iter.next();
     addRecents(games, iter);
-    games.add(new Label(game.icon()).addStyles(Style.FONT.is(UI.iconFont)),
-              new Label(""+game.scores[0]), new Label(""+game.scores[1]));
+    Image icon = game.icon(_game.media);
+    games.add((icon == null) ? new Label() : new Label(Icons.image(icon)),
+              new Label(String.valueOf(game.scores[0])),
+              new Label(String.valueOf(game.scores[1])));
   }
 
   protected final Pokeros _game;
