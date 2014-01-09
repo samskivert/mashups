@@ -11,10 +11,13 @@ import pythagoras.f.Rectangle;
 import react.*;
 
 import playn.core.*;
-import static playn.core.PlayN.*;
 import playn.core.Mouse;
+import playn.core.util.Clock;
+import static playn.core.PlayN.*;
 
 import tripleplay.anim.AnimBuilder;
+import tripleplay.anim.Animation;
+import tripleplay.anim.Flicker;
 import tripleplay.game.UIAnimScreen;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
@@ -37,6 +40,23 @@ public class GameScreen extends UIAnimScreen {
   public final GroupLayer cardsL = graphics().createGroupLayer();
   public final GroupLayer movesL = graphics().createGroupLayer();
   public final StashView[] sviews;
+
+  // scrolling
+  public final Rectangle cardBounds = new Rectangle();
+  public final Flicker flickX = new Flicker(0, 0, 1) {
+    protected float getPosition (Pointer.Event event) { return event.x()/scale(); }
+  };
+  public final Flicker flickY = new Flicker(0, 0, 1) {
+    protected float getPosition (Pointer.Event event) { return event.y()/scale(); }
+  };
+  public final Animation.XYValue flickPos = new Animation.XYValue() {
+    public float initialX () { return flickX.position; }
+    public float initialY () { return flickY.position; }
+    public void set (float x, float y) {
+      flickX.position = x;
+      flickY.position = y;
+    }
+  };
 
   public GameScreen (Pokeros game) {
     this(game, Player.human(), Player.computer());
@@ -115,20 +135,29 @@ public class GameScreen extends UIAnimScreen {
     class ScrollScaler implements Pointer.Listener, Touch.LayerListener {
       @Override public void onPointerStart (Pointer.Event event) {
         _start.set(event.x(), event.y());
-        _startO.set(cardsL.tx(), cardsL.ty());
         _scrolling = false;
+        // delegate to our flickers
+        flickX.onPointerStart(event);
+        flickY.onPointerStart(event);
       }
       @Override public void onPointerDrag (Pointer.Event event) {
         float scale = scale(), dx = (event.x() - _start.x) / scale,
           dy = (event.y() - _start.y) / scale;
         if (Math.abs(dx) > SCROLL_THRESH || Math.abs(dy) > SCROLL_THRESH) _scrolling = true;
-        if (_scrolling && !isScaling()) cardsL.setTranslation(_startO.x + dx, _startO.y + dy);
+        if (_scrolling && !isScaling()) {
+          // delegate to our flickers
+          flickX.onPointerDrag(event);
+          flickY.onPointerDrag(event);
+        }
       }
       @Override public void onPointerEnd (Pointer.Event event) {
         if (!_scrolling) {
           int cx = Math.round(event.localX() / GRID_X);
           int cy = Math.round(event.localY() / GRID_Y);
           click.emit(Coord.get(cx, cy));
+        } else if (!isScaling()) {
+          flickX.onPointerEnd(event);
+          flickY.onPointerEnd(event);
         }
       }
       @Override public void onPointerCancel (Pointer.Event event) {
@@ -174,7 +203,7 @@ public class GameScreen extends UIAnimScreen {
       }
 
       // scrolling bits
-      protected Point _startO = new Point(), _start = new Point();
+      protected Point _start = new Point();
       protected boolean _scrolling;
       protected static final float SCROLL_THRESH = 5;
 
@@ -215,6 +244,10 @@ public class GameScreen extends UIAnimScreen {
         // unless it's the computer playing, in which case just jam it in
         else then = anim.addAt(cardsL, sprite.layer, tx, ty).then();
 
+        // include this card in our scroll bounds, then update our flick bounds
+        cardBounds.add(tx, ty);
+        updateFlickBounds();
+
         // position the last played sprite over this card
         then.action(new Runnable() { public void run () {
           position(_lastPlayed, coord);
@@ -236,6 +269,7 @@ public class GameScreen extends UIAnimScreen {
           });
         }
       }
+
       // TODO: track sprites by Coord, and remove in onRemove?
     });
 
@@ -312,6 +346,13 @@ public class GameScreen extends UIAnimScreen {
     }
   }
 
+  @Override public void paint (Clock clock) {
+    super.paint(clock);
+    flickX.paint(clock);
+    flickY.paint(clock);
+    cardsL.setTranslation(flickX.position, flickY.position);
+  }
+
   protected Layer position (Layer layer, Coord coord) {
     return layer.setTranslation(coord.x * GRID_X, coord.y * GRID_Y);
   }
@@ -338,8 +379,11 @@ public class GameScreen extends UIAnimScreen {
       String scstr = hand.score + multSuff;
       log().info(Player.WHO[thIdx] + ": " + hand.descrip() + " " + scstr);
       ImageLayer label = UI.mkScore(hand.descrip(), scstr, width());
+      // bound our scroll target into our flick bounds
+      float tx = MathUtil.clamp(-rect.centerX(), flickX.min, flickX.max);
+      float ty = MathUtil.clamp(-rect.centerY(), flickY.min, flickY.max);
       anim.delay(delay).then().
-        tweenXY(cardsL).to(-rect.centerX(), -rect.centerY()).in(300).easeInOut().then().
+        tween(flickPos).to(tx, ty).in(300).easeInOut().then().
         add(cardsL, group).then().
         addAt(layer, label, (width()-label.width())/2, height()/3-label.height()/2).then().
         tweenAlpha(group).to(0).in(750).easeIn().then().
@@ -392,10 +436,24 @@ public class GameScreen extends UIAnimScreen {
 
   protected void updateScale (float scale) {
     cardsBox.setScale(scale);
+    // updating the scale changes the size of the viewport and thus our flick bounds
+    updateFlickBounds();
   }
 
   protected float scale () {
     return cardsBox.scaleX();
+  }
+
+  protected void updateFlickBounds () {
+    float swidth = width()/scale(), sheight = height()/scale();
+    float leftAtLeft = -swidth/2 - (cardBounds.x - GRID_X*1.5f);
+    float rightAtRight = swidth/2 - (cardBounds.x + cardBounds.width + GRID_X*1.5f);
+    flickX.min = Math.min(leftAtLeft, rightAtRight);
+    flickX.max = Math.max(leftAtLeft, rightAtRight);
+    float topAtTop = -sheight/2 - (cardBounds.y - GRID_Y*1.5f);
+    float botAtBot = sheight/2 - (cardBounds.y + cardBounds.height + GRID_Y*2.5f);
+    flickY.min = Math.min(topAtTop, botAtBot);
+    flickY.max = Math.max(topAtTop, botAtBot);
   }
 
   protected final ImmediateLayer _lastPlayed =
