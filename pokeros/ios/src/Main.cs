@@ -11,9 +11,8 @@ namespace pokeros
   [Register ("AppDelegate")]
   public partial class AppDelegate : IOSApplicationDelegate {
     public override bool FinishedLaunching (UIApplication app, NSDictionary options) {
-      app.SetStatusBarHidden(true, true);
       var pconfig = new IOSPlatform.Config();
-      // use pconfig to customize iOS platform, if needed
+      pconfig.iPadLikePhone = true;
       IOSPlatform.register(app, pconfig);
       PlayN.run(new Pokeros());
       return true;
