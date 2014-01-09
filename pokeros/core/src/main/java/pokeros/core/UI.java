@@ -52,8 +52,8 @@ public class UI {
 
   public static final TextStyle handStyle = new TextStyle().withTextColor(GREEN).
     withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 32));
-  public static final TextStyle pointsStyle = new TextStyle().withTextColor(GREEN).
-    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 48));
+  public static final TextStyle pointsStyle = new TextStyle().withTextColor(0xFFFFFFFF).
+    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 64));
   public static ImageLayer mkScore (String descrip, String score, float screenWidth) {
     StyledText dblock = new StyledText.Block(
       descrip, handStyle, new TextWrap(screenWidth), TextBlock.Align.CENTER);
