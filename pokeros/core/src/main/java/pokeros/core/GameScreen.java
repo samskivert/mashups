@@ -75,12 +75,6 @@ public class GameScreen extends UIAnimScreen {
   }
 
   @Override public void wasAdded () {
-    // render a solid green background
-    ImageLayer bg = graphics().createImageLayer(media.felt);
-    bg.setWidth(width());
-    bg.setHeight(height());
-    layer.add(bg);
-
     // CanvasImage center = graphics().createImage(20, 20);
     // center.canvas().setFillColor(0xFFFFCC99).fillCircle(10, 10, 10);
     // cardsBox.add(graphics().createImageLayer(center).setOrigin(10, 10));
@@ -92,6 +86,22 @@ public class GameScreen extends UIAnimScreen {
     cardsBox.add(cardsL);
     cardsL.add(_lastPlayed); // add our last played card indicator
     cardsL.add(movesL); // add our legal moves indicator layer
+
+    // render the felt background such that it scrolls with the cards
+    cardsL.add(graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
+      public void render (Surface surf) {
+        int fwid = (int)media.feltTile.width(), fhei = (int)media.feltTile.height();
+        float vwid = width()/scale(), vhei = height()/scale();
+        float ctx = -cardsL.tx(), cty = -cardsL.ty();
+        float left = ctx - vwid/2, top = cty - vhei/2, right = ctx + vwid/2, bot = cty + vhei/2;
+        int qx = MathUtil.ifloor(left / fwid), qy = MathUtil.ifloor(top / fhei);
+        for (float y = qy*fhei; y < bot; y += fhei) {
+          for (float x = qx*fwid; x < right; x += fwid) {
+            surf.drawImage(media.feltTile, x, y);
+          }
+        }
+      }
+    }).setDepth(-1));
 
     // add our stash views
     for (int ii = 0; ii < sviews.length; ii++) {

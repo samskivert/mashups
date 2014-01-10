@@ -19,7 +19,7 @@ public abstract class UIScreen extends tripleplay.game.UIScreen {
     super.wasAdded();
 
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
-    root.addStyles(Style.BACKGROUND.is(Background.image(_game.media.felt).inset(10)));
+    root.addStyles(Style.BACKGROUND.is(Background.tiledImage(_game.media.feltTile).inset(10)));
     root.add(new Shim(1, 5),
              new Label(title()).addStyles(
                Style.FONT.is(UI.defaultFont.derive(64)), Style.AUTO_SHRINK.on));

@@ -15,7 +15,7 @@ import tripleplay.util.TextStyle;
 
 public class UI {
 
-  public static final int GREEN = 0xFF53B16B;
+  public static final int GREEN = 0xFF008A44;
   public static final Font defaultFont = graphics().createFont("Copperplate", Font.Style.PLAIN, 18);
 
   public static final Styles bigButtonStyles = Styles.

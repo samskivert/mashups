@@ -20,7 +20,7 @@ public class Media {
     assets().getImage("images/diamonds.png")
   };
   public final Image cardBack = assets().getImage("images/redback.png");
-  public final Image felt = assets().getImage("images/felt.jpg");
+  public final Image feltTile = assets().getImage("images/felttile.jpg");
 
   public final Image smile = assets().getImage("images/smile.png");
   public final Image frown = assets().getImage("images/frown.png");
