@@ -120,16 +120,20 @@ public class GameScreen extends UIAnimScreen {
     root.layer.setTranslation(5, 25);
 
     Root scoring = iface.createRoot(AxisLayout.vertical(), sheet, layer);
-    scoring.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() { public void onEmit () {
-      game.screens.push(new ScoreScreen(game), game.screens.flip().duration(500).easeInOut());
-    }}));
+    scoring.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
+      public void onEmit () {
+        game.screens.push(new ScoreScreen(game), game.screens.flip().duration(500).easeInOut());
+      }
+    }));
     scoring.pack();
     scoring.layer.setTranslation(15, height()-5-scoring.size().height());
 
     Root quit = iface.createRoot(AxisLayout.vertical(), sheet, layer);
-    quit.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() { public void onEmit () {
-      game.screens.remove(GameScreen.this); // TODO: confirm dialog
-    }}));
+    quit.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
+      public void onEmit () {
+        game.screens.remove(GameScreen.this); // TODO: confirm dialog
+      }
+    }));
     quit.pack();
     quit.layer.setTranslation(width()-quit.size().width()-15, height()-5-quit.size().height());
 

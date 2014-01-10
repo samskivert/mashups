@@ -32,7 +32,7 @@ public class AboutScreen extends UIScreen {
                        "here:").addStyles(UI.textStyles),
              new Button("github.com/samskivert/mashups").onClick(
                new UnitSlot() { public void onEmit () {
-                 openURL("https://github.com/samskivert/mashups/tree/master/pokeros/");
+                 openURL("https://github.com/samskivert/mashups/blob/master/pokeros/README.md");
                }}),
              UI.stretchShim(),
              new Button("Back").onClick(popSlot()));
