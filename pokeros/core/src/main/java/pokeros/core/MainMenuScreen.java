@@ -28,6 +28,14 @@ public class MainMenuScreen extends UIAnimScreen {
                new UnitSlot() { public void onEmit () {
                  _game.screens.push(new GameScreen(_game));
                }}),
+             new Button("About").addStyles(UI.medButtonStyles).onClick(
+               new UnitSlot() { public void onEmit () {
+                 _game.screens.push(new AboutScreen(_game));
+               }}),
+             new Button("Rules").addStyles(UI.medButtonStyles).onClick(
+               new UnitSlot() { public void onEmit () {
+                 _game.screens.push(new RulesScreen(_game));
+               }}),
              UI.stretchShim(),
              new Group(AxisLayout.horizontal()).add(
                new Label("Wins:"), new ValueLabel(_game.history.wins), new Shim(10, 1),

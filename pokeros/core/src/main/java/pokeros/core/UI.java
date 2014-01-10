@@ -16,14 +16,20 @@ import tripleplay.util.TextStyle;
 public class UI {
 
   public static final int GREEN = 0xFF53B16B;
-  public static final String textFont = "Copperplate";
-  public static final Font defaultFont = graphics().createFont(textFont, Font.Style.PLAIN, 18);
+  public static final Font defaultFont = graphics().createFont("Copperplate", Font.Style.PLAIN, 18);
 
   public static final Styles bigButtonStyles = Styles.
     make(Style.FONT.is(UI.defaultFont.derive(48f)),
          Style.BACKGROUND.is(Background.blank().inset(0, 2, 2, 0)),
          Style.SHADOW_X.is(2f), Style.SHADOW_Y.is(2f)).
     addSelected(Style.BACKGROUND.is(Background.blank().inset(2, 0, 0, 2)));
+
+  public static final Styles medButtonStyles = bigButtonStyles.add(
+    Style.FONT.is(UI.defaultFont.derive(32f)));
+
+  public static final Font textFont = graphics().createFont("Times New Roman", Font.Style.PLAIN, 18);
+  public static final Styles textStyles = Styles.make(
+    Style.TEXT_WRAP.on, Style.HALIGN.left, Style.FONT.is(textFont));
 
   public static Stylesheet.Builder newBuilder () {
     return SimpleStyles.newSheetBuilder().
@@ -45,15 +51,18 @@ public class UI {
   }
 
   public static final TextStyle marqueeStyle = new TextStyle().withTextColor(GREEN).
-    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 48));
+    withOutline(0xFF000000, 1.5f).
+    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 48));
   public static ImageLayer mkMarquee (String text) {
     return StyledText.span(text, marqueeStyle).toLayer();
   }
 
   public static final TextStyle handStyle = new TextStyle().withTextColor(GREEN).
-    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 32));
+    withOutline(0xFF000000, 1.5f).
+    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 32));
   public static final TextStyle pointsStyle = new TextStyle().withTextColor(0xFFFFFFFF).
-    withOutline(0xFF000000, 1.5f).withFont(graphics().createFont(textFont, Font.Style.BOLD, 64));
+    withOutline(0xFF000000, 1.5f).
+    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 64));
   public static ImageLayer mkScore (String descrip, String score, float screenWidth) {
     StyledText dblock = new StyledText.Block(
       descrip, handStyle, new TextWrap(screenWidth), TextBlock.Align.CENTER);
@@ -66,7 +75,8 @@ public class UI {
   }
 
   public static final TextStyle tipStyle = new TextStyle().withTextColor(0xFFFFFFFF).
-    withShadow(0xFF000000, 1f, 1f).withFont(graphics().createFont(textFont, Font.Style.PLAIN, 14));
+    withShadow(0xFF000000, 1f, 1f).
+    withFont(graphics().createFont(defaultFont.name(), Font.Style.PLAIN, 14));
   public static ImageLayer mkTip (String text) {
     return StyledText.block(text, tipStyle, 130).toLayer();
   }

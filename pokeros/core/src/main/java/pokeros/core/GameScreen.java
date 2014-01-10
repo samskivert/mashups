@@ -65,7 +65,6 @@ public class GameScreen extends UIAnimScreen {
   public GameScreen (Pokeros game, Player... players) {
     this.game = game;
     this.media = game.media;
-    // this.media = new Media(); // temp for testing
     this.players = players;
     this.sviews = new StashView[players.length];
     for (int ii = 0; ii < sviews.length; ii++) {
@@ -102,19 +101,14 @@ public class GameScreen extends UIAnimScreen {
     }
 
     // display the scores across the top
-    Stylesheet sheet = SimpleStyles.newSheetBuilder().
+    Stylesheet sheet = UI.newBuilder().
       add(Element.class, Style.FONT.is(UI.defaultFont)).
       add(Label.class, Style.TEXT_EFFECT.shadow, Style.COLOR.is(0xFFFFFFFF),
           Style.SHADOW.is(0x99000000), Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
       create();
     Root root = iface.createRoot(AxisLayout.horizontal().stretchByDefault(), sheet, layer);
     for (int ii = 0; ii < players.length; ii++) {
-      final int idx = ii;
-      ValueView<String> turnInd = turnHolder.map(new Function<Integer,String>() {
-        public String apply (Integer turnIdx) { return (idx == turnIdx) ? "★" : ""; }
-      });
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
-                 new ValueLabel(turnInd).setConstraint(Constraints.minSize("★")),
                  new Label(Player.WHO[ii] + ":").addStyles(Style.HALIGN.left),
                  new ValueLabel(players[ii].score).setConstraint(Constraints.minSize("000"))));
     }
@@ -124,6 +118,20 @@ public class GameScreen extends UIAnimScreen {
 
     root.packToWidth(width()-10);
     root.layer.setTranslation(5, 25);
+
+    Root scoring = iface.createRoot(AxisLayout.vertical(), sheet, layer);
+    scoring.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() { public void onEmit () {
+      game.screens.push(new ScoreScreen(game), game.screens.flip().duration(500).easeInOut());
+    }}));
+    scoring.pack();
+    scoring.layer.setTranslation(15, height()-5-scoring.size().height());
+
+    Root quit = iface.createRoot(AxisLayout.vertical(), sheet, layer);
+    quit.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() { public void onEmit () {
+      game.screens.remove(GameScreen.this); // TODO: confirm dialog
+    }}));
+    quit.pack();
+    quit.layer.setTranslation(width()-quit.size().width()-15, height()-5-quit.size().height());
 
     // listen for clicks and drags on the cards layer
     cardsL.setHitTester(new Layer.HitTester() {
