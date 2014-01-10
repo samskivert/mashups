@@ -63,7 +63,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: Michael Bayne (836NRBP3RV)</CodesignKey>
     <MtouchLink>Full</MtouchLink>
     <MtouchI18n>
     </MtouchI18n>
@@ -71,6 +71,7 @@
     <BuildIpa>True</BuildIpa>
     <IpaPackageName>
     </IpaPackageName>
+    <CodesignProvision>72D19A05-A05F-488F-B6C2-2A4FC8C4DDCF</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
