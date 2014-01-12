@@ -171,8 +171,7 @@ public class GameScreen extends UIAnimScreen {
         flickY.onPointerStart(event);
       }
       @Override public void onPointerDrag (Pointer.Event event) {
-        float scale = scale(), dx = (event.x() - _start.x) / scale,
-          dy = (event.y() - _start.y) / scale;
+        float dx = (event.x() - _start.x), dy = (event.y() - _start.y);
         if (Math.abs(dx) > SCROLL_THRESH || Math.abs(dy) > SCROLL_THRESH) _scrolling = true;
         if (_scrolling && !isScaling()) {
           // delegate to our flickers
@@ -235,7 +234,7 @@ public class GameScreen extends UIAnimScreen {
       // scrolling bits
       protected Point _start = new Point();
       protected boolean _scrolling;
-      protected static final float SCROLL_THRESH = 5;
+      protected static final float SCROLL_THRESH = 10;
 
       // scaling bits
       protected int _firstId, _secondId;
