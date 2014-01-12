@@ -20,8 +20,7 @@ public class UI {
 
   public static final Styles bigButtonStyles = Styles.
     make(Style.FONT.is(UI.defaultFont.derive(48f)),
-         Style.BACKGROUND.is(Background.blank().inset(0, 2, 2, 0)),
-         Style.SHADOW_X.is(2f), Style.SHADOW_Y.is(2f)).
+         Style.BACKGROUND.is(Background.blank().inset(0, 2, 2, 0))).
     addSelected(Style.BACKGROUND.is(Background.blank().inset(2, 0, 0, 2)));
 
   public static final Styles medButtonStyles = bigButtonStyles.add(
@@ -31,12 +30,15 @@ public class UI {
   public static final Styles textStyles = Styles.make(
     Style.TEXT_WRAP.on, Style.HALIGN.left, Style.FONT.is(textFont));
 
+  public static final Styles titleStyles = Styles.make(
+    Style.TEXT_EFFECT.vectorOutline, Style.COLOR.is(0xFFFFFFFF), Style.HIGHLIGHT.is(0xCC000000));
+
   public static Stylesheet.Builder newBuilder () {
     return SimpleStyles.newSheetBuilder().
-      add(Element.class, Style.FONT.is(defaultFont)).
+      add(Element.class, Style.COLOR.is(0xFFFFFFFF), Style.FONT.is(defaultFont)).
       add(Button.class, Style.BACKGROUND.is(Background.blank().inset(0, 1, 1, 0)),
           Style.TEXT_EFFECT.shadow, Style.SHADOW.is(0x55000000),
-          Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
+          Style.SHADOW_X.is(2f), Style.SHADOW_Y.is(2f)).
       add(Button.class, Style.Mode.SELECTED, Style.SHADOW.is(0x00000000),
           Style.BACKGROUND.is(Background.blank().inset(1, 0, 0, 1))).
       add(Button.class, Style.Mode.DISABLED, Style.TEXT_EFFECT.none);

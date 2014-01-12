@@ -22,7 +22,8 @@ public class MainMenuScreen extends UIAnimScreen {
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
     root.addStyles(Style.BACKGROUND.is(Background.tiledImage(_game.media.feltTile).inset(10)));
     root.add(new Shim(1, 10),
-             new Label("Pokeros").addStyles(Style.FONT.is(UI.defaultFont.derive(68f))),
+             new Label("Pokeros").addStyles(
+               UI.titleStyles.add(Style.FONT.is(UI.defaultFont.derive(68f)))),
              UI.stretchShim(),
              new Button("Play").addStyles(UI.bigButtonStyles).onClick(
                new UnitSlot() { public void onEmit () {

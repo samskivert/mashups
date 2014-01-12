@@ -22,7 +22,7 @@ public abstract class UIScreen extends tripleplay.game.UIScreen {
     root.addStyles(Style.BACKGROUND.is(Background.tiledImage(_game.media.feltTile).inset(10)));
     root.add(new Shim(1, 5),
              new Label(title()).addStyles(
-               Style.FONT.is(UI.defaultFont.derive(64)), Style.AUTO_SHRINK.on));
+               UI.titleStyles.add(Style.FONT.is(UI.defaultFont.derive(64)), Style.AUTO_SHRINK.on)));
     createUI(root);
     root.setSize(width(), height());
   }

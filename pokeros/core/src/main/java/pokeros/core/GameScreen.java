@@ -111,11 +111,7 @@ public class GameScreen extends UIAnimScreen {
     }
 
     // display the scores across the top
-    Stylesheet sheet = UI.newBuilder().
-      add(Element.class, Style.FONT.is(UI.defaultFont)).
-      add(Label.class, Style.TEXT_EFFECT.shadow, Style.COLOR.is(0xFFFFFFFF),
-          Style.SHADOW.is(0x99000000), Style.SHADOW_X.is(1f), Style.SHADOW_Y.is(1f)).
-      create();
+    Stylesheet sheet = UI.newBuilder().add(Label.class, UI.titleStyles).create();
     Root root = iface.createRoot(AxisLayout.horizontal().stretchByDefault(), sheet, layer);
     for (int ii = 0; ii < players.length; ii++) {
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
