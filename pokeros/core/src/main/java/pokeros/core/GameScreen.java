@@ -137,7 +137,19 @@ public class GameScreen extends UIAnimScreen {
     Root quit = iface.createRoot(AxisLayout.vertical(), sheet, layer);
     quit.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
       public void onEmit () {
-        game.screens.remove(GameScreen.this); // TODO: confirm dialog
+        final Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
+        root.addStyles(Style.BACKGROUND.is(Background.solid(0xAA000000)));
+        root.add(
+          new Label("Really Quit?").addStyles(UI.titleStyles).addStyles(UI.bigButtonStyles),
+          new Shim(20, 20),
+          new Button("Yes, Quit").addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
+            public void onEmit () { game.screens.remove(GameScreen.this); }
+          }),
+          new Shim(20, 20),
+          new Button("No, Resume").addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
+            public void onEmit () { iface.destroyRoot(root); }
+          }));
+        root.setSize(width(), height());
       }
     }));
     quit.pack();
