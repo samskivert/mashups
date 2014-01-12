@@ -58,6 +58,11 @@ public class GameScreen extends UIAnimScreen {
     }
   };
 
+  // random UI
+  public final Stylesheet sheet = UI.newBuilder().add(Label.class, UI.titleStyles).create();
+  public final Root scoringRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
+  public final Root quitRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
+
   public GameScreen (Pokeros game) {
     this(game, Player.human(), Player.computer());
   }
@@ -111,7 +116,6 @@ public class GameScreen extends UIAnimScreen {
     }
 
     // display the scores across the top
-    Stylesheet sheet = UI.newBuilder().add(Label.class, UI.titleStyles).create();
     Root root = iface.createRoot(AxisLayout.horizontal().stretchByDefault(), sheet, layer);
     for (int ii = 0; ii < players.length; ii++) {
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
@@ -125,17 +129,15 @@ public class GameScreen extends UIAnimScreen {
     root.packToWidth(width()-10);
     root.layer.setTranslation(5, 25);
 
-    Root scoring = iface.createRoot(AxisLayout.vertical(), sheet, layer);
-    scoring.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
+    scoringRoot.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
       public void onEmit () {
         game.screens.push(new ScoreScreen(game), game.screens.flip().duration(500).easeInOut());
       }
     }));
-    scoring.pack();
-    scoring.layer.setTranslation(15, height()-5-scoring.size().height());
+    scoringRoot.pack();
+    scoringRoot.layer.setTranslation(15, height()-5-scoringRoot.size().height());
 
-    Root quit = iface.createRoot(AxisLayout.vertical(), sheet, layer);
-    quit.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
+    quitRoot.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
       public void onEmit () {
         final Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
         root.addStyles(Style.BACKGROUND.is(Background.solid(0xAA000000)));
@@ -152,8 +154,9 @@ public class GameScreen extends UIAnimScreen {
         root.setSize(width(), height());
       }
     }));
-    quit.pack();
-    quit.layer.setTranslation(width()-quit.size().width()-15, height()-5-quit.size().height());
+    quitRoot.pack();
+    quitRoot.layer.setTranslation(width()-quitRoot.size().width()-15,
+                                  height()-quitRoot.size().height()-5);
 
     // listen for clicks and drags on the cards layer
     cardsL.setHitTester(new Layer.HitTester() {
@@ -441,8 +444,19 @@ public class GameScreen extends UIAnimScreen {
       else { maxScore = score; winIdx = ii; }
     }
 
+    // remove the scoring and quit buttons
+    iface.destroyRoot(scoringRoot);
+    iface.destroyRoot(quitRoot);
+
     // note the game for posterity
     game.history.noteGame(winIdx, scores);
+
+    // fade the rest of the screen out
+    layer.add(graphics().createImmediateLayer(new ImmediateLayer.Renderer() {
+      public void render (Surface surf) {
+        surf.setFillColor(0xAA000000).fillRect(0, 0, width(), height());
+      }
+    }));
 
     // display a celebratory (or conciliatory) message
     String winMsg;
@@ -456,9 +470,10 @@ public class GameScreen extends UIAnimScreen {
 
     Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
     String msg = (winIdx == 0) ? "Yay!" : "Alas";
-    root.add(new Button(msg).addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
-      public void onEmit () { game.screens.remove(GameScreen.this); }
-    }));
+    root.add(new Button(msg).addStyles(UI.bigButtonStyles).addStyles(Style.SHADOW.is(0xFF000000)).
+             onClick(new UnitSlot() {
+               public void onEmit () { game.screens.remove(GameScreen.this); }
+             }));
     root.pack();
     root.layer.setTranslation((width()-root.size().width())/2, height()-root.size().height()-15);
   }
