@@ -30,9 +30,12 @@ public class History {
       this.scores = scores;
     }
 
+    public boolean win () { return scores[0] > scores[1]; }
+    public boolean loss () { return scores[1] > scores[0]; }
+
     public Image icon (Media media) {
-      if (scores[0] > scores[1]) return media.smile;
-      else if (scores[1] > scores[0]) return media.frown;
+      if (win()) return media.smile;
+      else if (loss()) return media.frown;
       else return null;
     }
 

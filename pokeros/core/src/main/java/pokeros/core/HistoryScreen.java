@@ -42,8 +42,9 @@ public class HistoryScreen extends UIScreen {
     History.Game game = iter.next();
     addRecents(games, iter);
     Image icon = game.icon(_game.media);
+    Styles color = game.loss() ? Styles.make(Style.COLOR.is(0xFF000000)) : Styles.none();
     games.add((icon == null) ? new Label() : new Label(Icons.image(icon)),
-              new Label(String.valueOf(game.scores[0])),
-              new Label(String.valueOf(game.scores[1])));
+              new Label(String.valueOf(game.scores[0])).addStyles(color),
+              new Label(String.valueOf(game.scores[1])).addStyles(color));
   }
 }
