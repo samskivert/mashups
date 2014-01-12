@@ -22,10 +22,12 @@ public class Pokeros extends Game.Default {
     }
   };
 
+  public final float cardScale;
   public final History history = new History();
 
-  public Pokeros () {
+  public Pokeros (float cardScale) {
     super(33); // call update every 33ms (30 times per second)
+    this.cardScale = cardScale;
   }
 
   @Override

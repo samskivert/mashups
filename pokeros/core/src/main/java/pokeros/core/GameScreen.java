@@ -59,9 +59,7 @@ public class GameScreen extends UIAnimScreen {
   };
 
   // random UI
-  public final Stylesheet sheet = UI.newBuilder().add(Label.class, UI.titleStyles).create();
-  public final Root scoringRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
-  public final Root quitRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
+  public Root scoringRoot, quitRoot;
 
   public GameScreen (Pokeros game) {
     this(game, Player.human(), Player.computer());
@@ -87,7 +85,7 @@ public class GameScreen extends UIAnimScreen {
     // create a layer to hold the cards layer which will put (0, 0) in the middle of the screen
     cardsBox.setTranslation(width()/2, height()/2);
     layer.add(cardsBox);
-    updateScale(0.5f);
+    updateScale(game.cardScale);
     cardsBox.add(cardsL);
     cardsL.add(_lastPlayed); // add our last played card indicator
     cardsL.add(movesL); // add our legal moves indicator layer
@@ -116,6 +114,7 @@ public class GameScreen extends UIAnimScreen {
     }
 
     // display the scores across the top
+    Stylesheet sheet = UI.newBuilder().add(Label.class, UI.titleStyles).create();
     Root root = iface.createRoot(AxisLayout.horizontal().stretchByDefault(), sheet, layer);
     for (int ii = 0; ii < players.length; ii++) {
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
@@ -129,6 +128,7 @@ public class GameScreen extends UIAnimScreen {
     root.packToWidth(width()-10);
     root.layer.setTranslation(5, 25);
 
+    scoringRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
     scoringRoot.add(new Button("S").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
       public void onEmit () {
         game.screens.push(new ScoreScreen(game), game.screens.flip().duration(500).easeInOut());
@@ -137,6 +137,7 @@ public class GameScreen extends UIAnimScreen {
     scoringRoot.pack();
     scoringRoot.layer.setTranslation(15, height()-5-scoringRoot.size().height());
 
+    quitRoot = iface.createRoot(AxisLayout.vertical(), sheet, layer);
     quitRoot.add(new Button("Q").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
       public void onEmit () {
         final Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
@@ -144,11 +145,11 @@ public class GameScreen extends UIAnimScreen {
         root.add(
           new Label("Really Quit?").addStyles(UI.titleStyles).addStyles(UI.bigButtonStyles),
           new Shim(20, 20),
-          new Button("Yes, Quit").addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
+          new Button("Yes, Quit").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
             public void onEmit () { game.screens.remove(GameScreen.this); }
           }),
           new Shim(20, 20),
-          new Button("No, Resume").addStyles(UI.bigButtonStyles).onClick(new UnitSlot() {
+          new Button("No, Resume").addStyles(UI.medButtonStyles).onClick(new UnitSlot() {
             public void onEmit () { iface.destroyRoot(root); }
           }));
         root.setSize(width(), height());
@@ -217,7 +218,7 @@ public class GameScreen extends UIAnimScreen {
         if (isScaling()) {
           float dist = _firstPos.distance(_secondPos);
           // System.err.println("Movement " + dist + " / " + _baseDist);
-          updateScale(MathUtil.clamp(dist/_baseDist*_baseScale, 0.25f, 1f));
+          updateScale(MathUtil.clamp(dist/_baseDist*_baseScale, game.cardScale/2, game.cardScale*2));
         }
       }
       @Override public void onTouchEnd (Touch.Event touch) {

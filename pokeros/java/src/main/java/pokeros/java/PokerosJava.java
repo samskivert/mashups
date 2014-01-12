@@ -19,6 +19,6 @@ public class PokerosJava {
     config.emulateTouch = true;
     // use config to customize the Java platform, if needed
     JavaPlatform.register(config);
-    PlayN.run(new Pokeros());
+    PlayN.run(new Pokeros(0.5f));
   }
 }

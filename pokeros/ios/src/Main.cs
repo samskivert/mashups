@@ -14,7 +14,8 @@ namespace pokeros
       var pconfig = new IOSPlatform.Config();
       pconfig.iPadLikePhone = true;
       IOSPlatform.register(app, pconfig);
-      PlayN.run(new Pokeros());
+      var iPad = (MonoTouch.UIKit.UIScreen.MainScreen.Bounds.Width >= 768);
+      PlayN.run(new Pokeros(iPad ? 0.3f : 0.5f));
       return true;
     }
   }
