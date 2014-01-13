@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="pokeros.android"
-      android:screenOrientation="landscape"
-      android:versionCode="1"
-      android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="6" android:targetSdkVersion="11" />
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:debuggable="true">
-        <activity android:name="PokerosActivity"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-                  android:configChanges="keyboardHidden|orientation">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
+          package="com.samskivert.mashups.pokeros"
+          android:screenOrientation="portrait"
+          android:versionCode="1"
+          android:versionName="1.0">
+  <uses-sdk android:minSdkVersion="6" android:targetSdkVersion="18" />
+  <application android:icon="@drawable/icon"
+               android:label="@string/app_name"
+               android:theme="@android:style/Theme.NoTitleBar"
+               android:debuggable="true">
+    <activity android:name="pokeros.android.PokerosActivity"
+              android:label="@string/app_name"
+              android:theme="@android:style/Theme.NoTitleBar"
+              android:launchMode="singleTask"
+              android:configChanges="keyboardHidden|orientation">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+  </application>
 </manifest>
