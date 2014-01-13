@@ -13,7 +13,11 @@ namespace pokeros
     public override bool FinishedLaunching (UIApplication app, NSDictionary options) {
       var pconfig = new IOSPlatform.Config();
       pconfig.iPadLikePhone = true;
-      IOSPlatform.register(app, pconfig);
+      var platform = IOSPlatform.register(app, pconfig);
+      // prior to iOS 7 we need to say that we want to extend under the status bar
+      if (!UIDevice.CurrentDevice.CheckSystemVersion(7,0)) {
+        platform.rootViewController().WantsFullScreenLayout = true;
+      }
       var iPad = (MonoTouch.UIKit.UIScreen.MainScreen.Bounds.Width >= 768);
       PlayN.run(new Pokeros(iPad ? 0.3f : 0.5f));
       return true;
