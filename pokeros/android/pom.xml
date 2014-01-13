@@ -13,14 +13,6 @@
   <packaging>apk</packaging>
   <name>Pokeros Android</name>
 
-  <properties>
-    <sign.keystore>game.keystore</sign.keystore>
-    <keystore.alias>game</keystore.alias>
-    <!-- you can pass these on the command line as -Dkeystore.password=foo etc. -->
-    <keystore.password></keystore.password>
-    <key.password></key.password>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.samskivert.mashups</groupId>
@@ -131,10 +123,10 @@
                   <includes>
                     <include>target/*.apk</include>
                   </includes>
-                  <keystore>${keystore.path}</keystore>
-                  <storepass>${keystore.password}</storepass>
-                  <keypass>${key.password}</keypass>
-                  <alias>${keystore.alias}</alias>
+                  <keystore>${user.home}/.android/pokeros.keystore</keystore>
+                  <storepass>pokeros</storepass>
+                  <keypass>pokeros</keypass>
+                  <alias>pokeros</alias>
                   <arguments>
                     <argument>-sigalg</argument><argument>MD5withRSA</argument>
                     <argument>-digestalg</argument><argument>SHA1</argument>
@@ -150,6 +142,7 @@
             <configuration>
               <zipalign><skip>false</skip></zipalign>
               <sign><debug>false</debug></sign>
+              <release>true</release>
             </configuration>
             <executions>
               <execution>
