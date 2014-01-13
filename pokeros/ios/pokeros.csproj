@@ -71,7 +71,6 @@
     <BuildIpa>True</BuildIpa>
     <IpaPackageName>
     </IpaPackageName>
-    <CodesignProvision>72D19A05-A05F-488F-B6C2-2A4FC8C4DDCF</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
