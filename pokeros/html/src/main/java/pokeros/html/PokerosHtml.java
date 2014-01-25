@@ -18,6 +18,6 @@ public class PokerosHtml extends HtmlGame {
     // use config to customize the HTML platform, if needed
     HtmlPlatform platform = HtmlPlatform.register(config);
     platform.assets().setPathPrefix("pokeros/");
-    PlayN.run(new Pokeros());
+    PlayN.run(new Pokeros(0.5f));
   }
 }
