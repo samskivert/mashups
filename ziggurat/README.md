@@ -28,10 +28,10 @@ For example:
    +      +     +
 ```
 
-The * indicates the type of this unit, a (r)ed tint shows the unit type against which this unit is
-weak and a (g)reen tint shows the unit type against which this unit is strong.
+The * indicates the flavor of this unit, a (r)ed tint shows the flavor against which this unit is
+weak and a (g)reen tint shows the flavor against which this unit is strong.
 
-I may still name the three unit types (perhaps `\, / and |`), but just for expository/shorthand
+I may still name the three flavors (perhaps `\, / and |`), but just for expository/shorthand
 purposes. I'll be sure the full emblem is always visible when you need to decide whether a unit
 should attack another unit or is safe from attack from another unit. And I'll also show a + or - in
 the battle UI as appropriate.
@@ -102,10 +102,9 @@ The core gameplay will be turn-based battles with a smallish number of units (5-
 smallish number of computer controlled enemy units (they will necessarily be more numerous and more
 expendible because the AI won't be awesome and I'll have to make it up in volume).
 
-Since I'm keeping things abstract, I'm going to derive my unit types based on variation of four
-attributes: movement, attack strength, defense strength, and attack range. There will be a
-baseline for each attribute, and unit variation will mean increasing one attribute while
-decreasing another.
+Since I'm keeping things abstract, I'm going to derive my units based on variation of four
+attributes: movement, attack strength, defense strength, and attack range. There will be a baseline
+for each attribute, and unit variation will mean increasing one attribute while decreasing another.
 
 The interesting variations are:
 
@@ -146,6 +145,12 @@ by default, two for strong range units, and three when strong range units have t
 Attack/defense bonus would go from 50% to 100%. If the "balanced" unit picked up the bonus, perhaps
 it would pick an attribute at random to improve (to the basic bonus level, not doubled), or maybe
 you get to choose. The powerup would not influence the unit's weakness.
+
+#### Unit assignment
+
+Most likely I'll just randomly assign flavors to your units at the start of the dungeon. I'll
+probably also either randomly assign units, or let you "buy" your team given a fixed amount of
+money. If some units are more useful than others, those will be a bit more costly.
 
 ### Daily variation
 
@@ -211,3 +216,15 @@ Some goal ideas:
 
   * Chaperone an NPC unit from one end of the board to the other. Naturally the unit is relatively
     weak and must be protected from harm.
+
+### Other random bits
+
+  * Healing spots: sprinkle a few spots on the board which heal units some amount (maybe some 50%,
+    some 100%). This may be simpler than trying to introduce healing units into the mix.
+
+  * "Missiles" ala Advance War: spaces which contain one-shot long range area of effect shit
+    blower uppers.
+
+  * Flavor spots: spots that rotate your unit to the next flavor (`\` to `/`, `/` to '|`, etc.).
+
+  * Egg spots: spots that hatch you a new unit if you park a unit on them (for N turns?).
