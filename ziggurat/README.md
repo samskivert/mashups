@@ -136,3 +136,78 @@ Movement will probably be three by default, one or two for weak movement, and fo
 strong movement. Range will be one by default and two or three for long range. Attack and defense
 will likely range down by 50% and up by 50% for weak and strong variants. I'll start with those
 values anyway and tweak them based on play.
+
+#### Unit attribute powerup
+
+Neat idea: powerups in the world (move unit onto them to acquire) which cause a unit's bonus to
+double for a limited time. Maybe three or four turns. So for example, movement could normally be
+three, and strong movement units move four, but if you get the powerup, you move five. Range of one
+by default, two for strong range units, and three when strong range units have the powerup.
+Attack/defense bonus would go from 50% to 100%. If the "balanced" unit picked up the bonus, perhaps
+it would pick an attribute at random to improve (to the basic bonus level, not doubled), or maybe
+you get to choose. The powerup would not influence the unit's weakness.
+
+### Daily variation
+
+One of the things that I think should change every day is the terrain/dungeon layout. I'll almost
+certainly go with randomly generated levels on which the quest plays out, so that means I'll have
+to come up with seven different level generation variants. If that proves too onerous, maybe I'll
+come up with three or four and then vary something else to get the necessary seven variants. I
+could also come up with six variants and have Sunday choose a variation at random.
+
+Some level generation ideas:
+
+  * Nethack-style rooms with connecting passages. This is tried and true, and provides the only
+    approach to fog of war that I don't find really annoying (rooms dark until you enter them,
+    then the whole room becomes and stays visible).
+
+  * Islands in a sea: the arena is a bunch of little islands, and you move between them via
+    teleporters or some other warpy-thing. This makes it differ from rooms and corridors in two
+    ways: some islands will be close enough to one another to be reachable by range units, and the
+    connection geometry can be weird: teleporters don't have to link to the nearest island. The
+    teleporter destinations could also be non-obvious and have to be discovered.
+
+  * Field with barriers: the arena is generally open, but there are barriers to hide behind and
+    which can necessitate some maneuvering to get where you want to go.
+
+  * Maze: a dungeon that is almost entirely passageways, with perhaps some double-wide passages,
+    and plazas, but substantially different from rooms and passages. This might be annoying with a
+    lot of units, or it might be interesting in that you have to split your forces up more than
+    you would normally.
+
+  * Hedge maze: geometrically like maze, but with low walls, which range units can attack over.
+    Perhaps the walls could be targeted as well (or some spots in the walls) to open up passages.
+    This could equally apply to normal mazes.
+
+  * Rivers and bridges: arena is broken up into "room-like" areas by myriad rivers, and rooms are
+    joined by bridges. This is kind of like hedge maze with rooms, in that range units can attack
+    from island to island, but it's more connected than maze in that there will usually be a
+    bridge to get from one island to another and there will be more room to arrange units into
+    different formations.
+
+I could also vary the "goal" in the levels. Either on a different schedule, just to keep different
+games interesting, or have particular level types have particular goals as well.
+
+Some goal ideas:
+
+  * Defeat all the enemies. Tried and true. Usually fun and challenging.
+
+  * Get to (by defeating some, but not necessarily all minions), and defeat the boss. See above.
+
+  * Collect N things from around the board.
+
+  * Take over, and hold, N structures around the board. The difference from the collection goal is
+    that in this goal, a structure could be taken back by the enemy if you leave it undefended and
+    they move in and retake it. "Taking" a structure would also probably be Advance Wars style,
+    in that you have to park a unit on the structure for a couple of turns.
+
+  * Destroy N structures around the board. A compromise between the above two. You have to spend
+    some time/effort destroying a structure, rather than just hopping onto it and picking it up,
+    but once it's destroyed, you don't have to worry about the enemy bringing it back.
+
+  * Take over the enemy base. This is a bit different from "take over N" because the enemy would
+    naturally put a lot of effort into protecting its base. So it's more like "defeat all enemies"
+    with more opportunity for cleverness.
+
+  * Chaperone an NPC unit from one end of the board to the other. Naturally the unit is relatively
+    weak and must be protected from harm.
