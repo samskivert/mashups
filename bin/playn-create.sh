@@ -5,7 +5,7 @@ if [ -z "$1" -o -z "$2" ]; then
     exit 255
 fi
 
-VERS=1.8-SNAPSHOT
+VERS=1.9-SNAPSHOT
 
 mvn archetype:generate \
     -DarchetypeRepository=local \
