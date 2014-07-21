@@ -1,0 +1,11 @@
+<module rename-to='ziggurat'>
+  <inherits name='playn.PlayN'/>
+  <inherits name='ZigguratAssets'/>
+
+  <source path='core'/>
+  <source path='html'/>
+
+  <public path="resources" />
+
+  <entry-point class='ziggurat.html.ZigguratHtml'/>
+</module>
