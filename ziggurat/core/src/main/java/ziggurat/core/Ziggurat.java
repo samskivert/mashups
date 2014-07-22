@@ -1,12 +1,22 @@
+//
+// Mashups - a series of mashed up game prototypes
+// https://github.com/samskivert/mashups/blob/master/LICENSE
+
 package ziggurat.core;
 
-import static playn.core.PlayN.*;
-
+import java.util.Random;
 import playn.core.Game;
 import playn.core.Image;
 import playn.core.ImageLayer;
+import playn.core.util.Clock;
+import static playn.core.PlayN.*;
+import tripleplay.game.ScreenStack;
+import tripleplay.util.Randoms;
+import ziggurat.core.gensys.TestScreen;
 
 public class Ziggurat extends Game.Default {
+
+  public final Randoms rando = Randoms.with(new Random());
 
   public Ziggurat() {
     super(33); // call update every 33ms (30 times per second)
@@ -14,18 +24,21 @@ public class Ziggurat extends Game.Default {
 
   @Override
   public void init() {
-    // create and add background image layer
-    Image bgImage = assets().getImage("images/bg.png");
-    ImageLayer bgLayer = graphics().createImageLayer(bgImage);
-    graphics().rootLayer().add(bgLayer);
+    _stack.push(new TestScreen(this));
   }
 
   @Override
   public void update(int delta) {
+    _clock.update(delta);
+    _stack.update(delta);
   }
 
   @Override
   public void paint(float alpha) {
-    // the background automatically paints itself, so no need to do anything here!
+    _clock.paint(alpha);
+    _stack.paint(_clock);
   }
+
+  private final Clock.Source _clock = new Clock.Source(33);
+  private final ScreenStack _stack = new ScreenStack();
 }
