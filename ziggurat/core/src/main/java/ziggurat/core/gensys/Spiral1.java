@@ -6,6 +6,7 @@ package ziggurat.core.gensys;
 
 import playn.core.*;
 import static pythagoras.f.FloatMath.*;
+import tripleplay.util.Colors;
 import tripleplay.util.Randoms;
 
 public class Spiral1 extends Generator {
@@ -83,7 +84,7 @@ public class Spiral1 extends Generator {
   };
   public Shape EX = new Shape() {
     public void render (Canvas canvas, float x, float y, float a, float nx, float ny) {
-      canvas.fillCircle(x, y, 2);
+      canvas.fillCircle(x, y, 2); // TODO
     }
     public String toString () { return "x"; }
   };
@@ -122,6 +123,11 @@ public class Spiral1 extends Generator {
     float[] xs = new float[pens], ys = new float[pens], as = new float[pens];
     int[] ages = new int[pens];
 
+    // if our two colors are both indigo/violet, use a white background instead of black
+    if (genes[0].isDark() && genes[1].isDark()) {
+      target.setFillColor(0xFFFFFFFF).fillRect(0, 0, width, height);
+    }
+
     // assign starting age and position to each pen
     for (int pp = 0; pp < pens; pp++) {
       int gx = pp % xdense, gy = pp / xdense;
@@ -144,8 +150,7 @@ public class Spiral1 extends Generator {
         float dist = (angle*5/PI)*(lifespan-age);
         float nx = x + dist*cos(a), ny = y + dist*sin(a);
 
-        float blend = gg / (float)gens;
-        int color = (int)((blend*pcol) + (1-blend)*scol);
+        int color = Colors.blend(pcol, scol, gg / (float)gens);
         target.setStrokeColor(color).setFillColor(color);
 
         shape.render(target, x, y, a, nx, ny);

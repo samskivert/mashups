@@ -43,7 +43,8 @@ public class TestScreen extends Screen {
   public void update (Canvas vizCanvas, Canvas infoCanvas) {
     vizCanvas.clear();
     Gene[] genes = Gene.random(game.rando, 7);
-    Generator gen = new Spiral1();
+    // Generator gen = new Spiral1();
+    Generator gen = new ColorMix();
     Generator.Info info = new Generator.Info();
     gen.generate(game.rando, genes, vizCanvas, info);
 
