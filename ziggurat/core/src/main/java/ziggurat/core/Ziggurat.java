@@ -12,7 +12,9 @@ import playn.core.util.Clock;
 import static playn.core.PlayN.*;
 import tripleplay.game.ScreenStack;
 import tripleplay.util.Randoms;
+
 import ziggurat.core.gensys.TestScreen;
+import ziggurat.core.zone.ZoneTestScreen;
 
 public class Ziggurat extends Game.Default {
 
@@ -24,7 +26,7 @@ public class Ziggurat extends Game.Default {
 
   @Override
   public void init() {
-    _stack.push(new TestScreen(this));
+    _stack.push(new ZoneTestScreen(this));
   }
 
   @Override
