@@ -4,6 +4,7 @@
 
 package ziggurat.core.zone;
 
-public class Actor {
+/** Represents a mobile entitiy. */
+public abstract class Actor {
 
 }

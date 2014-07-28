@@ -7,6 +7,7 @@ package ziggurat.core.zone;
 import playn.core.*;
 import playn.core.util.Clock;
 import pythagoras.f.*;
+import react.Value;
 import static playn.core.PlayN.*;
 
 /**
@@ -24,6 +25,12 @@ public class ZoneView {
 
   /** Controls the view "camera". */
   public final Camera cam;
+
+  /** The currently selected unit, or null. */
+  public final Value<Unit> selected = Value.create(null);
+
+  /** The currently pending move, or null. */
+  public final Value<Loc> pendingMove = Value.create(null);
 
   public ZoneView (Zone zone) {
     this.zone = zone;

@@ -5,10 +5,14 @@
 package ziggurat.core.zone;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import pythagoras.f.FloatMath;
 import pythagoras.f.Points;
+import react.RList;
+import react.RMap;
 
 /**
  * Aggregates all the elements that make up the environment in which the game is played. A zone is a
@@ -31,14 +35,23 @@ public class Zone {
   /** All props currently in the zone, mapped by origin. */
   public final TreeMap<Loc,Prop> props = new TreeMap<Loc,Prop>();
 
-  /** All actors in the zone. */
-  public final List<Actor> actors = new ArrayList<Actor>();
+  /** All actors in the zone, mapped to their location. */
+  public final RMap<Actor,Loc> actors = RMap.create();
+
+  /** A mapping from loc to the actor at that location. */
+  public final Map<Loc,Actor> actorsByLoc = new HashMap<Loc,Actor>();
 
   public Zone (int width, int height, Terrain[] terrain, Loc start) {
     this.width = width;
     this.height = height;
     this.terrain = terrain;
     this.start = start;
+
+    // listen for actors changes and update actorsByLoc
+    actors.connect(new RMap.Listener<Actor,Loc>() {
+      public void onPut (Actor actor, Loc loc) { actorsByLoc.put(loc, actor); }
+      public void onRemove (Actor actor, Loc oldLoc) { actorsByLoc.remove(oldLoc); }
+    });
   }
 
   public Terrain terrain (Loc loc) { return terrain(loc.x, loc.y); }
