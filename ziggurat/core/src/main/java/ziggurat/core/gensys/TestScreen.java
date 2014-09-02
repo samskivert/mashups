@@ -4,22 +4,20 @@
 
 package ziggurat.core.gensys;
 
+import java.util.Random;
 import playn.core.*;
 import playn.core.util.TextBlock;
 import pythagoras.f.Point;
 import static playn.core.PlayN.graphics;
 import tripleplay.game.Screen;
+import tripleplay.util.Randoms;
 import tripleplay.util.StyledText;
 import tripleplay.util.TextStyle;
 import ziggurat.core.Ziggurat;
 
 public class TestScreen extends Screen {
 
-  public final Ziggurat game;
-
-  public TestScreen (Ziggurat game) {
-    this.game = game;
-  }
+  public final Randoms rando = Randoms.with(new Random());
 
   @Override public void wasAdded () {
     final CanvasImage image = graphics().createImage(512, 512);
@@ -42,11 +40,11 @@ public class TestScreen extends Screen {
 
   public void update (Canvas vizCanvas, Canvas infoCanvas) {
     vizCanvas.clear();
-    Gene[] genes = Gene.random(game.rando, 7);
+    Gene[] genes = Gene.random(rando, 7);
     // Generator gen = new Spiral1();
     Generator gen = new ColorMix();
     Generator.Info info = new Generator.Info();
-    gen.generate(game.rando, genes, vizCanvas, info);
+    gen.generate(rando, genes, vizCanvas, info);
 
     StyledText.Block iblock = new StyledText.Block(
       info.buf.toString(), INFO_STYLE, INFO_WRAP, TextBlock.Align.LEFT);

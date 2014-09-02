@@ -4,21 +4,18 @@
 
 package ziggurat.core;
 
-import java.util.Random;
 import playn.core.Game;
-import playn.core.Image;
-import playn.core.ImageLayer;
 import playn.core.util.Clock;
-import static playn.core.PlayN.*;
-import tripleplay.game.ScreenStack;
-import tripleplay.util.Randoms;
-
-import ziggurat.core.gensys.TestScreen;
-import ziggurat.core.zone.ZoneTestScreen;
+import react.Value;
+import rsp.State;
 
 public class Ziggurat extends Game.Default {
 
-  public final Randoms rando = Randoms.with(new Random());
+  public final State root = new State();
+  public final Value<Integer> update = Value.create(0);
+  public final Value<Clock> paint = Value.create(null);
+
+  public final ScreenStack<Ziggurat> screens = new ScreenStack(this, root);
 
   public Ziggurat() {
     super(33); // call update every 33ms (30 times per second)
@@ -26,21 +23,20 @@ public class Ziggurat extends Game.Default {
 
   @Override
   public void init() {
-    _stack.push(new ZoneTestScreen(this));
+    if (screens.isEmpty()) screens.push(new MainMenuScreen.S());
   }
 
   @Override
   public void update(int delta) {
+    update.update(delta);
     _clock.update(delta);
-    _stack.update(delta);
   }
 
   @Override
   public void paint(float alpha) {
     _clock.paint(alpha);
-    _stack.paint(_clock);
+    paint.updateForce(_clock);
   }
 
   private final Clock.Source _clock = new Clock.Source(33);
-  private final ScreenStack _stack = new ScreenStack();
 }
