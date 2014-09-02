@@ -18,6 +18,12 @@
     <guava.version>17.0</guava.version>
   </properties>
 
+  <modules>
+    <module>assets</module>
+    <module>rsp-java</module>
+    <module>core</module>
+  </modules>
+
   <profiles>
     <profile>
       <id>java</id>
@@ -37,8 +43,4 @@
       <modules><module>html</module></modules>
     </profile>
   </profiles>
-  <modules>
-    <module>assets</module>
-    <module>core</module>
-  </modules>
 </project>
