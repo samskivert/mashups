@@ -13,11 +13,8 @@ public class RulesScreen extends UIScreen {
     super(game);
   }
 
-  @Override protected String title () {
-    return "Rules of the Game";
-  }
-
   @Override protected void createUI (Root root) {
+    addTitle(root, "Rules of the Game");
     Group content = new Group(AxisLayout.vertical()).add(
       new Label(RULES).addStyles(UI.textStyles),
       new Label("Scoring"),

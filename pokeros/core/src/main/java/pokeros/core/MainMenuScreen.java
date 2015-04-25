@@ -4,23 +4,21 @@
 
 package pokeros.core;
 
+import playn.core.Game;
+
 import react.UnitSlot;
 
-import tripleplay.game.UIAnimScreen;
+import tripleplay.game.ScreenStack;
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
 
-public class MainMenuScreen extends UIAnimScreen {
+public class MainMenuScreen extends UIScreen {
 
   public MainMenuScreen (Pokeros game) {
-    _game = game;
+    super(game);
   }
 
-  @Override public void wasAdded () {
-    super.wasAdded();
-
-    Root root = iface.createRoot(AxisLayout.vertical(), UI.stylesheet(), layer);
-    root.addStyles(Style.BACKGROUND.is(Background.tiledImage(_game.media.feltTile).inset(10)));
+  @Override protected void createUI (Root root) {
     root.add(new Shim(1, 10),
              new Label("Pokeros").addStyles(
                UI.titleStyles.add(Style.FONT.is(UI.defaultFont.derive(68f)))),
@@ -45,8 +43,5 @@ public class MainMenuScreen extends UIAnimScreen {
                  new UnitSlot() { public void onEmit () {
                    _game.screens.push(new HistoryScreen(_game));
                  }})));
-    root.setSize(width(), height());
   }
-
-  protected final Pokeros _game;
 }

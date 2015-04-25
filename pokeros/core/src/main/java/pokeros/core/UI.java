@@ -5,8 +5,7 @@
 package pokeros.core;
 
 import playn.core.*;
-import playn.core.util.TextBlock;
-import static playn.core.PlayN.*;
+import playn.scene.ImageLayer;
 
 import tripleplay.ui.*;
 import tripleplay.ui.layout.AxisLayout;
@@ -16,7 +15,7 @@ import tripleplay.util.TextStyle;
 public class UI {
 
   public static final int GREEN = 0xFF008A44;
-  public static final Font defaultFont = graphics().createFont("Copperplate", Font.Style.PLAIN, 18);
+  public static final Font defaultFont = new Font("Copperplate", 18);
 
   public static final Styles bigButtonStyles = Styles.
     make(Style.FONT.is(UI.defaultFont.derive(48f)),
@@ -26,15 +25,15 @@ public class UI {
   public static final Styles medButtonStyles = bigButtonStyles.add(
     Style.FONT.is(UI.defaultFont.derive(32f)));
 
-  public static final Font textFont = graphics().createFont("Times New Roman", Font.Style.PLAIN, 18);
+  public static final Font textFont = new Font("Times New Roman", 18);
   public static final Styles textStyles = Styles.make(
     Style.TEXT_WRAP.on, Style.HALIGN.left, Style.FONT.is(textFont));
 
   public static final Styles titleStyles = Styles.make(
     Style.TEXT_EFFECT.vectorOutline, Style.COLOR.is(0xFFFFFFFF), Style.HIGHLIGHT.is(0xCC000000));
 
-  public static Stylesheet.Builder newBuilder () {
-    return SimpleStyles.newSheetBuilder().
+  public static Stylesheet.Builder newBuilder (Platform plat) {
+    return SimpleStyles.newSheetBuilder(plat.graphics()).
       add(Element.class, Style.COLOR.is(0xFFFFFFFF), Style.FONT.is(defaultFont)).
       add(Button.class, Style.BACKGROUND.is(Background.blank().inset(0, 1, 1, 0)),
           Style.TEXT_EFFECT.shadow, Style.SHADOW.is(0x55000000),
@@ -44,42 +43,42 @@ public class UI {
       add(Button.class, Style.Mode.DISABLED, Style.TEXT_EFFECT.none);
   }
 
-  public static Stylesheet stylesheet () {
-    return newBuilder().create();
+  public static Stylesheet stylesheet (Platform plat) {
+    return newBuilder(plat).create();
   }
 
   public static Shim stretchShim () {
     return AxisLayout.stretch(new Shim(1, 1));
   }
 
-  public static final TextStyle marqueeStyle = new TextStyle().withTextColor(GREEN).
+  public static final TextStyle marqueeStyle = TextStyle.DEFAULT.withTextColor(GREEN).
     withOutline(0xFF000000, 1.5f).
-    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 48));
-  public static ImageLayer mkMarquee (String text) {
-    return StyledText.span(text, marqueeStyle).toLayer();
+    withFont(new Font(defaultFont.name, Font.Style.BOLD, 48));
+  public static ImageLayer mkMarquee (Game game, String text) {
+    return StyledText.span(game.plat.graphics(), text, marqueeStyle).toLayer();
   }
 
-  public static final TextStyle handStyle = new TextStyle().withTextColor(GREEN).
+  public static final TextStyle handStyle = TextStyle.DEFAULT.withTextColor(GREEN).
     withOutline(0xFF000000, 1.5f).
-    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 32));
-  public static final TextStyle pointsStyle = new TextStyle().withTextColor(0xFFFFFFFF).
+    withFont(new Font(defaultFont.name, Font.Style.BOLD, 32));
+  public static final TextStyle pointsStyle = TextStyle.DEFAULT.withTextColor(0xFFFFFFFF).
     withOutline(0xFF000000, 1.5f).
-    withFont(graphics().createFont(defaultFont.name(), Font.Style.BOLD, 64));
-  public static ImageLayer mkScore (String descrip, String score, float screenWidth) {
+    withFont(new Font(defaultFont.name, Font.Style.BOLD, 64));
+  public static ImageLayer mkScore (Game game, String descrip, String score, float screenWidth) {
     StyledText dblock = new StyledText.Block(
-      descrip, handStyle, new TextWrap(screenWidth), TextBlock.Align.CENTER);
-    StyledText sblock = StyledText.span(score, pointsStyle);
-    CanvasImage image = graphics().createImage(Math.max(dblock.width(), sblock.width()),
-                                               dblock.height() + sblock.height());
-    dblock.render(image.canvas(), (image.width() - dblock.width())/2, 0);
-    sblock.render(image.canvas(), (image.width() - sblock.width())/2, dblock.height());
-    return graphics().createImageLayer(image);
+      game.plat.graphics(), descrip, handStyle, new TextWrap(screenWidth), TextBlock.Align.CENTER);
+    StyledText sblock = StyledText.span(game.plat.graphics(), score, pointsStyle);
+    Canvas cv = game.plat.graphics().createCanvas(Math.max(dblock.width(), sblock.width()),
+                                                  dblock.height() + sblock.height());
+    dblock.render(cv, (cv.width - dblock.width())/2, 0);
+    sblock.render(cv, (cv.width - sblock.width())/2, dblock.height());
+    return new ImageLayer(cv.toTexture());
   }
 
-  public static final TextStyle tipStyle = new TextStyle().withTextColor(0xFFFFFFFF).
+  public static final TextStyle tipStyle = TextStyle.DEFAULT.withTextColor(0xFFFFFFFF).
     withShadow(0xFF000000, 1f, 1f).
-    withFont(graphics().createFont(defaultFont.name(), Font.Style.PLAIN, 14));
-  public static ImageLayer mkTip (String text) {
-    return StyledText.block(text, tipStyle, 130).toLayer();
+    withFont(new Font(defaultFont.name, 14));
+  public static ImageLayer mkTip (Game game, String text) {
+    return StyledText.block(game.plat.graphics(), text, tipStyle, 130).toLayer();
   }
 }

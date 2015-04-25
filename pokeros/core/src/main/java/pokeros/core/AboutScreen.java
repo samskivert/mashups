@@ -6,8 +6,6 @@ package pokeros.core;
 
 import react.UnitSlot;
 
-import static playn.core.PlayN.openURL;
-
 import tripleplay.ui.*;
 
 public class AboutScreen extends UIScreen {
@@ -16,11 +14,8 @@ public class AboutScreen extends UIScreen {
     super(game);
   }
 
-  @Override protected String title () {
-    return "About Pokeros";
-  }
-
   @Override protected void createUI (Root root) {
+    addTitle(root, "About Pokeros");
     root.add(new Shim(5, 5),
              new Label("Copyright \u00A9 2013-2014\nMichael Bayne").addStyles(Style.TEXT_WRAP.on),
              UI.stretchShim(),
@@ -32,7 +27,8 @@ public class AboutScreen extends UIScreen {
                        "here:").addStyles(UI.textStyles),
              new Button("github.com/samskivert/mashups").onClick(
                new UnitSlot() { public void onEmit () {
-                 openURL("https://github.com/samskivert/mashups/blob/master/pokeros/README.md");
+                 game().plat.openURL(
+                   "https://github.com/samskivert/mashups/blob/master/pokeros/README.md");
                }}),
              UI.stretchShim(),
              new Button("Back").onClick(popSlot()));

@@ -7,8 +7,7 @@ package pokeros.core;
 import java.util.TreeSet;
 
 import playn.core.Image;
-import static playn.core.PlayN.log;
-import static playn.core.PlayN.storage;
+import playn.core.Platform;
 
 import react.Function;
 import react.IntValue;
@@ -18,8 +17,6 @@ import tripleplay.util.TypedStorage;
 
 /** Keeps track of win/loss history. */
 public class History {
-
-  protected final TypedStorage _ts = new TypedStorage(storage());
 
   public static final class Game implements Comparable<Game> {
     public final long completed;
@@ -47,13 +44,21 @@ public class History {
   }
 
   /** The total number of wins. */
-  public final IntValue wins = _ts.valueFor("wins", 0);
+  public final IntValue wins;
 
   /** The total number of losses. */
-  public final IntValue losses = _ts.valueFor("losses", 0);
+  public final IntValue losses;
 
   /** A set of recently played games (sorted oldest to newest). */
-  public final RSet<Game> recents = _ts.setFor("recents", DECODE, ENCODE, new TreeSet<Game>());
+  public final RSet<Game> recents;
+
+  public History (Platform plat) {
+    _plat = plat;
+    _ts = new TypedStorage(plat.log(), plat.storage());
+    wins = _ts.valueFor("wins", 0);
+    losses = _ts.valueFor("losses", 0);
+    recents = _ts.setFor("recents", DECODE, ENCODE, new TreeSet<Game>());
+  }
 
   /** Records a completed game to the history. */
   public void noteGame (int winIdx, int[] scores) {
@@ -69,7 +74,7 @@ public class History {
     recents.add(new Game(System.currentTimeMillis(), scores));
   }
 
-  private static Function<String,Game> DECODE = new Function<String,Game>() {
+  private Function<String,Game> DECODE = new Function<String,Game>() {
     public Game apply (String data) {
       try {
         String[] bits = data.split("\t");
@@ -77,13 +82,13 @@ public class History {
         for (int ii = 0; ii < scores.length; ii++) scores[ii] = Integer.parseInt(bits[ii+1]);
         return new Game(Long.parseLong(bits[0]), scores);
       } catch (Throwable t) {
-        log().warn("Failure decoding game '" + data + "'", t);
+        _plat.log().warn("Failure decoding game '" + data + "'", t);
         return new Game(0, new int[] { 0, 0 });
       }
     }
   };
 
-  private static Function<Game,String> ENCODE = new Function<Game,String>() {
+  private Function<Game,String> ENCODE = new Function<Game,String>() {
     public String apply (Game game)  {
       StringBuilder buf = new StringBuilder();
       buf.append(game.completed);
@@ -92,5 +97,7 @@ public class History {
     }
   };
 
+  private final Platform _plat;
+  protected final TypedStorage _ts;
   protected static final int MAX_RECENT_GAMES = 15;
 }

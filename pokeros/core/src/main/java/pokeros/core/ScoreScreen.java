@@ -12,11 +12,8 @@ public class ScoreScreen extends UIScreen {
     super(game);
   }
 
-  @Override protected String title () {
-    return "Scoring";
-  }
-
   @Override protected void createUI (Root root) {
+    addTitle(root, "Scoring");
     root.add(UI.stretchShim(), new Label(SCORING).addStyles(UI.textStyles),
              UI.stretchShim(), new Button("Back").onClick(popSlot()));
   }

@@ -6,14 +6,13 @@ package pokeros.core;
 
 import react.RList;
 
-import playn.core.ImageLayer;
-import playn.core.GroupLayer;
-import static playn.core.PlayN.graphics;
+import playn.scene.ImageLayer;
+import playn.scene.GroupLayer;
 
 public class DeckSprite {
 
   // TODO: make this a group layer
-  public final GroupLayer layer = graphics().createGroupLayer();
+  public final GroupLayer layer = new GroupLayer();
 
   public DeckSprite (Media media, Deck deck) {
     _media = media;
@@ -24,7 +23,7 @@ public class DeckSprite {
 
     for (int ii = _backs.length-1; ii >= 0; ii--) {
       float gap = (ii+1)*GAP;
-      layer.addAt(_backs[ii] = graphics().createImageLayer(media.cardBack), gap, gap);
+      layer.addAt(_backs[ii] = new ImageLayer(media.cardBack), gap, gap);
     }
     layer.add(_top);
 
@@ -34,7 +33,7 @@ public class DeckSprite {
   protected void refreshTop () {
     if (_deck.cards.isEmpty()) layer.setVisible(false);
     else {
-      _top.setImage(_media.card(_deck.cards.get(0)));
+      _top.setSource(_media.card(_deck.cards.get(0)));
       int unflipped = _deck.cards.size()-1;
       for (int ii = 0; ii < _backs.length; ii++) {
         _backs[ii].setVisible(unflipped > ii);
@@ -44,7 +43,7 @@ public class DeckSprite {
 
   protected final Media _media;
   protected final Deck _deck;
-  protected final ImageLayer _top = graphics().createImageLayer();
+  protected final ImageLayer _top = new ImageLayer();
   protected final ImageLayer[] _backs = new ImageLayer[3];
   protected final float GAP = 2;
 }

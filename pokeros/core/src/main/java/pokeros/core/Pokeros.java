@@ -5,15 +5,21 @@
 package pokeros.core;
 
 import playn.core.*;
-import playn.core.util.Clock;
+import playn.scene.Mouse;
+import playn.scene.Pointer;
+import playn.scene.SceneGame;
+import playn.scene.Touch;
 
 import tripleplay.game.ScreenStack;
 
-public class Pokeros extends Game.Default {
+public class Pokeros extends SceneGame {
 
-  public final Media media = new Media();
+  public final float cardScale;
+  public final Media media = new Media(plat);
+  public final Pointer pointer = new Pointer(plat, rootLayer, false);
+  public final History history = new History(plat);
 
-  public final ScreenStack screens = new ScreenStack() {
+  public final ScreenStack screens = new ScreenStack(this, rootLayer) {
     protected Transition defaultPushTransition () {
       return slide();
     }
@@ -22,30 +28,11 @@ public class Pokeros extends Game.Default {
     }
   };
 
-  public final float cardScale;
-  public final History history = new History();
-
-  public Pokeros (float cardScale) {
-    super(33); // call update every 33ms (30 times per second)
+  public Pokeros (Platform plat, float cardScale) {
+    super(plat, 33); // call update every 33ms (30 times per second)
     this.cardScale = cardScale;
-  }
-
-  @Override
-  public void init () {
+    new Touch.Dispatcher(rootLayer, false);
+    new Mouse.Dispatcher(rootLayer, false);
     screens.push(new MainMenuScreen(this));
   }
-
-  @Override
-  public void update (int delta) {
-    _clock.update(delta);
-    screens.update(delta);
-  }
-
-  @Override
-  public void paint (float alpha) {
-    _clock.paint(alpha);
-    screens.paint(_clock);
-  }
-
-  protected final Clock.Source _clock = new Clock.Source(33);
 }
