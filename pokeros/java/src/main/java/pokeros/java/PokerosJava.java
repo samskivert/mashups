@@ -17,7 +17,7 @@ public class PokerosJava {
       config.height = 960/2;
       // config.scaleFactor = 2;
     }
-    config.emulateTouch = true;
+    // config.emulateTouch = true;
     LWJGLPlatform plat = new LWJGLPlatform(config);
     new Pokeros(plat, 0.5f);
     plat.start();
