@@ -114,24 +114,25 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
 
   override def showTransitionCompleted () {
     super.showTransitionCompleted()
-    // hatch a fly from the nest
-    jiva.start()
+
     // start listening for keyboard input
     keyboard.setListener(new Keyboard.Adapter {
       override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
     })
+
     // listen for pointer input as well
-    val usesFlick = game.flickInput || game.flickTapInput
+    val UsesFlick = game.flickInput || game.flickTapInput
+    val MinFlickDist = 10 // pixels
     pointer.setListener(new Pointer.Adapter {
       private var _start = new Point()
       override def onPointerStart (ev :Pointer.Event) = {
-        if (usesFlick) _start.set(ev.x, ev.y)
+        if (UsesFlick) _start.set(ev.x, ev.y)
         else jiva.onTap.emit(ev)
       }
-      override def onPointerEnd (ev :Pointer.Event) = if (usesFlick) {
+      override def onPointerEnd (ev :Pointer.Event) = if (UsesFlick) {
         val dx = ev.x - _start.x ; val dy = ev.y - _start.y
         val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
-        if (dist < 5) jiva.onTap.emit(ev)
+        if (dist < MinFlickDist) jiva.onTap.emit(ev)
         else {
           val sum = dx + dy
           jiva.onFlick.emit(if (dx > dy) {
@@ -142,6 +143,9 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
         }
       }
     })
+
+    // hatch a fly from the nest
+    jiva.start()
   }
 
   override def paint (clock :Clock) {
