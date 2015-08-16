@@ -35,12 +35,6 @@
       <artifactId>playn-java</artifactId>
       <version>${playn.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
-    </dependency>
   </dependencies>
 
   <build>

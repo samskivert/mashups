@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.googlecode.playn</groupId>
     <artifactId>playn-project</artifactId>
-    <version>1.9</version>
+    <version>1.10-SNAPSHOT</version>
   </parent>
 
   <groupId>com.samskivert.mashups</groupId>
@@ -14,7 +14,8 @@
   <name>Samsara Metaproject</name>
 
   <properties>
-    <playn.version>1.9</playn.version>
+    <playn.version>1.10-SNAPSHOT</playn.version>
+    <tripleplay.version>1.9</tripleplay.version>
     <scala.version>2.11.7</scala.version>
     <maven.scala.version>2.15.2</maven.scala.version>
   </properties>
@@ -35,8 +36,8 @@
       <modules><module>android</module></modules>
     </profile>
     <profile>
-      <id>ios</id>
-      <modules><module>ios</module></modules>
+      <id>robovm</id>
+      <modules><module>robovm</module></modules>
     </profile>
   </profiles>
 </project>

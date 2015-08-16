@@ -23,14 +23,13 @@
     <dependency>
       <groupId>com.threerings</groupId>
       <artifactId>tripleplay</artifactId>
-      <version>${playn.version}</version>
+      <version>${tripleplay.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- test dependencies -->
