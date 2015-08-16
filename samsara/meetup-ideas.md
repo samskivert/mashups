@@ -34,3 +34,10 @@
 
 - Input:
   - virtual joypad (in lower left or lower right)
+
+- Walk into sleeping (or awake) spider to splat it
+  - solves problem of being trapped by sleeping spider
+
+- How to work around impassable frogs?
+  - maybe make them sleep after they've eaten two creatures?
+  - maybe walk into them to stun them (splatting fly in process)
