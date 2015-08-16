@@ -74,7 +74,7 @@ class Jivaloka (
       Thread.dumpStack()
     } else {
       println("Chomping " + target)
-      anim(target.coord, "Chomp!", 0xFF990000, 24)
+      anim(target.coord, "Chomp!", 0xFFFFFFFF, 24)
       target.alive = false
       remove(target.entity)
       add(new Splat(0xFF990000).at(target.coord))
@@ -86,7 +86,7 @@ class Jivaloka (
       println("Refusing to stomp dead target " + target)
       Thread.dumpStack()
     } else {
-      anim(target.coord, "Splat!", 0xFF660000, 24)
+      anim(target.coord, "Splat!", 0xFFFFFFFF, 24)
       target.alive = false
       remove(target.entity)
       add(new Splat(0xFF660000).at(target.coord))
@@ -94,7 +94,7 @@ class Jivaloka (
   }
 
   def croak (protag :FruitFly) {
-    anim(protag.coord, "Croak!", 0xFF666666, 24)
+    anim(protag.coord, "Croak!", 0xFFFFFFFF, 24)
     protag.alive = false
     remove(protag)
     add(new Splat(0xFF666666).at(protag.coord)) // TODO: use a tombstone or something
