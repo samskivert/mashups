@@ -17,6 +17,7 @@ class Jivaloka (
 ) extends World {
 
   val keyDown = Signal.create[Key]()
+  val onTap   = Signal.create[Pointer.Event]()
   val onPaint = Signal.create[Clock]()
   val onChomp = Signal.create[MOB]()
   val onMove  = Signal.create[Bodied]()

@@ -69,6 +69,19 @@ class Systems (jiva :Jivaloka) {
       case Key.RIGHT => move(1, 0)
       case _ => // nada
     })
+
+    jiva.onTap.connect { ev :Pointer.Event => if (protag != null) {
+      val tap = Coord(jiva.screen.toCoord(ev.x), jiva.screen.toCoord(ev.y))
+      if (tap != protag.coord) {
+        val dx = tap.x - protag.coord.x ; val dy = tap.y - protag.coord.y
+        val sum = dx + dy
+        if (dx > dy) {
+          if (sum > 0) move(1, 0) else move(0, -1)
+        } else {
+          if (sum > 0) move(0, 1) else move(-1, 0)
+        }
+      } else if (protag.coord == jiva.level.exit) jiva.ascend(protag)
+    }}
   }
 
   val eaters = new System[Eater](jiva) {

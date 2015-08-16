@@ -7,6 +7,7 @@ package samsara
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
+import pythagoras.f.MathUtil
 import scala.collection.BitSet
 import tripleplay.game.UIScreen
 import tripleplay.ui._
@@ -29,6 +30,8 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     val size = metrics.size
     layer.setTranslation(coord.x * size + size/2, coord.y * size + size/2)
   }
+
+  def toCoord (x :Float) = MathUtil.ifloor(x / metrics.size)
 
   override def wasAdded () {
     super.wasAdded()
@@ -105,6 +108,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     val tlayer = StyledText.block(msg, UI.tipCfg, 256).toLayer()
     layer.addAt(tlayer.setDepth(9999), (width-tlayer.width)/2, (height-tlayer.height)/2)
     jiva.keyDown.connect(tlayer.destroy()).once // go away on any key press
+    jiva.onTap.connect(tlayer.destroy()).once // go away on any tap
   }
 
   override def showTransitionCompleted () {
@@ -115,6 +119,10 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     keyboard.setListener(new Keyboard.Adapter {
       override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
     })
+    // listen for pointer input as well
+    pointer.setListener(new Pointer.Adapter {
+      override def onPointerStart (ev :Pointer.Event) = jiva.onTap.emit(ev)
+    })
   }
 
   override def paint (clock :Clock) {
@@ -124,8 +132,9 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
 
   override def hideTransitionStarted () {
     super.hideTransitionStarted()
-    invokeLater(new Runnable() {
-      def run = keyboard.setListener(null)
-    })
+    invokeLater(new Runnable() { def run () {
+      keyboard.setListener(null)
+      pointer.setListener(null)
+    }})
   }
 }
