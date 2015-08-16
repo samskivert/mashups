@@ -44,6 +44,9 @@ class Systems (jiva :Jivaloka) {
     def move (dx :Int, dy :Int) {
       if (protag != null) {
         val coord = protag.coord.add(dx, dy)
+        val norient = if (dx == 0) if (dy == 1) 2 else 0
+                      else if (dx == 1) 1 else 3
+        protag.setOrient(norient)
         if (jiva.pass.isPassable(coord)) protag.move(jiva, coord)
         else if (dx == 0 && dy == -1 && protag.coord == jiva.level.exit) jiva.ascend(protag)
       }
@@ -95,7 +98,16 @@ class Systems (jiva :Jivaloka) {
       }
     }
 
-    if (jiva.game.flickInput) jiva.onFlick.connect(slot[(Int,Int)] {
+    if (jiva.game.flickTapInput) {
+      var last = (0, -1)
+      jiva.onFlick.connect(slot[(Int,Int)] {
+        case dir @ (x, y) =>
+          move(x, y)
+          last = dir
+      })
+      jiva.onTap.connect { ev :Pointer.Event => move(last._1, last._2) }
+    }
+    else if (jiva.game.flickInput) jiva.onFlick.connect(slot[(Int,Int)] {
       case (x, y) => move(x, y)
     })
   }

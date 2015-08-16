@@ -15,7 +15,8 @@ class Samsara extends Game.Default(33) {
   val screens = new ScreenStack
   val seenTips = MSet[Int]()
 
-  var flickInput = true
+  var flickTapInput = true
+  var flickInput = false
   var relTapInput = false
   var absTapInput = false
 

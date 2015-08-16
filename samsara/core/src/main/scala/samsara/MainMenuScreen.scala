@@ -15,6 +15,11 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
     val root = iface.createRoot(AxisLayout.vertical, UI.sheet, layer)
     root.addStyles(Style.BACKGROUND.is(Background.solid(0xFFFFFFFF)))
 
+    val flickTapBox = new CheckBox()
+    flickTapBox.select(game.flickTapInput)
+    flickTapBox.checked.connect(slot[java.lang.Boolean] { case checked =>
+      game.flickTapInput = checked
+    })
     val flickBox = new CheckBox()
     flickBox.select(game.flickInput)
     flickBox.checked.connect(slot[java.lang.Boolean] { case checked =>
@@ -36,6 +41,7 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
              UI.stretchShim,
              new Group(new TableLayout(TableLayout.COL, TableLayout.COL.alignLeft()).
       gaps(5, 5)).add(
+      flickTapBox, new Label("Flick+tap input"),
       flickBox, new Label("Flick input"),
       relTapBox, new Label("Relative tap input"),
       absTapBox, new Label("Absolute tap input")),

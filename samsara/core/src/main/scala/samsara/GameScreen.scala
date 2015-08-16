@@ -121,13 +121,14 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
       override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
     })
     // listen for pointer input as well
+    val usesFlick = game.flickInput || game.flickTapInput
     pointer.setListener(new Pointer.Adapter {
       private var _start = new Point()
       override def onPointerStart (ev :Pointer.Event) = {
-        if (game.flickInput) _start.set(ev.x, ev.y)
+        if (usesFlick) _start.set(ev.x, ev.y)
         else jiva.onTap.emit(ev)
       }
-      override def onPointerEnd (ev :Pointer.Event) = if (game.flickInput) {
+      override def onPointerEnd (ev :Pointer.Event) = if (usesFlick) {
         val dx = ev.x - _start.x ; val dy = ev.y - _start.y
         val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
         if (dist < 5) jiva.onTap.emit(ev)
