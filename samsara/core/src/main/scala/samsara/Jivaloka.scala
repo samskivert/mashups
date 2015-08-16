@@ -18,6 +18,7 @@ class Jivaloka (
 
   val keyDown = Signal.create[Key]()
   val onTap   = Signal.create[Pointer.Event]()
+  val onFlick = Signal.create[(Int,Int)]()
   val onPaint = Signal.create[Clock]()
   val onChomp = Signal.create[MOB]()
   val onMove  = Signal.create[Bodied]()

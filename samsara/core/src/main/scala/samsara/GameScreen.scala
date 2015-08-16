@@ -7,7 +7,7 @@ package samsara
 import playn.core.PlayN._
 import playn.core._
 import playn.core.util.Clock
-import pythagoras.f.MathUtil
+import pythagoras.f.{MathUtil, Point, Points}
 import scala.collection.BitSet
 import tripleplay.game.UIScreen
 import tripleplay.ui._
@@ -109,6 +109,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     layer.addAt(tlayer.setDepth(9999), (width-tlayer.width)/2, (height-tlayer.height)/2)
     jiva.keyDown.connect(tlayer.destroy()).once // go away on any key press
     jiva.onTap.connect(tlayer.destroy()).once // go away on any tap
+    jiva.onFlick.connect(tlayer.destroy()).once // go away on any flick
   }
 
   override def showTransitionCompleted () {
@@ -121,7 +122,22 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     })
     // listen for pointer input as well
     pointer.setListener(new Pointer.Adapter {
-      override def onPointerStart (ev :Pointer.Event) = jiva.onTap.emit(ev)
+      private var _start = new Point()
+      override def onPointerStart (ev :Pointer.Event) = _start.set(ev.x, ev.y)
+      override def onPointerEnd (ev :Pointer.Event) = {
+        val dx = ev.x - _start.x ; val dy = ev.y - _start.y
+        val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
+        if (dist < 5) jiva.onTap.emit(ev)
+        else {
+          val sum = dx + dy
+          jiva.onFlick.emit(if (dx > dy) {
+            if (sum > 0) (1, 0) else (0, -1)
+          } else {
+            if (sum > 0) (0, 1) else (-1, 0)
+          })
+        }
+      }
+      override def onPointerCancel (ev :Pointer.Event) = jiva.onTap.emit(ev)
     })
   }
 

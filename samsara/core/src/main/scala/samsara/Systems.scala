@@ -82,6 +82,10 @@ class Systems (jiva :Jivaloka) {
         }
       } else if (protag.coord == jiva.level.exit) jiva.ascend(protag)
     }}
+
+    jiva.onFlick.connect(slot[(Int,Int)] {
+      case (x, y) => move(x, y)
+    })
   }
 
   val eaters = new System[Eater](jiva) {
