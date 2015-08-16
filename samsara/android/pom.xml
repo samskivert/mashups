@@ -74,6 +74,7 @@
           </links>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>com.simpligility.maven.plugins</groupId>
         <!--<groupId>com.jayway.maven.plugins.android.generation2</groupId>-->
@@ -110,6 +111,7 @@
       </plugin>
     </plugins>
   </build>
+
   <!-- run 'mvn package -Pandroid -Psign -Dkeystore.password=foo' to sign and align -->
   <profiles>
     <profile>
