@@ -18,6 +18,7 @@
     <tripleplay.version>1.9</tripleplay.version>
     <scala.version>2.11.7</scala.version>
     <maven.scala.version>2.15.2</maven.scala.version>
+    <android.maven.version>4.3.0</android.maven.version>
   </properties>
 
   <modules>

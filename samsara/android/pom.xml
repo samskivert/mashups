@@ -75,7 +75,8 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+        <groupId>com.simpligility.maven.plugins</groupId>
+        <!--<groupId>com.jayway.maven.plugins.android.generation2</groupId>-->
         <artifactId>android-maven-plugin</artifactId>
         <version>${android.maven.version}</version>
         <configuration>
@@ -83,7 +84,7 @@
           <assetsDirectory>${project.basedir}/assets</assetsDirectory>
           <resourceDirectory>${project.basedir}/res</resourceDirectory>
           <sdk>
-            <platform>11</platform>
+            <platform>21</platform>
           </sdk>
           <deleteConflictingFiles>true</deleteConflictingFiles>
           <undeployBeforeDeploy>true</undeployBeforeDeploy>
