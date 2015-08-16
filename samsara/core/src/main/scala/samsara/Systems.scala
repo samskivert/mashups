@@ -70,7 +70,7 @@ class Systems (jiva :Jivaloka) {
       case _ => // nada
     })
 
-    jiva.onTap.connect { ev :Pointer.Event => if (protag != null) {
+    if (jiva.game.relTapInput) jiva.onTap.connect { ev :Pointer.Event => if (protag != null) {
       val tap = Coord(jiva.screen.toCoord(ev.x), jiva.screen.toCoord(ev.y))
       if (tap != protag.coord) {
         val dx = tap.x - protag.coord.x ; val dy = tap.y - protag.coord.y
@@ -83,7 +83,19 @@ class Systems (jiva :Jivaloka) {
       } else if (protag.coord == jiva.level.exit) jiva.ascend(protag)
     }}
 
-    jiva.onFlick.connect(slot[(Int,Int)] {
+    if (jiva.game.absTapInput) jiva.onTap.connect {
+      ev :Pointer.Event =>
+      val dx = ev.x - jiva.screen.width/2
+      val dy = ev.y - jiva.screen.height/2
+      val sum = dx + dy
+      if (dx > dy) {
+        if (sum > 0) move(1, 0) else move(0, -1)
+      } else {
+        if (sum > 0) move(0, 1) else move(-1, 0)
+      }
+    }
+
+    if (jiva.game.flickInput) jiva.onFlick.connect(slot[(Int,Int)] {
       case (x, y) => move(x, y)
     })
   }

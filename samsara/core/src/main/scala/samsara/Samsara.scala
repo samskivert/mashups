@@ -15,6 +15,10 @@ class Samsara extends Game.Default(33) {
   val screens = new ScreenStack
   val seenTips = MSet[Int]()
 
+  var flickInput = true
+  var relTapInput = false
+  var absTapInput = false
+
   override def init ()  {
     screens.push(new MainMenuScreen(this))
   }

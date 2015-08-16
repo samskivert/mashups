@@ -82,18 +82,18 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     val levlay = StyledText.span(level.depth.toString, UI.levelCfg).toLayer()
     layer.addAt(levlay.setDepth(1).setAlpha(0.3f), (width-levlay.width)/2, (height-levlay.height)/2)
 
-    // display our remaining move count in the lower left
+    // display our remaining move count in the lower right
     val croot = iface.createRoot(AxisLayout.vertical, UI.sheet)
     croot.add(new ValueLabel(jiva.movesLeft).addStyles(Style.FONT.is(UI.bodyFont(24))))
     croot.setSize(metrics.size, metrics.size)
-    layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f), 0, height - metrics.size)
+    layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f), width-metrics.size, height-metrics.size)
 
     // add a tip on the first few levels
     if (!game.seenTips(level.depth)) {
       game.seenTips += level.depth
       level.depth match {
-        case 0 => addTip("Move your fly to the exit at the top of the screen using the arrow keys.")
-        case 1 => addTip("Move next to the mate to 'create eggs'.")
+        case 0 => addTip("Move your fly up out the exit at the top of the screen.")
+        case 1 => addTip("Move to the mate to 'create eggs'.")
         case 2 => addTip("Watch out for frogs. They eat anything in the 2x2 space in front of them.")
         case 3 => addTip("Spiders will eat you too, and they move.")
         case _ => // nada
@@ -123,8 +123,11 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     // listen for pointer input as well
     pointer.setListener(new Pointer.Adapter {
       private var _start = new Point()
-      override def onPointerStart (ev :Pointer.Event) = _start.set(ev.x, ev.y)
-      override def onPointerEnd (ev :Pointer.Event) = {
+      override def onPointerStart (ev :Pointer.Event) = {
+        if (game.flickInput) _start.set(ev.x, ev.y)
+        else jiva.onTap.emit(ev)
+      }
+      override def onPointerEnd (ev :Pointer.Event) = if (game.flickInput) {
         val dx = ev.x - _start.x ; val dy = ev.y - _start.y
         val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
         if (dist < 5) jiva.onTap.emit(ev)
@@ -137,7 +140,6 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
           })
         }
       }
-      override def onPointerCancel (ev :Pointer.Event) = jiva.onTap.emit(ev)
     })
   }
 
