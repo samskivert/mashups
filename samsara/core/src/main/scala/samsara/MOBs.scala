@@ -22,7 +22,7 @@ class Frog (
 
   val tongue = 2
   val size = 2
-  var orient = startOrient
+  orient = startOrient
 
   def behave (jiva :Jivaloka, protag :FruitFly) {
     // if they're to our left/right, turn left/right
@@ -34,16 +34,12 @@ class Frog (
     if (edible.alive && _front(edible.coord)) jiva.chomp(edible) // (TODO: maybe sleep?)
   }
 
-  def setOrient (norient :Int) :Int = {
-    orient = norient
+  override def setOrient (norient :Int) :Int = {
     _front = region(norient, tongue)
     _left = region(dorient(norient, -1), 1)
     _right = region(dorient(norient, 1), 1)
-    layer.setRotation(Rots(orient))
-    norient
+    super.setOrient(norient)
   }
-
-  def dorient (orient :Int, delta :Int) = (orient + 4 + delta) % 4
 
   def region (orient :Int, depth :Int) = (orient match {
     case 0 => Coord.region(coord.x, coord.y - depth, size, depth)
@@ -51,16 +47,6 @@ class Frog (
     case 2 => Coord.region(coord.x, coord.y + size, size, depth)
     case _ => Coord.region(coord.x - depth, coord.y, depth, size)
   }).toSet
-
-  override def init (jiva :Jivaloka) {
-    super.init(jiva)
-    setOrient(orient)
-  }
-
-  override protected def position (jiva :Jivaloka) {
-    super.position(jiva)
-    layer.setRotation(Rots(orient))
-  }
 
   var alive = true
   val foot = Coord.square(size)
@@ -72,8 +58,6 @@ class Frog (
   private var _front :Set[Coord] = _
   private var _left  :Set[Coord] = _
   private var _right :Set[Coord] = _
-
-  private final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
 abstract class Spider extends Entity with MOB {

@@ -27,7 +27,10 @@ trait Bodied { self :Entity =>
   /** This body's visualization. Initialized by the render system. */
   var layer :Layer = _
 
-  /** Specifies the depth of this body's layer. */
+  /** This body's orientation. */
+  var orient :Int = 0
+
+/** Specifies the depth of this body's layer. */
   def depth :Float = DecalDepth
 
   /** Specifies the scale to use for the body's image. */
@@ -44,6 +47,7 @@ trait Bodied { self :Entity =>
     layer = viz.create(jiva.screen.metrics).setDepth(depth).setScale(scale)
     position(jiva)
     jiva.screen.layer.add(layer)
+    setOrient(orient)
   }
 
   /** Updates this body's coordinates, and moves its layer. */
@@ -53,6 +57,14 @@ trait Bodied { self :Entity =>
     position(jiva)
     jiva.onMove.emit(this)
   }
+
+  def setOrient (norient :Int) :Int = {
+    orient = norient
+    layer.setRotation(Rots(orient))
+    norient
+  }
+
+  def dorient (orient :Int, delta :Int) = (orient + 4 + delta) % 4
 
   /** Destroys this body's viz. */
   def destroy () {
@@ -73,7 +85,10 @@ trait Bodied { self :Entity =>
 
   protected def position (jiva :Jivaloka) {
     jiva.screen.position(layer, coord)
+    layer.setRotation(Rots(orient))
   }
+
+  protected final val Rots = Array(0, FloatMath.PI/2, FloatMath.PI, 3*FloatMath.PI/2)
 }
 
 trait Footed extends Bodied { self :Entity =>
@@ -124,6 +139,7 @@ class FruitFly (
     jiva.movesLeft.update(movesLeft)
     // if we're out of moves and were not killed for other reasons; keel over
     if (alive && movesLeft == 0) jiva.croak(this)
+    // update our orientation
   }
 
   override def depth = PlayerDepth
