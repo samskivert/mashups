@@ -11,6 +11,7 @@ import scala.collection.BitSet
 import tripleplay.game.UIScreen
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
+import tripleplay.util.StyledText
 
 class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
   def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.level0)
@@ -75,7 +76,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     }))
 
     // display our current level depth number as a giant decal overlaying the board
-    val levlay = UI.levelCfg.toLayer(level.depth.toString)
+    val levlay = StyledText.span(level.depth.toString, UI.levelCfg).toLayer()
     layer.addAt(levlay.setDepth(1).setAlpha(0.3f), (width-levlay.width)/2, (height-levlay.height)/2)
 
     // display our remaining move count in the lower left
@@ -101,7 +102,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
   }
 
   private def addTip (msg :String) {
-    val tlayer = UI.tipCfg.toLayer(msg)
+    val tlayer = StyledText.block(msg, UI.tipCfg, 256).toLayer()
     layer.addAt(tlayer.setDepth(9999), (width-tlayer.width)/2, (height-tlayer.height)/2)
     jiva.keyDown.connect(tlayer.destroy()).once // go away on any key press
   }

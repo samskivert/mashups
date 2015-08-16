@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.googlecode.playn</groupId>
     <artifactId>playn-project</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
   </parent>
 
   <groupId>com.samskivert.mashups</groupId>
@@ -14,8 +14,9 @@
   <name>Samsara Metaproject</name>
 
   <properties>
-    <playn.version>1.8</playn.version>
-    <scala.version>2.10.1</scala.version>
+    <playn.version>1.9</playn.version>
+    <scala.version>2.11.7</scala.version>
+    <maven.scala.version>2.15.2</maven.scala.version>
   </properties>
 
   <modules>

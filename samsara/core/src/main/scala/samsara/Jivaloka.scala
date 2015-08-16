@@ -7,6 +7,7 @@ package samsara
 import playn.core._
 import playn.core.util.Clock
 import react.{Signal, IntValue}
+import tripleplay.util.StyledText
 
 class Jivaloka (
   val game    :Samsara,
@@ -107,7 +108,7 @@ class Jivaloka (
   }
 
   def anim (coord :Coord, text :String, color :Int, size :Float) {
-    val tlayer = UI.animCfg(color, size).toLayer(text)
+    val tlayer = StyledText.span(text, UI.animCfg(color, size)).toLayer()
     tlayer.setOrigin(tlayer.width/2, tlayer.height/2)
     tlayer.setDepth(100)
     screen.center(tlayer, coord)

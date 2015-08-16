@@ -9,7 +9,7 @@ import playn.core.PlayN._
 
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
-import tripleplay.util.TextConfig
+import tripleplay.util.TextStyle
 
 object UI {
 
@@ -19,10 +19,9 @@ object UI {
 
   def sheet = SimpleStyles.newSheet
 
-  def levelCfg = new TextConfig(0xFF000000).withFont(bodyFont(256))
-  def animCfg (color :Int, size :Float) = new TextConfig(color).withFont(bodyFont(size))
-  def tipCfg = new TextConfig(0xFFFFFFFF).withFont(bodyFont(32)).withOutline(0xFF000000, 2f).
-    withWrapping(256, TextFormat.Alignment.CENTER)
+  def levelCfg = TextStyle.normal(bodyFont(256), 0xFF000000)
+  def animCfg (color :Int, size :Float) = TextStyle.normal(bodyFont(size), color)
+  def tipCfg = TextStyle.normal(bodyFont(32), 0xFFFFFFFF).withOutline(0xFF000000, 2f)
 
   /** Returns a shim configured with an [AxisLayout] stretch constraint. */
   def stretchShim :Shim = AxisLayout.stretch(shim(1, 1))
