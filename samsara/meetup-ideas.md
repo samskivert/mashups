@@ -31,3 +31,6 @@
   - some yield eggs that are stronger (>1 HP)
   - some yield eggs that can hop one tile
   - ??
+
+- Input:
+  - virtual joypad (in lower left or lower right)
