@@ -13,4 +13,9 @@ public class SamsaraActivity extends GameActivity {
   public void main(){
     PlayN.run(new Samsara());
   }
+
+  @Override
+  protected boolean usePortraitOrientation() {
+    return true;
+  }
 }
