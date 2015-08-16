@@ -1,0 +1,15 @@
+Ideas:
+- I think obstacles inspired by the lap environment itself might be visually interesting at least
+(boiling beakers, spilled chemicals, etc).
+- Could have a whole flypaper level which slows you down or the really goopy stuff kills you
+- Would it be crazy to have a powerup that lets you jump/fly more than a single square? Might be an
+irritating change of the 'model' to code around.
+- I suppose a fertility powerup might be interesting (resulting in more eggs). Could be an
+infertility powerdown as well
+- I seem to remember that one of the things you could select for when breeding fruit flies was eye
+color.. could have the eye color change in a fly which gives them the ability to see things they
+couldn't before.. (maybe they can get a hint what direction the spider is moving to next, or see
+hidden things).
+- I suppose a fly could become stronger, able to push smaller obstacles out of the way.
+- There could be the adrenaline powerup, being able to move faster (more squares at once?)
+- I'll keep thinking...
