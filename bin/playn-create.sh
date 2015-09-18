@@ -5,12 +5,12 @@ if [ -z "$1" -o -z "$2" ]; then
     exit 255
 fi
 
-VERS=1.9-SNAPSHOT
+VERS=2.0-SNAPSHOT
 
 mvn archetype:generate \
     -DarchetypeRepository=local \
     -DarchetypeRepository=$HOME/.m2/repository \
-    -DarchetypeGroupId=com.googlecode.playn \
+    -DarchetypeGroupId=io.playn \
     -DarchetypeArtifactId=playn-archetype \
     -DarchetypeVersion=$VERS \
     -DgroupId=com.samskivert.mashups \
