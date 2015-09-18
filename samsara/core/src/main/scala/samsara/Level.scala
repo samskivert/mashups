@@ -13,7 +13,7 @@ case class Level (depth :Int, terrain :Array[Terrain], exit :Coord, entities :Se
 /** Level-related static data. */
 object Level {
   val width = 8
-  val height = 12
+  val height = 14
 
   def random (depth :Int, ascender :Option[FruitFly]) :Level = {
     val rando = new java.util.Random

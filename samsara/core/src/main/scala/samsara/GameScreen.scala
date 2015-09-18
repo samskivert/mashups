@@ -55,6 +55,11 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
           idx += 1
         }
 
+        // TEMP: fill in the gaps around the edges
+        val rx = Level.width*size ; val by = Level.height*size
+        surf.setFillColor(Dirt.color).fillRect(rx, 0, width, height)
+        surf.setFillColor(Dirt.color).fillRect(0, by, rx, height)
+
         // render reachable tiles for debuggery
         if (reach != null) {
           idx = 0 ; while (idx < level.terrain.length) {
@@ -122,7 +127,7 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
 
     // listen for pointer input as well
     val UsesFlick = game.flickInput || game.flickTapInput
-    val MinFlickDist = 10 // pixels
+    val MinFlickDist = 20 // pixels
     pointer.setListener(new Pointer.Adapter {
       private var _start = new Point()
       override def onPointerStart (ev :Pointer.Event) = {

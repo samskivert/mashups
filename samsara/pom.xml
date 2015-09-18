@@ -37,7 +37,11 @@
       <modules><module>android</module></modules>
     </profile>
     <profile>
-      <id>robovm</id>
+      <id>robosim</id>
+      <modules><module>robovm</module></modules>
+    </profile>
+    <profile>
+      <id>robodev</id>
       <modules><module>robovm</module></modules>
     </profile>
   </profiles>

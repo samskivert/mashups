@@ -11,9 +11,9 @@ object SamsaraJava {
 
   def main (args :Array[String]) {
     val config = new JavaPlatform.Config
-    config.scaleFactor = 2
-    config.width = 320
-    config.height = 480
+    // config.scaleFactor = 2
+    config.width = 375
+    config.height = 667
     JavaPlatform.register(config)
     PlayN.run(new Samsara)
   }
