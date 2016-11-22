@@ -183,7 +183,7 @@ public class GameScreen extends ScreenStack.UIScreen {
     class ScrollScaler {
       public final Pointer.Listener pointer = new Pointer.Listener() {
         @Override public void onStart (Pointer.Interaction iact) {
-          System.out.println(this + ".onStart " + iact);
+          // System.out.println(this + ".onStart " + iact);
           _start.set(iact.x(), iact.y());
           _scrolling = false;
           // delegate to our flickers

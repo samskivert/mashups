@@ -11,7 +11,7 @@
 
   <artifactId>pokeros-java</artifactId>
   <packaging>jar</packaging>
-  <name>Grid Poker Java</name>
+  <name>Pokeros Java</name>
 
   <properties>
     <mainClass>pokeros.java.PokerosJava</mainClass>

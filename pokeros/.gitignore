@@ -4,3 +4,4 @@ ios/bin
 ios/obj
 assets/images
 android/assets
+robovm/resources/assets
