@@ -5,6 +5,7 @@ if [ -z "$1" -o -z "$2" ]; then
     exit 255
 fi
 
+GROUPID=com.samskivert.mashups
 VERS=2.0-SNAPSHOT
 
 mvn archetype:generate \
@@ -13,7 +14,7 @@ mvn archetype:generate \
     -DarchetypeGroupId=io.playn \
     -DarchetypeArtifactId=playn-archetype \
     -DarchetypeVersion=$VERS \
-    -DgroupId=com.samskivert.mashups \
+    -DgroupId=$GROUPID \
     -DartifactId=$1 \
     -Dversion=1.0-SNAPSHOT \
     -DJavaGameClassName=$2 \
