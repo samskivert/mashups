@@ -37,8 +37,8 @@ public class MainMenuScreen extends UIScreen {
                }}),
              UI.stretchShim(),
              new Group(AxisLayout.horizontal()).add(
-               new Label("Wins:"), new ValueLabel(_game.history.wins), new Shim(10, 1),
-               new Label("Losses:"), new ValueLabel(_game.history.losses), new Shim(20, 1),
+               new Label("Wins:"), new Label(_game.history.wins), new Shim(10, 1),
+               new Label("Losses:"), new Label(_game.history.losses), new Shim(20, 1),
                new Button("More...").onClick(
                  new UnitSlot() { public void onEmit () {
                    _game.screens.push(new HistoryScreen(_game));

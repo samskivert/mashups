@@ -131,12 +131,12 @@ public class GameScreen extends ScreenStack.UIScreen {
     for (int ii = 0; ii < players.length; ii++) {
       root.add(new Group(AxisLayout.horizontal().gap(3), Style.VALIGN.bottom).add(
         new Label(Player.WHO[ii] + ":").addStyles(Style.HALIGN.left),
-        new ValueLabel(players[ii].score).setConstraint(
+        new Label(players[ii].score).setConstraint(
           Constraints.minSize(game().plat.graphics(), "000"))));
     }
 
     root.add(new Group(AxisLayout.horizontal().gap(3)).add(
-               new Label("Cards:"), new ValueLabel(deck.cards.sizeView())));
+               new Label("Cards:"), new Label(deck.cards.sizeView())));
 
     root.packToWidth(size().width()-10);
     root.layer.setTranslation(5, 25);
