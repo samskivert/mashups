@@ -31,8 +31,8 @@ public class Pokeros extends SceneGame {
   public Pokeros (Platform plat, float cardScale) {
     super(plat, 33); // call update every 33ms (30 times per second)
     this.cardScale = cardScale;
-    new Touch.Dispatcher(rootLayer, false);
-    new Mouse.Dispatcher(rootLayer, false);
+    plat.input().touchEvents.connect(new Touch.Dispatcher(rootLayer, false));
+    plat.input().mouseEvents.connect(new Mouse.Dispatcher(rootLayer, false));
     screens.push(new MainMenuScreen(this));
   }
 }
