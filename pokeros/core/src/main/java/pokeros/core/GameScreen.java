@@ -432,7 +432,7 @@ public class GameScreen extends ScreenStack.UIScreen {
         tween(flickPos).to(tx, ty).in(300).easeInOut().then().
         add(cardsL, group).then().
         addAt(layer, label, (size().width()-label.width())/2,
-              size().height()/3-label.height()/2).then().
+              2*size().height()/3-label.height()/2).then().
         tweenAlpha(group).to(0).in(750).easeIn().then().
         tweenAlpha(label).to(0).in(750).easeIn().then().
         dispose(group).then().
