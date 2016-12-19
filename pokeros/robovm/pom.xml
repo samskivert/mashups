@@ -15,6 +15,8 @@
 
   <properties>
     <mainClass>pokeros.robovm.PokerosRoboVM</mainClass>
+    <appSigner>iPhone Distribution: Michael Bayne</appSigner>
+    <appCert>Pokeros App Store</appCert>
   </properties>
 
   <dependencies>
@@ -68,7 +70,7 @@
             <artifactId>robovm-maven-plugin</artifactId>
             <version>${robovm.version}</version>
             <configuration>
-              <deviceName>iPhone-6</deviceName>
+              <deviceName>iPhone-7</deviceName>
             </configuration>
             <executions>
               <execution>
@@ -116,8 +118,8 @@
             <artifactId>robovm-maven-plugin</artifactId>
             <version>${robovm.version}</version>
             <configuration>
-              <iosSignIdentity>${app_signer}</iosSignIdentity>
-              <iosProvisioningProfile>${app_cert}</iosProvisioningProfile>
+              <iosSignIdentity>${appSigner}</iosSignIdentity>
+              <iosProvisioningProfile>${appCert}</iosProvisioningProfile>
               <ipaArchs>thumbv7:arm64</ipaArchs>
             </configuration>
             <executions>
