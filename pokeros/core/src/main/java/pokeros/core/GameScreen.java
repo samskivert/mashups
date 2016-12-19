@@ -74,7 +74,7 @@ public class GameScreen extends ScreenStack.UIScreen {
     this.sviews = new StashView[players.length];
     for (int ii = 0; ii < sviews.length; ii++) {
       if (players[ii].isHuman()) {
-        sviews[ii] = new StashView(game.plat, media, players[ii].stash);
+        sviews[ii] = new StashView(game, media, players[ii].stash);
       }
     }
 

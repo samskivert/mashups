@@ -28,18 +28,11 @@ public class PokerosRoboVM extends UIApplicationDelegateAdapter {
     // configure and create the PlayN platform
     RoboPlatform.Config config = new RoboPlatform.Config();
     config.orients = UIInterfaceOrientationMask.All;
-    config.iPadLikePhone = true;
     RoboPlatform plat = RoboPlatform.create(window, config);
-
-    // TODO
-    // // prior to iOS 7 we need to say that we want to extend under the status bar
-    // if (!UIDevice.getCurrentDevice().checkSystemVersion(7, 0)) {
-    //   window.getRootViewController().setWantsFullScreenLayout(true);
-    // }
 
     // create and initialize our game
     boolean iPad = (bounds.getWidth() >= 768);
-    new Pokeros(plat, iPad ? 0.3f : 0.5f);
+    new Pokeros(plat, iPad ? 0.75f : 0.5f);
 
     // make our main window visible (this starts the platform)
     window.makeKeyAndVisible();

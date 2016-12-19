@@ -28,10 +28,14 @@ public class StashView {
    * GameScreen to animate a card sliding into place. */
   public final Point lastRemoved = new Point();
 
-  public StashView (Platform plat, final Media media, RSet<Card> stash) {
+  public StashView (Pokeros game, final Media media, RSet<Card> stash) {
+    Platform plat = game.plat;
     _slots = new CardSprite[Player.STASH];
     _dx = plat.graphics().viewSize.width() / (Player.STASH+1);
-    layer.setTranslation(0, plat.graphics().viewSize.height()-Media.CARD_HHEI/2-5);
+
+    final float cardScale = game.cardScale;
+    float cardHeight = cardScale * Media.CARD_HHEI;
+    layer.setTranslation(0, plat.graphics().viewSize.height()-cardHeight-5);
 
     stash.connect(new RSet.Listener<Card>() {
       @Override public void onAdd (Card card) {
@@ -39,7 +43,7 @@ public class StashView {
         for (int ii = 0; ii < _slots.length; ii++) {
           if (_slots[ii] == null) {
             CardSprite cs = new CardSprite(media, card);
-            cs.layer.setScale(0.5f);
+            cs.layer.setScale(cardScale);
             add(ii, cs);
             return;
           }
