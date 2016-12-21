@@ -115,17 +115,20 @@
                   <storepass>pokeros</storepass>
                   <keypass>pokeros</keypass>
                   <alias>pokeros</alias>
-                  <verbose>true</verbose>
                   <verify>true</verify>
+                  <arguments>
+                    <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                    <argument>-digestalg</argument><argument>SHA1</argument>
+                  </arguments>
                 </configuration>
               </execution>
             </executions>
           </plugin>
 
           <plugin>
-            <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+            <groupId>com.simpligility.maven.plugins</groupId>
             <artifactId>android-maven-plugin</artifactId>
-            <version>4.0.0-rc.2</version>
+            <version>${android.maven.version}</version>
             <inherited>true</inherited>
             <configuration>
               <zipalign><skip>false</skip></zipalign>
