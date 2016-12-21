@@ -215,10 +215,10 @@ public class GameScreen extends ScreenStack.UIScreen {
       };
       public final Touch.Listener touch = new Touch.Listener() {
         @Override public void onStart (Touch.Interaction touch) {
-          if (_firstId == 0) {
+          if (_firstId < 0) {
             _firstId = touch.event.id;
             _firstPos.set(touch.x(), touch.y());
-          } else if (_secondId == 0) {
+          } else if (_secondId < 0) {
             _secondId = touch.event.id;
             _secondPos.set(touch.x(), touch.y());
             _baseDist = _firstPos.distance(_secondPos);
@@ -242,7 +242,7 @@ public class GameScreen extends ScreenStack.UIScreen {
         @Override public void onEnd (Touch.Interaction touch) {
           // if either the first or second touch ends, end the gesture
           if (_firstId == touch.event.id || _secondId == touch.event.id) {
-            _firstId = _secondId = 0;
+            _firstId = _secondId = -1;
           }
         }
         @Override public void onCancel (Touch.Interaction touch) {
@@ -251,7 +251,7 @@ public class GameScreen extends ScreenStack.UIScreen {
       };
 
       private boolean isScaling () {
-        return _firstId != 0 && _secondId != 0;
+        return _firstId >= 0 && _secondId >= 0;
       }
 
       // scrolling bits
@@ -260,7 +260,7 @@ public class GameScreen extends ScreenStack.UIScreen {
       protected static final float SCROLL_THRESH = 10;
 
       // scaling bits
-      protected int _firstId, _secondId;
+      protected int _firstId = -1, _secondId = -1;
       protected Point _firstPos = new Point(), _secondPos = new Point();
       protected float _baseDist, _baseScale;
     }
