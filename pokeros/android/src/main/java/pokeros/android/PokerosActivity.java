@@ -9,17 +9,18 @@ import android.view.WindowManager;
 import playn.android.AndroidAssets;
 import playn.android.GameActivity;
 import playn.core.Font;
-import playn.core.PlayN;
 
 import pokeros.core.Pokeros;
 
 public class PokerosActivity extends GameActivity {
 
-  @Override
-  public void main(){
+  public Pokeros game;
+
+  @Override public void main () {
     // register our fonts
-    platform().graphics().registerFont("fonts/copperplate.ttf", "Copperplate", Font.Style.PLAIN);
-    platform().graphics().registerFont("fonts/copperplate.ttf", "Copperplate", Font.Style.BOLD);
+    Typeface copperplate = platform().assets().getTypeface("fonts/copperplate.ttf");
+    platform().graphics().registerFont(copperplate, "Copperplate", Font.Style.PLAIN);
+    platform().graphics().registerFont(copperplate, "Copperplate", Font.Style.BOLD);
 
     // use a lower-memory format for JPGs (which tend to be large and memory sucking)
     platform().assets().setBitmapOptionsAdjuster(new AndroidAssets.BitmapOptionsAdjuster() {
@@ -29,15 +30,12 @@ public class PokerosActivity extends GameActivity {
       }
     });
 
-    PlayN.run(new Pokeros(0.5f));
+    game = new Pokeros(platform(), 0.5f);
   }
 
   @Override protected float scaleFactor () {
-    DisplayMetrics dm = getResources().getDisplayMetrics();
-    return (dm.densityDpi >= DisplayMetrics.DENSITY_MEDIUM) ? 2 : 1;
+    return getResources().getDisplayMetrics().density * 0.8f;
   }
-
-  @Override protected boolean usePortraitOrientation () { return true; }
 
   @Override protected String logIdent () { return "pokeros"; }
 
