@@ -6,34 +6,40 @@ package ziggurat.core.gensys;
 
 import java.util.Random;
 import playn.core.*;
-import playn.core.util.TextBlock;
+import playn.scene.CanvasLayer;
+import playn.scene.Pointer;
 import pythagoras.f.Point;
-import static playn.core.PlayN.graphics;
-import tripleplay.game.Screen;
+
+import tripleplay.game.ScreenSpace;
 import tripleplay.util.Randoms;
 import tripleplay.util.StyledText;
 import tripleplay.util.TextStyle;
+
 import ziggurat.core.Ziggurat;
 
-public class TestScreen extends Screen {
+public class TestScreen extends ScreenSpace.Screen {
 
   public final Randoms rando = Randoms.with(new Random());
 
-  @Override public void wasAdded () {
-    final CanvasImage image = graphics().createImage(512, 512);
-    layer.add(graphics().createImageLayer(image));
-    final CanvasImage infoImage = graphics().createImage(128, 512);
-    layer.addAt(graphics().createImageLayer(infoImage), 512, 0);
-    update(image.canvas(), infoImage.canvas());
+  public TestScreen (Ziggurat game) {
+    super(game);
+  }
 
-    layer.addListener(new Pointer.Adapter() {
-      public void onPointerStart (Pointer.Event event) {
-        update(image.canvas(), infoImage.canvas());
-      }
-    });
-    layer.setHitTester(new Layer.HitTester() {
-      public Layer hitTest (Layer layer, Point p) {
-        return layer; // we're always a hit!
+  @Override public void init () {
+    super.init();
+    final CanvasLayer vizLayer = new CanvasLayer(_game.plat.graphics(), 512, 512);
+    layer.add(vizLayer);
+    final CanvasLayer infoLayer = new CanvasLayer(_game.plat.graphics(), 128, 512);
+    layer.addAt(infoLayer, 512, 0);
+    update(vizLayer.begin(), infoLayer.begin());
+    vizLayer.end();
+    infoLayer.end();
+
+    layer.events().connect(new Pointer.Listener() {
+      public void onStart (Pointer.Interaction iact) {
+        update(vizLayer.begin(), infoLayer.begin());
+        vizLayer.end();
+        infoLayer.end();
       }
     });
   }
@@ -46,16 +52,15 @@ public class TestScreen extends Screen {
     Generator.Info info = new Generator.Info();
     gen.generate(rando, genes, vizCanvas, info);
 
-    StyledText.Block iblock = new StyledText.Block(
-      info.buf.toString(), INFO_STYLE, INFO_WRAP, TextBlock.Align.LEFT);
-    infoCanvas.setFillColor(0xFFFFFFFF).fillRect(0, 0, infoCanvas.width(), infoCanvas.height());
+    StyledText.Block iblock = StyledText.block(
+      _game.plat.graphics(), info.buf.toString(), INFO_STYLE, INFO_WRAP);
+    infoCanvas.setFillColor(0xFFFFFFFF).fillRect(0, 0, infoCanvas.width, infoCanvas.height);
     iblock.render(infoCanvas, 5, 5);
   }
 
   // @Override public void wasRemoved () {
   // }
 
-  protected final TextStyle INFO_STYLE = TextStyle.normal(
-    graphics().createFont("Helvetica", Font.Style.PLAIN, 14), 0xFF000000);
-  protected final TextWrap INFO_WRAP = new TextWrap(118);
+  protected final TextStyle INFO_STYLE = TextStyle.normal(new Font("Helvetica", 14), 0xFF000000);
+  protected final float INFO_WRAP = 118;
 }

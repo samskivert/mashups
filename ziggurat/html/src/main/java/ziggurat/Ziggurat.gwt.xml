@@ -1,5 +1,5 @@
 <module rename-to='ziggurat'>
-  <inherits name='playn.PlayN'/>
+  <inherits name='playn.Scene'/>
   <inherits name='ZigguratAssets'/>
 
   <source path='core'/>

@@ -4,12 +4,14 @@
 
 package ziggurat.core;
 
+import playn.core.Platform;
+
 import tripleplay.ui.SimpleStyles;
 import tripleplay.ui.Stylesheet;
 
 public class UI {
 
-  public static Stylesheet stylesheet () {
-    return SimpleStyles.newSheet();
+  public static Stylesheet stylesheet (Platform plat) {
+    return SimpleStyles.newSheet(plat.graphics());
   }
 }

@@ -1,23 +1,17 @@
-//
-// Mashups - a series of mashed up game prototypes
-// https://github.com/samskivert/mashups/blob/master/LICENSE
-
 package ziggurat.html;
 
-import playn.core.PlayN;
-import playn.html.HtmlGame;
+import com.google.gwt.core.client.EntryPoint;
 import playn.html.HtmlPlatform;
-
 import ziggurat.core.Ziggurat;
 
-public class ZigguratHtml extends HtmlGame {
+public class ZigguratHtml implements EntryPoint {
 
-  @Override
-  public void start() {
+  @Override public void onModuleLoad () {
     HtmlPlatform.Config config = new HtmlPlatform.Config();
     // use config to customize the HTML platform, if needed
-    HtmlPlatform platform = HtmlPlatform.register(config);
-    platform.assets().setPathPrefix("ziggurat/");
-    PlayN.run(new Ziggurat());
+    HtmlPlatform plat = new HtmlPlatform(config);
+    plat.assets().setPathPrefix("ziggurat/");
+    new Ziggurat(plat);
+    plat.start();
   }
 }

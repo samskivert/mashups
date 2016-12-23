@@ -67,7 +67,7 @@ public class ColorMix extends Generator {
   // 6 - ???
 
   public void generate (Randoms rando, Gene[] genes, Canvas target, Info info) {
-    float widthf = target.width(), heightf = target.height();
+    float widthf = target.width, heightf = target.height;
     int width = (int)widthf, height = (int)heightf;
 
     // genes[3] = Gene.INDIGO;

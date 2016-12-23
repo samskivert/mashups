@@ -4,39 +4,29 @@
 
 package ziggurat.core;
 
-import playn.core.Game;
-import playn.core.util.Clock;
-import react.Value;
-import rsp.State;
+import playn.core.Platform;
+import playn.scene.Pointer;
+import playn.scene.SceneGame;
 
-public class Ziggurat extends Game.Default {
+import tripleplay.game.ScreenSpace;
 
-  public final State root = new State();
-  public final Value<Integer> update = Value.create(0);
-  public final Value<Clock> paint = Value.create(null);
+import ziggurat.core.gensys.TestScreen;
+import ziggurat.core.zone.ZoneTestScreen;
 
-  public final ScreenStack<Ziggurat> screens = new ScreenStack(this, root);
+public class Ziggurat extends SceneGame {
 
-  public Ziggurat() {
-    super(33); // call update every 33ms (30 times per second)
+  public final Pointer pointer;
+  public final ScreenSpace screens;
+
+  public Ziggurat (Platform plat) {
+    super(plat, 33);
+
+    // wire up pointer and mouse event dispatch
+    pointer = new Pointer(plat, rootLayer, true);
+    // plat.input().mouseEvents.connect(new Mouse.Dispatcher(rootLayer, false));
+
+    screens = new ScreenSpace(this, rootLayer);
+    // screens.add(new ZoneTestScreen(this), ScreenSpace.DOWN);
+    screens.add(new TestScreen(this), ScreenSpace.DOWN);
   }
-
-  @Override
-  public void init() {
-    if (screens.isEmpty()) screens.push(new MainMenuScreen.S());
-  }
-
-  @Override
-  public void update(int delta) {
-    update.update(delta);
-    _clock.update(delta);
-  }
-
-  @Override
-  public void paint(float alpha) {
-    _clock.paint(alpha);
-    paint.updateForce(_clock);
-  }
-
-  private final Clock.Source _clock = new Clock.Source(33);
 }

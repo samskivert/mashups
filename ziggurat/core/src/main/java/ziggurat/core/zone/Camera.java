@@ -4,12 +4,16 @@
 
 package ziggurat.core.zone;
 
-import playn.core.*;
-import playn.core.util.Clock;
 import pythagoras.f.*;
 import react.Signal;
-import static playn.core.PlayN.*;
+import react.Slot;
+
+import playn.core.*;
+import playn.scene.Layer;
+import playn.scene.Pointer;
+
 import tripleplay.anim.Flicker;
+import tripleplay.game.ScreenSpace;
 
 /** Controls the view "camera". */
 public class Camera {
@@ -20,23 +24,28 @@ public class Camera {
   /** The minimum/maximum camera positions. */
   public final IPoint min, max;
 
-  public Camera (Layer layer, IRectangle bounds) {
+  public Camera (ScreenSpace.Screen screen, Layer layer, IRectangle bounds) {
     this.layer = layer;
+    _ssize = screen.size();
 
     this.max = new Point(bounds.x(), bounds.y());
     this.min = new Point(bounds.x() - bounds.width() + swidth(),
                          bounds.y() - bounds.height() + sheight());
 
     // create and wire up our x/y flickers
-    layer.addListener(_xFlicker = new Flicker(0, min.x(), max.x()) {
+    layer.events().connect(_xFlicker = new Flicker(0, min.x(), max.x()) {
       @Override protected float getPosition (Pointer.Event event) { return event.x(); }
     });
-    layer.addListener(_yFlicker = new Flicker(0, min.y(), max.y()));
+    layer.events().connect(_yFlicker = new Flicker(0, min.y(), max.y()));
+
+    _xFlicker.connect(screen.paint);
+    _yFlicker.connect(screen.paint);
+    screen.paint.connect(this::paint);
   }
 
   /** A slot emitted when the user clicks on the target layer. Since the camera handles scrolling
     * interactions, it ends up detecting clicks on the target layer as well. */
-  public Signal<Pointer.Event> clicked () { return _xFlicker.clicked; }
+  public Signal<Pointer.Interaction> clicked () { return _xFlicker.clicked; }
 
   /** Sets the camera focus to the center of the specified grid cell.
     * The camera will disable interaction and smoothly scroll to that location. */
@@ -60,14 +69,8 @@ public class Camera {
     setInteractive(true);
   }
 
-  public void update (int delta) {
-    // TODO: anything?
-  }
-
   public void paint (Clock clock) {
     if (_interactive) {
-      _xFlicker.paint(clock);
-      _yFlicker.paint(clock);
       layer.setTranslation(_xFlicker.position, _yFlicker.position);
 
     } else {
@@ -76,7 +79,7 @@ public class Camera {
       // if we're close enough to our destination then go back to interactive movement
       if (Math.abs(dx) < 1 && Math.abs(dy) < 1) setInteractive(true);
       else {
-        float dt = clock.dt()/1000f;
+        float dt = clock.dt/1000f;
         float vx = _vel.x, vy = _vel.y;
         // apply a spring force from the focus to the camera
         float fx = -W*W*dx - 2*W*vx, fy = -W*W*dy - 2*W*vy;
@@ -101,11 +104,12 @@ public class Camera {
     }
   }
 
-  private final float swidth () { return graphics().width(); }
-  private final float sheight () { return graphics().height(); }
+  private final float swidth () { return _ssize.width(); }
+  private final float sheight () { return _ssize.height(); }
 
   protected final float W = 7; // spring frequency
   protected final Vector _foc = new Vector(), _vel = new Vector();
+  protected final IDimension _ssize;
   protected final Flicker _xFlicker, _yFlicker;
   protected boolean _interactive = true;
 }

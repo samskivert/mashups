@@ -101,7 +101,7 @@ public class Spiral1 extends Generator {
   // 6 - ???
 
   public void generate (Randoms rando, Gene[] genes, Canvas target, Info info) {
-    float width = target.width(), height = target.height();
+    float width = target.width, height = target.height;
 
     // genes[5] = Gene.ORANGE;
 

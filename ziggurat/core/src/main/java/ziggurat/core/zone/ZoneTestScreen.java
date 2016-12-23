@@ -4,39 +4,30 @@
 
 package ziggurat.core.zone;
 
-import playn.core.Pointer;
-import playn.core.util.Clock;
+import playn.core.*;
 import react.Slot;
-import tripleplay.game.Screen;
+import tripleplay.game.ScreenSpace;
 import ziggurat.core.Ziggurat;
 
-public class ZoneTestScreen extends Screen {
+public class ZoneTestScreen extends ScreenSpace.Screen {
 
-  public final Ziggurat game;
   public final Zone zone = Zone.makeTest();
-  public final ZoneView view = new ZoneView(zone);
+  public final ZoneView view;
 
   public ZoneTestScreen (Ziggurat game) {
-    this.game = game;
+    super(game);
+
+    view = new ZoneView(this, zone);
 
     // TEMP: for testing
-    view.cam.clicked().connect(new Slot<Pointer.Event>() {
-      public void onEmit (Pointer.Event event) {
-        int gx = Grid.toGrid(event.localX()), gy = Grid.toGrid(event.localY());
-        view.cam.focusG(gx, gy);
-      }
+    view.cam.clicked().connect(iact -> {
+      int gx = Grid.toGrid(iact.local.x()), gy = Grid.toGrid(iact.local.y());
+      view.cam.focusG(gx, gy);
     });
   }
 
-  @Override public void wasAdded () {
+  @Override public void init () {
+    super.init();
     layer.add(view.layer);
-  }
-
-  @Override public void update (int delta) {
-    view.update(delta);
-  }
-
-  @Override public void paint (Clock clock) {
-    view.paint(clock);
   }
 }
