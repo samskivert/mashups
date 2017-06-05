@@ -5,7 +5,6 @@
 package samsara
 
 import playn.core._
-import playn.core.util.Clock
 import react.{Signal, IntValue}
 import tripleplay.util.StyledText
 
@@ -40,11 +39,11 @@ class Jivaloka (
     // try hatching a new fruit fly
     systems.hatcher.hatch()
     // if we still have no protagonist, we were unable to find a nest from which to hatch
-    if (systems.move.protag == null) PlayN.invokeLater(new Runnable {
+    if (systems.move.protag == null) game.plat.exec.invokeLater(new Runnable {
       // defer our rollback one frame to give entities a chance to settle down before we save them
       def run () {
         // if we still have animations pending, "busy wait" until they're done
-        if (anims.get > 0) PlayN.invokeLater(this)
+        if (anims.get > 0) game.plat.exec.invokeLater(this)
         // if this is level zero, then it's game over
         else if (level.depth == 0) game.screens.remove(screen, game.screens.slide.up)
         // otherwise pop back to the previous screen and try to hatch from there
@@ -110,15 +109,15 @@ class Jivaloka (
   }
 
   def anim (coord :Coord, text :String, color :Int, size :Float) {
-    val tlayer = StyledText.span(text, UI.animCfg(color, size)).toLayer()
+    val tlayer = StyledText.span(game.plat.graphics, text, UI.animCfg(color, size)).toLayer()
     tlayer.setOrigin(tlayer.width/2, tlayer.height/2)
     tlayer.setDepth(100)
     screen.center(tlayer, coord)
     anims.increment(1)
-    screen.iface.animator.add(screen.layer, tlayer).`then`.
+    screen.iface.anim.add(screen.layer, tlayer).`then`.
       tweenScale(tlayer).to(1.5f).in(500).`then`.
       tweenAlpha(tlayer).to(0f).in(250).`then`.
       increment(anims, -1).`then`.
-      destroy(tlayer)
+      dispose(tlayer)
   }
 }

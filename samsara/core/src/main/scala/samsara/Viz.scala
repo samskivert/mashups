@@ -4,83 +4,83 @@
 
 package samsara
 
-import playn.core.PlayN._
 import playn.core._
+import playn.scene.{Layer, ImageLayer}
 import scala.collection.mutable.ArrayBuffer
 
 case class Viz (width :Int, height :Int, stroke :Int, fill :Int) {
   import Viz._
 
-  def create (metrics :Metrics) :Layer = {
-    val image = graphics.createImage(metrics.size*width, metrics.size*height)
-    image.canvas.setLineCap(Canvas.LineCap.ROUND).setStrokeColor(stroke).setFillColor(fill).
+  def create (plat :Platform, metrics :Metrics) :Layer = {
+    val canvas = plat.graphics.createCanvas(metrics.size*width, metrics.size*height)
+    canvas.setLineCap(Canvas.LineCap.ROUND).setStrokeColor(stroke).setFillColor(fill).
       translate(1, 1)
-    _ops.foreach(_.apply(image.canvas, image.width-2, image.height-2))
-    graphics.createImageLayer(image).setOrigin(image.width/2, image.height/2)
+    _ops.foreach(_.apply(plat, canvas, canvas.width-2, canvas.height-2))
+    new ImageLayer(canvas.image).setOrigin(canvas.width/2, canvas.height/2)
   }
 
-  def op (op :(Canvas, Float, Float) => Unit) = {
+  def op (op :(Platform, Canvas, Float, Float) => Unit) = {
     _ops += op
     this
   }
 
   def circleF (x :Float, y :Float, r :Float) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       canvas.fillCircle(x*width, y*height, r*math.min(width, height)-1)
     }}
   def circleSF (x :Float, y :Float, r :Float) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       val (cx, cy, cr) = (x*width, y*height, r*math.min(width, height))
       canvas.fillCircle(cx, cy, cr-1).setStrokeWidth(2).strokeCircle(cx, cy, cr-1).setStrokeWidth(1)
     }}
 
   def circleF (x :Float, y :Float, r :Float, fill :Int) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       canvas.save().setFillColor(fill).
         fillCircle(x*width, y*height, r*math.min(width, height)-1).restore()
     }}
 
   def line (x1 :Float, y1 :Float, x2 :Float, y2 :Float, swidth :Float = 2) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       canvas.setStrokeWidth(swidth).drawLine(x1*width, y1*height, x2*width, y2*height).
         setStrokeWidth(1)
     }}
 
   def roundRectSF (x :Float, y :Float, rwidth :Float, rheight :Float, corner :Float) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       canvas.fillRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width).
         strokeRoundRect(x*width, y*width, rwidth*width, rheight*height, corner*width)
     }}
 
   def ellipseSF (x :Float, y :Float, ewidth :Float, eheight: Float) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       val path = ellipsePath(canvas.createPath(), x*width, y*width, ewidth*width, eheight*height)
       canvas.fillPath(path).strokePath(path)
     }}
 
   def polyF (coords :(Float,Float)*) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       canvas.fillPath(poly(canvas.createPath(), width, height, coords))
     }}
   def polySF (coords :(Float,Float)*) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       val path = poly(canvas.createPath(), width, height, coords)
       canvas.fillPath(path).strokePath(path)
     }}
 
   def heartSF (bx :Float, by :Float, hw :Float, hh :Float) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
+    (plat, canvas, width, height) => {
       val path = heart(canvas.createPath(), bx*width, by*height, hw*width, 2*hh*height/3)
       canvas.fillPath(path).strokePath(path)
     }}
 
   def textF (text :String, fill :Int) = op {
-    (canvas :Canvas, width :Float, height :Float) => {
-      val tl = graphics.layoutText(text, new TextFormat().withFont(UI.bodyFont(height/3)))
-      canvas.setFillColor(fill).fillText(tl, (width-tl.width)/2, (height-tl.height)/2)
+    (plat, canvas, width, height) => {
+      val tl = plat.graphics.layoutText(text, new TextFormat().withFont(UI.bodyFont(height/3)))
+      canvas.setFillColor(fill).fillText(tl, (width-tl.size.width)/2, (height-tl.size.height)/2)
     }}
 
-  val _ops = ArrayBuffer[(Canvas,Float,Float) => Unit]()
+  val _ops = ArrayBuffer[(Platform,Canvas,Float,Float) => Unit]()
 }
 
 object Viz {

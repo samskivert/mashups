@@ -4,35 +4,37 @@
 
 package samsara
 
-import tripleplay.game.UIScreen
+import tripleplay.game.ScreenStack
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
 import tripleplay.ui.layout.TableLayout
 
-class MainMenuScreen (game :Samsara) extends UIScreen {
+class MainMenuScreen (game :Samsara) extends ScreenStack.UIScreen(game.plat) {
+
+  def game = game
 
   override def wasAdded () {
-    val root = iface.createRoot(AxisLayout.vertical, UI.sheet, layer)
+    val root = iface.createRoot(AxisLayout.vertical, UI.sheet(game.plat), layer)
     root.addStyles(Style.BACKGROUND.is(Background.solid(0xFFFFFFFF)))
 
     val flickTapBox = new CheckBox()
     flickTapBox.select(game.flickTapInput)
-    flickTapBox.checked.connect(slot[java.lang.Boolean] { case checked =>
+    flickTapBox.selected.connect(slot[java.lang.Boolean] { case checked =>
       game.flickTapInput = checked
     })
     val flickBox = new CheckBox()
     flickBox.select(game.flickInput)
-    flickBox.checked.connect(slot[java.lang.Boolean] { case checked =>
+    flickBox.selected.connect(slot[java.lang.Boolean] { case checked =>
       game.flickInput = checked
     })
     val relTapBox = new CheckBox();
     relTapBox.select(game.absTapInput)
-    relTapBox.checked.connect(slot[java.lang.Boolean] { case checked =>
+    relTapBox.selected.connect(slot[java.lang.Boolean] { case checked =>
       game.relTapInput = checked
     })
     val absTapBox = new CheckBox();
     absTapBox.select(game.absTapInput)
-    absTapBox.checked.connect(slot[java.lang.Boolean] { case checked =>
+    absTapBox.selected.connect(slot[java.lang.Boolean] { case checked =>
       game.absTapInput = checked
     })
 
@@ -48,7 +50,7 @@ class MainMenuScreen (game :Samsara) extends UIScreen {
              UI.stretchShim,
              new Button("New Game").addStyles(Style.FONT.is(UI.menuFont)).onClick(newGame),
              UI.stretchShim)
-    root.setSize(width, height)
+    root.setSize(size)
   }
 
   protected def newGame () {

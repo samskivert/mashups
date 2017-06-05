@@ -4,8 +4,8 @@
 
 package samsara
 
-import playn.core.PlayN
 import playn.java.JavaPlatform
+import playn.java.LWJGLPlatform
 
 object SamsaraJava {
 
@@ -14,7 +14,8 @@ object SamsaraJava {
     // config.scaleFactor = 2
     config.width = 375
     config.height = 667
-    JavaPlatform.register(config)
-    PlayN.run(new Samsara)
+    val plat = new LWJGLPlatform(config)
+    new Samsara(plat)
+    plat.start()
   }
 }

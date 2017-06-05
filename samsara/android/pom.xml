@@ -29,13 +29,13 @@
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.playn</groupId>
+      <groupId>io.playn</groupId>
       <artifactId>playn-android</artifactId>
       <version>${playn.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.playn</groupId>
+      <groupId>io.playn</groupId>
       <artifactId>playn-android-nativelib</artifactId>
       <version>1.0</version>
       <scope>runtime</scope>
@@ -43,7 +43,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.android</groupId>
+      <groupId>io.android</groupId>
       <artifactId>android</artifactId>
       <version>${android.version}</version>
       <scope>provided</scope>

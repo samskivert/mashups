@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.googlecode.playn</groupId>
+    <groupId>io.playn</groupId>
     <artifactId>playn-project</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>2.0</version>
   </parent>
 
   <groupId>com.samskivert.mashups</groupId>
@@ -14,8 +14,8 @@
   <name>Samsara Metaproject</name>
 
   <properties>
-    <playn.version>1.10-SNAPSHOT</playn.version>
-    <tripleplay.version>1.9</tripleplay.version>
+    <playn.version>2.0</playn.version>
+    <tripleplay.version>2.0</tripleplay.version>
     <scala.version>2.11.7</scala.version>
     <maven.scala.version>2.15.2</maven.scala.version>
     <android.maven.version>4.3.0</android.maven.version>

@@ -5,7 +5,6 @@
 package samsara
 
 import playn.core._
-import playn.core.PlayN._
 
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
@@ -13,11 +12,11 @@ import tripleplay.util.TextStyle
 
 object UI {
 
-  val titleFont = graphics.createFont("Helvetica", Font.Style.BOLD, 48)
-  val menuFont = graphics.createFont("Helvetica", Font.Style.BOLD, 24)
-  def bodyFont (size :Float) = graphics.createFont("Times New Roman", Font.Style.BOLD, size)
+  val titleFont = new Font("Helvetica", Font.Style.BOLD, 48)
+  val menuFont = new Font("Helvetica", Font.Style.BOLD, 24)
+  def bodyFont (size :Float) = new Font("Times New Roman", Font.Style.BOLD, size)
 
-  def sheet = SimpleStyles.newSheet
+  def sheet (plat :Platform) = SimpleStyles.newSheet(plat.graphics)
 
   def levelCfg = TextStyle.normal(bodyFont(256), 0xFF000000)
   def animCfg (color :Int, size :Float) = TextStyle.normal(bodyFont(size), color)

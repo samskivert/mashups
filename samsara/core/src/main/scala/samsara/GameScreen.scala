@@ -4,22 +4,26 @@
 
 package samsara
 
-import playn.core.PlayN._
 import playn.core._
-import playn.core.util.Clock
+import playn.scene.Layer
 import pythagoras.f.{MathUtil, Point, Points}
+import react.Closeable
 import scala.collection.BitSet
-import tripleplay.game.UIScreen
+import tripleplay.game.ScreenStack
 import tripleplay.ui._
 import tripleplay.ui.layout.AxisLayout
 import tripleplay.util.StyledText
 
-class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen {
+class GameScreen (game :Samsara, levels :LevelDB, level :Level)
+    extends ScreenStack.UIScreen(game.plat) {
   def this (game :Samsara, levels :LevelDB) = this(game, levels, levels.level0)
 
-  val metrics = new Metrics(width, height)
+  val metrics = new Metrics(size.width, size.height)
   val jiva = new Jivaloka(game, this, levels, level)
   var reach :BitSet = _
+  def game = game
+
+  this.paint.connect((clock :Clock) => jiva.onPaint.emit(clock))
 
   def position (layer :Layer, coord :Coord) {
     val size = metrics.size
@@ -44,8 +48,8 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
     // TODO: center our level grid in the available space
 
     // add a renderer for our board
-    layer.add(graphics.createImmediateLayer(new ImmediateLayer.Renderer {
-      def render (surf :Surface) {
+    layer.add(new Layer() {
+      def paintImpl (surf :Surface) {
         val size = metrics.size
         // render the terrain
         var idx = 0 ; while (idx < level.terrain.length) {
@@ -81,17 +85,19 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
         //   surf.setFillColor(0x33FFFFFF).drawLine(0, y*size, Level.width*size, y*size, 1)
         // }
       }
-    }))
+    })
 
     // display our current level depth number as a giant decal overlaying the board
-    val levlay = StyledText.span(level.depth.toString, UI.levelCfg).toLayer()
-    layer.addAt(levlay.setDepth(1).setAlpha(0.3f), (width-levlay.width)/2, (height-levlay.height)/2)
+    val levlay = StyledText.span(game.plat.graphics, level.depth.toString, UI.levelCfg).toLayer()
+    layer.addAt(levlay.setDepth(1).setAlpha(0.3f),
+                (size.width-levlay.width)/2, (size.height-levlay.height)/2)
 
     // display our remaining move count in the lower right
-    val croot = iface.createRoot(AxisLayout.vertical, UI.sheet)
+    val croot = iface.createRoot(AxisLayout.vertical, UI.sheet(game.plat))
     croot.add(new ValueLabel(jiva.movesLeft).addStyles(Style.FONT.is(UI.bodyFont(24))))
     croot.setSize(metrics.size, metrics.size)
-    layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f), width-metrics.size, height-metrics.size)
+    layer.addAt(croot.layer.setDepth(20).setAlpha(0.6f),
+                size.width-metrics.size, size.height-metrics.size)
 
     // add a tip on the first few levels
     if (!game.seenTips(level.depth)) {
@@ -110,59 +116,50 @@ class GameScreen (game :Samsara, levels :LevelDB, level :Level) extends UIScreen
   }
 
   private def addTip (msg :String) {
-    val tlayer = StyledText.block(msg, UI.tipCfg, 256).toLayer()
-    layer.addAt(tlayer.setDepth(9999), (width-tlayer.width)/2, (height-tlayer.height)/2)
-    jiva.keyDown.connect(tlayer.destroy()).once // go away on any key press
-    jiva.onTap.connect(tlayer.destroy()).once // go away on any tap
-    jiva.onFlick.connect(tlayer.destroy()).once // go away on any flick
+    val tlayer = StyledText.block(game.plat.graphics, msg, UI.tipCfg, 256).toLayer()
+    layer.addAt(tlayer.setDepth(9999), (size.width-tlayer.width)/2, (size.height-tlayer.height)/2)
+    jiva.keyDown.connect(tlayer.close()).once // go away on any key press
+    jiva.onTap.connect(tlayer.close()).once // go away on any tap
+    jiva.onFlick.connect(tlayer.close()).once // go away on any flick
   }
 
   override def showTransitionCompleted () {
     super.showTransitionCompleted()
 
     // start listening for keyboard input
-    keyboard.setListener(new Keyboard.Adapter {
-      override def onKeyDown (event :Keyboard.Event) = jiva.keyDown.emit(event.key)
-    })
+    closeOnHide(game.plat.input.keyboardEvents.connect((event :Keyboard.Event) => event match {
+      case kevent :Keyboard.KeyEvent => if (kevent.down) jiva.keyDown.emit(kevent.key)
+      case _ =>
+    }))
 
     // listen for pointer input as well
     val UsesFlick = game.flickInput || game.flickTapInput
     val MinFlickDist = 20 // pixels
-    pointer.setListener(new Pointer.Adapter {
-      private var _start = new Point()
-      override def onPointerStart (ev :Pointer.Event) = {
-        if (UsesFlick) _start.set(ev.x, ev.y)
-        else jiva.onTap.emit(ev)
+    var _start = new Point()
+    closeOnHide(game.pointer.events.connect((ev :Pointer.Event) => {
+      ev.kind match {
+        case Pointer.Event.Kind.START =>
+          if (UsesFlick) _start.set(ev.x, ev.y)
+          else jiva.onTap.emit(ev)
+        case Pointer.Event.Kind.END =>
+          if (UsesFlick) {
+            val dx = ev.x - _start.x ; val dy = ev.y - _start.y
+            val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
+            if (dist < MinFlickDist) jiva.onTap.emit(ev)
+            else {
+              val sum = dx + dy
+              jiva.onFlick.emit(if (dx > dy) {
+                if (sum > 0) (1, 0) else (0, -1)
+              } else {
+                if (sum > 0) (0, 1) else (-1, 0)
+              })
+            }
+          }
+        case _ => // nada
       }
-      override def onPointerEnd (ev :Pointer.Event) = if (UsesFlick) {
-        val dx = ev.x - _start.x ; val dy = ev.y - _start.y
-        val dist = Points.distance(_start.x, _start.y, ev.x, ev.y)
-        if (dist < MinFlickDist) jiva.onTap.emit(ev)
-        else {
-          val sum = dx + dy
-          jiva.onFlick.emit(if (dx > dy) {
-            if (sum > 0) (1, 0) else (0, -1)
-          } else {
-            if (sum > 0) (0, 1) else (-1, 0)
-          })
-        }
-      }
-    })
+    }))
 
     // hatch a fly from the nest
     jiva.start()
-  }
-
-  override def paint (clock :Clock) {
-    super.paint(clock)
-    jiva.onPaint.emit(clock)
-  }
-
-  override def hideTransitionStarted () {
-    super.hideTransitionStarted()
-    invokeLater(new Runnable() { def run () {
-      keyboard.setListener(null)
-      pointer.setListener(null)
-    }})
   }
 }

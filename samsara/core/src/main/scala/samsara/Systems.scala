@@ -88,8 +88,8 @@ class Systems (jiva :Jivaloka) {
 
     if (jiva.game.absTapInput) jiva.onTap.connect {
       ev :Pointer.Event =>
-      val dx = ev.x - jiva.screen.width/2
-      val dy = ev.y - jiva.screen.height/2
+      val dx = ev.x - jiva.screen.size.width/2
+      val dy = ev.y - jiva.screen.size.height/2
       val sum = dx + dy
       if (dx > dy) {
         if (sum > 0) move(1, 0) else move(0, -1)

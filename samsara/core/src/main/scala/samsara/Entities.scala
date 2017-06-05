@@ -4,7 +4,7 @@
 
 package samsara
 
-import playn.core.{Layer, GroupLayer}
+import playn.scene.{Layer, GroupLayer}
 import pythagoras.f.FloatMath
 
 /** Something that exists on screen with a viz, dimensions and coords. */
@@ -44,7 +44,7 @@ trait Bodied { self :Entity =>
 
   /** Creates and positions this body's viz. */
   def init (jiva :Jivaloka) {
-    layer = viz.create(jiva.screen.metrics).setDepth(depth).setScale(scale)
+    layer = viz.create(jiva.game.plat, jiva.screen.metrics).setDepth(depth).setScale(scale)
     position(jiva)
     jiva.screen.layer.add(layer)
     setOrient(orient)
@@ -76,7 +76,7 @@ trait Bodied { self :Entity =>
       Thread.dumpStack()
     } else {
       saved = new Throwable
-      layer.destroy()
+      layer.close()
       layer = null
     }
   }
