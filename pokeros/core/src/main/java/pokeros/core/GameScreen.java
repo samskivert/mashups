@@ -67,7 +67,7 @@ public class GameScreen extends ScreenStack.UIScreen {
   }
 
   public GameScreen (Pokeros game, Player... players) {
-    super(game.plat);
+    super(game);
     this.game = game;
     this.media = game.media;
     this.players = players;
@@ -84,8 +84,6 @@ public class GameScreen extends ScreenStack.UIScreen {
       }
     });
   }
-
-  @Override public Game game () { return game; }
 
   @Override public void wasAdded () {
     // CanvasImage center = graphics().createImage(20, 20);

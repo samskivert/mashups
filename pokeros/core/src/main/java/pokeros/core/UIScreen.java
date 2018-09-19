@@ -4,7 +4,6 @@
 
 package pokeros.core;
 
-import playn.core.Game;
 import playn.core.Image;
 
 import react.Slot;
@@ -17,12 +16,8 @@ import tripleplay.ui.layout.AxisLayout;
 public abstract class UIScreen extends ScreenStack.UIScreen {
 
   protected UIScreen (Pokeros game) {
-    super(game.plat);
+    super(game);
     _game = game;
-  }
-
-  @Override public Game game () {
-    return _game;
   }
 
   @Override public void wasAdded () {
