@@ -22,14 +22,6 @@ public class PokerosActivity extends GameActivity {
     platform().graphics().registerFont(copperplate, "Copperplate", Font.Style.PLAIN);
     platform().graphics().registerFont(copperplate, "Copperplate", Font.Style.BOLD);
 
-    // use a lower-memory format for JPGs (which tend to be large and memory sucking)
-    platform().assets().setBitmapOptionsAdjuster(new AndroidAssets.BitmapOptionsAdjuster() {
-      @Override public void adjustOptions (String path, AndroidAssets.BitmapOptions options) {
-        // use a 16-bit per pixel format for JPGs; looks decent, saves memory
-        if (path.endsWith(".jpg")) options.inPreferredConfig = Bitmap.Config.RGB_565;
-      }
-    });
-
     game = new Pokeros(platform(), 0.5f);
   }
 
