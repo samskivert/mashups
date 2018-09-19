@@ -1,2 +1,4 @@
 bin/*.jar
 */android/assets
+/*/*/target/
+/*/target/
