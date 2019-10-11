@@ -16,7 +16,7 @@
   <properties>
     <playn.version>2.1-SNAPSHOT</playn.version>
     <android.maven.version>4.5.0</android.maven.version>
-    <android.platform.level>26</android.platform.level>
+    <android.platform.level>28</android.platform.level>
   </properties>
 
   <modules>
